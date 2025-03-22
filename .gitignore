@@ -21,3 +21,14 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+.vercel
+.idea*
+.idea
+*.iws
+*.iml
+*.ipr
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/

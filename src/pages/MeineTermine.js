@@ -15,10 +15,10 @@ function MeineTermine() {
     ];
 
     const gehalt = [
-        { id: 1, termin: "Mathe Nachhilfe", betrag: "50€" },
-        { id: 2, termin: "Physik Nachhilfe", betrag: "60€" },
-        { id: 3, termin: "Englisch Nachhilfe", betrag: "55€" },
-        { id: 4, termin: "Geschichte Nachhilfe", betrag: "65€" }
+        { id: 1, termin: "Mathe Nachhilfe", betrag: "15€" },
+        { id: 2, termin: "Physik Nachhilfe", betrag: "15€" },
+        { id: 3, termin: "Englisch Nachhilfe", betrag: "15€" },
+        { id: 4, termin: "Geschichte Nachhilfe", betrag: "15€" }
     ];
 
     const handleMarkCell = (day, hour, minute) => {
