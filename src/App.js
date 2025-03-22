@@ -13,6 +13,7 @@ import Preise from "./pages/Preise";
 import Login from "./pages/Login";
 import UeberUns from "./pages/UeberUns";
 import Tutors from "./pages/Tutors";
+import MeineTermine from "./pages/MeineTermine";
 
 function App() {
   const [isDropdownOpen, setDropdownOpen] = useState(false);
@@ -58,6 +59,7 @@ function App() {
                     </ul>
                 )}
               </li>
+              <Link to="/meinetermine">Mein Termine</Link>
             </nav>
           </div>
         </div>
@@ -68,6 +70,7 @@ function App() {
           <Route path="/abikurs" element={<Abikurs />} />
           <Route path="/beratung" element={<Beratung />} />          
           <Route path="/ueberuns" element={<UeberUns />} />
+          <Route path="/meinetermine" element={<MeineTermine />} />
           <Route path="/login" element={<Login />} />
           <Route path="/preise" element={<Preise />} />
 
