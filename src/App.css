@@ -1,10 +1,17 @@
+body {
+  margin: 0;
+}
+.page {
+  margin: 0 10px 0 10px;
+}
+
 .navbar {
   background-color: #1e40af;
   padding: 1rem;
   color: white;
 }
 
-.container {
+.container {  
   display: flex;
   justify-content: space-between;
   align-items: center;

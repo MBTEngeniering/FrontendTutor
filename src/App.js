@@ -12,6 +12,7 @@ import Lehrer from "./pages/Lehrer";
 import Preise from "./pages/Preise";
 import Login from "./pages/Login";
 import UeberUns from "./pages/UeberUns";
+import Tutors from "./pages/Tutors";
 
 function App() {
   const [isDropdownOpen, setDropdownOpen] = useState(false);
@@ -51,6 +52,9 @@ function App() {
                       <li>
                         <Link to="/konzept">Konzept</Link>
                       </li>
+                      <li>
+                        <Link to="/tutors">Tutoren</Link>
+                      </li>
                     </ul>
                 )}
               </li>
@@ -62,13 +66,15 @@ function App() {
         <Routes>
           <Route path="/" element={<Startseite />} />
           <Route path="/abikurs" element={<Abikurs />} />
-          <Route path="/beratung" element={<Beratung />} />
-          <Route path="/elternschueler" element={<ElternSchueler />} />
-          <Route path="/konzept" element={<Konzept />} />
-          <Route path="/lehrer" element={<Lehrer />} />
-          <Route path="/preise" element={<Preise />} />
-          <Route path="/login" element={<Login />} />
+          <Route path="/beratung" element={<Beratung />} />          
           <Route path="/ueberuns" element={<UeberUns />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/preise" element={<Preise />} />
+
+          <Route path="/elternschueler" element={<ElternSchueler />} />          
+          <Route path="/lehrer" element={<Lehrer />} />
+          <Route path="/konzept" element={<Konzept />} />
+          <Route path="/tutors" element={<Tutors />} />                    
         </Routes>
       </Router>
   );
