@@ -164,9 +164,26 @@ function MeineTermine() {
                                 }}
                             >
                                 <p><strong>Datum:</strong> {termin.datum.toLocaleDateString('de-DE')}</p>
-                                <p><strong>Uhrzeit:</strong> {termin.datum.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                                <p><strong>Uhrzeit:</strong> {termin.datum.toLocaleTimeString([], {
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                })}</p>
                                 <p><strong>Fach:</strong> {termin.fach}</p>
                                 <p><strong>Schüler:</strong> {termin.schueler}</p>
+                                <button
+                                    style={{
+                                        marginTop: "10px",
+                                        padding: "5px 10px",
+                                        backgroundColor: "#4caf50",
+                                        color: "white",
+                                        border: "none",
+                                        borderRadius: "5px",
+                                        cursor: "pointer"
+                                    }}
+                                    onClick={() => window.open("https://rwth.zoom-x.de/j/2697981011", "_blank")}
+                                >
+                                    Einheit starten
+                                </button>
                             </div>
                         ))}
                     </div>
