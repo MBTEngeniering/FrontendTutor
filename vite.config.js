@@ -25,10 +25,7 @@ export default defineConfig({
             return `page-${route}`;
           }
         }
-      },
-      input: {
-        app: "./src/index.jsx"
-      }
+      },      
     }
   },
   server: {
