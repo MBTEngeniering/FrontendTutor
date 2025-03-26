@@ -27,7 +27,7 @@ export default defineConfig({
         }
       },
       input: {
-        app: "./src/main.jsx"
+        app: "./src/index.jsx"
       }
     }
   },
