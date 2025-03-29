@@ -1,8 +1,10 @@
+/*
 import React, { useState, useEffect } from 'react';
 import tutorService from '../api/TutorService';
+*/
 
 const Tutors = () => {
-
+/*
     const [tutors, setTutors] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -41,7 +43,7 @@ const Tutors = () => {
                 ))}
             </table>
         </div>
-    );
+    );*/
 }
 
 export default Tutors;

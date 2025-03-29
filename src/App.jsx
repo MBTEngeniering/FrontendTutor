@@ -1,21 +1,17 @@
-import { useState } from "react";
-import { BrowserRouter, Route, Routes, Link } from "react-router-dom";
-//import { useNavigate } from 'react-router-dom';
+import {useState} from "react";
+import {BrowserRouter, Link, Route, Routes} from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {
   Collapse,
-  Navbar,
-  NavbarToggler,
-  NavbarBrand,
-  Nav,
-  NavItem,
-  NavLink,
-  UncontrolledDropdown,
-  DropdownToggle,
-  DropdownMenu,
   DropdownItem,
-  NavbarText,
-  Container,
+  DropdownMenu,
+  DropdownToggle,
+  Nav,
+  Navbar,
+  NavbarBrand,
+  NavbarToggler,
+  NavItem,
+  UncontrolledDropdown,
 } from 'reactstrap';
 //import { useNavigate } from "react-router";
 // Seitenkomponenten importieren
@@ -29,20 +25,13 @@ import Preise from "./pages/Preise.jsx";
 import Login from "./pages/Login.jsx";
 import UeberUns from "./pages/UeberUns.jsx";
 import Tutors from "./pages/Tutors.jsx";
-import MeineTermine from "./pages/MeineTermine.jsx";
 import Linker from "./components/Linker.jsx";
 
-export default function App2(args) {
-  //const navigate = useNavigate();
-  //let navigate = useNavigate();
+export default function App() {
+
   const [isOpen, setIsOpen] = useState(false);
   const toggle = () => setIsOpen(!isOpen);
 
-  /*
-  function toPeople() {
-    navigate("/");
-  }
-    */
 
   return (
     <BrowserRouter>
@@ -87,12 +76,10 @@ export default function App2(args) {
                 <DropdownItem divider />
                 <DropdownItem><Linker link='/lehrer'>Lehrer werden</Linker></DropdownItem>
                 <DropdownItem><Linker link='/konzept'>Konzept</Linker></DropdownItem>
-                <DropdownItem><Linker link='/tutors'>Tutoren</Linker></DropdownItem>
+                {/*<DropdownItem><Linker link='/tutors'>Tutoren</Linker></DropdownItem>*/}
               </DropdownMenu>
             </UncontrolledDropdown>
             <NavItem>
-              <Link className="nav-link" to="/meinetermine">Meine Termine
-              </Link>
             </NavItem>
             <NavItem className="float-end">
               <Link className="nav-link" to="/login">Anmelden</Link>
@@ -105,14 +92,12 @@ export default function App2(args) {
         <Route path="/abikurs" element={<Abikurs />} />
         <Route path="/beratung" element={<Beratung />} />
         <Route path="/ueberuns" element={<UeberUns />} />
-        <Route path="/meinetermine" element={<MeineTermine />} />
         <Route path="/login" element={<Login />} />
         <Route path="/preise" element={<Preise />} />
 
         <Route path="/elternschueler" element={<ElternSchueler />} />
         <Route path="/lehrer" element={<Lehrer />} />
         <Route path="/konzept" element={<Konzept />} />
-        <Route path="/tutors" element={<Tutors />} />
       </Routes>
     </BrowserRouter>
   );
