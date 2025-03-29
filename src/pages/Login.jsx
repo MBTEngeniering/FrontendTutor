@@ -1,99 +1,64 @@
-import React, { useState } from "react";
-import { Container } from "reactstrap";
+import { useState } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
-function Login({ closeModal }) {  // closeModal als Prop erhalten
+function Login({ setIsLoggedIn, setUserRole }) {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
+    const [errorMessage, setErrorMessage] = useState("");
+    const navigate = useNavigate();
 
-    const handleLogin = () => {
-        console.log("Benutzername:", username);
-        console.log("Passwort:", password);
-        // Hier kannst du eine Login-Logik einfügen (z. B. API-Call)
-        closeModal(); // Modal schließen nach dem Login
-    };
-
-    const handleCancel = () => {
-        // Abbrechen und Modal schließen
-        closeModal();
+    const handleLogin = async () => {
+        try {
+            const studentResponse = await axios.post("http://localhost:8080/api/students/login", {
+                emailOrPhoneNumber: username,
+                password: password,
+            });
+            if (studentResponse.status === 200) {
+                localStorage.setItem("isLoggedIn", "true");
+                localStorage.setItem("userRole", "STUDENT");
+                setIsLoggedIn(true);
+                setUserRole("STUDENT");
+                navigate("/schuelerSeite");
+                return;
+            }
+        } catch (error) {
+            try {
+                const tutorResponse = await axios.post("http://localhost:8080/api/tutors/login", {
+                    emailOrPhoneNumber: username,
+                    password: password,
+                });
+                if (tutorResponse.status === 200) {
+                    localStorage.setItem("isLoggedIn", "true");
+                    localStorage.setItem("userRole", "TUTOR");
+                    setIsLoggedIn(true);
+                    setUserRole("TUTOR");
+                    navigate("/tutorseite");
+                    return;
+                }
+            } catch (error) {
+                setErrorMessage("Email/Telefonnummer und Passwort stimmen nicht.");
+            }
+        }
     };
 
     return (
-        <Container>
-            <div 
-                className="m-auto mt-3"
-                style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                width: '100%',
-                maxWidth: '400px',
-                padding: '20px',
-                backgroundColor: '#f9f9f9',
-                borderRadius: '10px',
-                boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)'
-            }}>
-                <h2>Anmelden</h2>
-                <input
-                    type="text"
-                    placeholder="Benutzername oder Nummer"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    style={{
-                        padding: '10px',
-                        margin: '8px 0',
-                        border: '1px solid #ccc',
-                        borderRadius: '5px',
-                        width: '100%'
-                    }}
-                />
-                <input
-                    type="password"
-                    placeholder="Passwort"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    style={{
-                        padding: '10px',
-                        margin: '8px 0',
-                        border: '1px solid #ccc',
-                        borderRadius: '5px',
-                        width: '100%'
-                    }}
-                />
-                <button
-                    onClick={handleLogin}
-                    style={{
-                        padding: '10px',
-                        marginTop: '10px',
-                        backgroundColor: '#0044cc',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '5px',
-                        cursor: 'pointer',
-                        fontSize: '16px',
-                        width: '100%'
-                    }}
-                >
-                    Login
-                </button>
-                <button
-                    onClick={handleCancel}
-                    style={{
-                        padding: '10px',
-                        marginTop: '10px',
-                        backgroundColor: '#ccc',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '5px',
-                        cursor: 'pointer',
-                        fontSize: '16px',
-                        width: '100%'
-                    }}
-                >
-                    Abbrechen
-                </button>
-            </div>
-        </Container>
+        <div>
+            <input
+                type="text"
+                placeholder="Benutzername"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+            />
+            <input
+                type="password"
+                placeholder="Passwort"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+            />
+            <button onClick={handleLogin}>Login</button>
+            {errorMessage && <p>{errorMessage}</p>}
+        </div>
     );
 }
 
