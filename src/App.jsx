@@ -13,6 +13,8 @@ import {
   NavItem,
   UncontrolledDropdown,
 } from 'reactstrap';
+import "./App.css";
+
 // Seitenkomponenten importieren
 import Startseite from "./pages/Startseite.jsx";
 import Abikurs from "./pages/Abikurs.jsx";
