@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-function ElternSchueler() {
 
+function ElternSchueler() {
+    const apiUrl = import.meta.env.VITE_API_URL;
     const [selectedSubject, setSelectedSubject] = useState("");
     const [subjects, setSubjects] = useState([]);
     const [availableSubjects, setAvailableSubjects] = useState([]);
@@ -31,7 +32,7 @@ function ElternSchueler() {
 
     // Fächer aus dem Backend laden
     useEffect(() => {
-        axios.get("http://localhost:8080/api/fach")
+        axios.get(apiUrl +"/api/fach")
             .then(response => setAvailableSubjects(response.data))
             .catch(error => console.error("Fehler beim Laden der Fächer:", error));
 
@@ -85,7 +86,7 @@ function ElternSchueler() {
             fachIds: selectedFachIds
         };
 
-        axios.post("http://localhost:8080/api/students", studentData)
+        axios.post(apiUrl+"/api/students", studentData)
             .then(response => {
                 alert("Du hast dich erfolgreich registriert!");
                 navigate("/login");

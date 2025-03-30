@@ -3,6 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 function Login({ setIsLoggedIn, setUserRole }) {
+    const apiUrl = import.meta.env.VITE_API_URL;
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
@@ -10,7 +11,7 @@ function Login({ setIsLoggedIn, setUserRole }) {
 
     const handleLogin = async () => {
         try {
-            const studentResponse = await axios.post("http://localhost:8080/api/students/login", {
+            const studentResponse = await axios.post(apiUrl+"/api/students/login", {
                 emailOrPhoneNumber: username,
                 password: password,
             });
@@ -24,7 +25,7 @@ function Login({ setIsLoggedIn, setUserRole }) {
             }
         } catch (error) {
             try {
-                const tutorResponse = await axios.post("http://localhost:8080/api/tutors/login", {
+                const tutorResponse = await axios.post(apiUrl+"/api/tutors/login", {
                     emailOrPhoneNumber: username,
                     password: password,
                 });

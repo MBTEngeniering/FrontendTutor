@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-
-function Lehrer() {
+const Lehrer = () => {
+    const apiUrl = import.meta.env.VITE_API_URL;
     const [selectedSubject, setSelectedSubject] = useState("");
+    const [selectedCountry, setSelectedCountry] = useState("");
     const [subjects, setSubjects] = useState([]);
     const [availableSubjects, setAvailableSubjects] = useState([]);
     const [countries, setCountries] = useState([]);
@@ -32,7 +33,7 @@ function Lehrer() {
     });
 
     useEffect(() => {
-        axios.get("http://localhost:8080/api/fach")
+        axios.get(apiUrl+"/api/fach")
             .then(response => setAvailableSubjects(response.data))
             .catch(error => console.error("Fehler beim Laden der Fächer:", error));
 
@@ -51,6 +52,7 @@ function Lehrer() {
                     }
                     return 0;
                 });
+                // console.log(sortedCountries);
                 setCountries(sortedCountries);
             })
             .catch(error => console.error("Fehler beim Laden der Länder:", error));
@@ -82,7 +84,7 @@ function Lehrer() {
             fachIds: selectedFachIds
         };
 
-        axios.post("http://localhost:8080/api/tutors", tutorData)
+        axios.post(apiUrl+"/api/tutors", tutorData)
             .then(response => {
                 alert("Tutor erfolgreich registriert!");
                 navigate("/login");
@@ -171,12 +173,29 @@ function Lehrer() {
                            onChange={(e) => setFormData({...formData, city: e.target.value})}/>
                     <br/><br/>
                 </div>
+{/*
+
                 <div className="space-y-2">
                     <label className="block font-semibold">Land </label>
+                    <input list="countries" name="country" id="country"/>
+                    <datalist className="w-full border p-3 rounded" id="countries" value={selectedCountry}
+                              style={{overflowY: "auto" }}
+                              onChange={(e) => setSelectedCountry(e.target.value)}>
+                        <option value="">Bitte wählen</option>
+                        {countries.map((fach, index) => (
+                            <option key={index} value={fach.name.common}/>
+                        ))}
+                    </datalist>
+                </div>
+*/}
+
+                <div className="space-y-2">
+                <label className="block font-semibold">Land </label>
                     <input type="text" className="w-full border p-3 rounded" required value={formData.country || ""}
                            onChange={(e) => setFormData({...formData, country: e.target.value})}/>
                     <br/><br/>
                 </div>
+
                 <div className="space-y-2">
                     <label className="block font-semibold">Telefonnummer </label>
                     <input type="tel" className="w-full border p-3 rounded" required value={formData.phoneNumber || ""}
@@ -229,6 +248,6 @@ function Lehrer() {
             </form>
         </div>
     );
-}
+};
 
 export default Lehrer;
