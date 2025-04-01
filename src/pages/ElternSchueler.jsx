@@ -32,7 +32,7 @@ function ElternSchueler() {
 
     // Fächer aus dem Backend laden
     useEffect(() => {
-        axios.get(apiUrl +"/api/fach")
+        axios.get(`${apiUrl}/api/fach`)
             .then(response => setAvailableSubjects(response.data))
             .catch(error => console.error("Fehler beim Laden der Fächer:", error));
 
@@ -86,7 +86,7 @@ function ElternSchueler() {
             fachIds: selectedFachIds
         };
 
-        axios.post(apiUrl+"/api/students", studentData)
+        axios.post(`${apiUrl}/api/students`, studentData)
             .then(response => {
                 alert("Du hast dich erfolgreich registriert!");
                 navigate("/login");
