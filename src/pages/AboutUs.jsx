@@ -1,6 +1,6 @@
 import React from "react";
 
-function UeberUns() {
+function AboutUs() {
     return (
         <div className="page">
             <h2>Über uns</h2>
@@ -10,4 +10,4 @@ function UeberUns() {
     );
 }
 
-export default UeberUns;
+export default AboutUs;

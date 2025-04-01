@@ -1,6 +1,6 @@
 import React from "react";
 
-function Preise() {
+function Prices() {
     return (
         <div className="page">
             <h2>Preise</h2>
@@ -9,4 +9,4 @@ function Preise() {
     );
 }
 
-export default Preise;
+export default Prices;

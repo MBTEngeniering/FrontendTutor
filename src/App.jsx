@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { BrowserRouter, Link, Route, Routes } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {
@@ -16,18 +16,22 @@ import {
 import "./App.css";
 
 // Seitenkomponenten importieren
-import Startseite from "./pages/Startseite.jsx";
+import Homepage from "./pages/Homepage.jsx";
 import Abikurs from "./pages/Abikurs.jsx";
 import Beratung from "./pages/Beratung.jsx";
 import ElternSchueler from "./pages/ElternSchueler.jsx";
 import Konzept from "./pages/Konzept.jsx";
 import Lehrer from "./pages/Lehrer.jsx";
-import Preise from "./pages/Preise.jsx";
+import Prices from "./pages/Prices.jsx";
 import Login from "./pages/Login.jsx";
-import UeberUns from "./pages/UeberUns.jsx";
+import AboutUs from "./pages/AboutUs.jsx";
 import Linker from "./components/Linker.jsx";
 import TutorSeite from "./pages/TutorSeite.jsx";
 import SchuelerSeite from "./pages/SchuelerSeite.jsx";
+import Tutors from "./pages/Tutors.jsx";
+import Register from "./pages/Register.jsx";
+import Notfound from "./pages/Notfound.jsx";
+import Vortraege from "./pages/Vortraege.jsx";
 
 export default function App() {
   const [isOpen, setIsOpen] = useState(false);
@@ -57,20 +61,20 @@ export default function App() {
   return (
       <BrowserRouter>
         <Navbar container="fluid" className="mb-1" expand="lg">
-          <NavbarBrand style={{ cursor: 'pointer' }}>
+          <NavbarBrand style={{cursor: 'pointer'}}>
             <Linker link='/' title="Home">
               <div className="logo-title">
-                <img src="/assets/android-chrome-512x512.png" alt="Logo" className="logo" />
+                <img src="/assets/android-chrome-512x512.png" alt="Logo" className="logo"/>
                 <span className="title">FGQTUTOR</span>
               </div>
             </Linker>
           </NavbarBrand>
-          <NavbarToggler onClick={toggle} />
+          <NavbarToggler onClick={toggle}/>
           <Collapse isOpen={isOpen} navbar>
             <Nav className="me-auto" navbar>
               <NavItem>
-                <Link to="/" className="nav-link">
-                  Startseite
+                <Link to="/registrierung" className="nav-link">
+                  Registrierung
                 </Link>
               </NavItem>
               <NavItem>
@@ -93,9 +97,10 @@ export default function App() {
                 <DropdownMenu right>
                   <DropdownItem><Linker link="/preise">Preise</Linker></DropdownItem>
                   <DropdownItem><Linker link="/elternschueler">Eltern/Schüler-Portal</Linker></DropdownItem>
-                  <DropdownItem divider />
+                  <DropdownItem divider/>
                   <DropdownItem><Linker link='/lehrer'>Lehrer werden</Linker></DropdownItem>
                   <DropdownItem><Linker link='/konzept'>Konzept</Linker></DropdownItem>
+                  <DropdownItem><Linker link='/vortraege'>Vorträge</Linker></DropdownItem>
                 </DropdownMenu>
               </UncontrolledDropdown>
               <NavItem className="float-end">
@@ -125,17 +130,21 @@ export default function App() {
         </Navbar>
 
         <Routes>
-          <Route path="/" element={<Startseite />} />
-          <Route path="/abikurs" element={<Abikurs />} />
-          <Route path="/beratung" element={<Beratung />} />
-          <Route path="/ueberuns" element={<UeberUns />} />
-          <Route path="/login" element={<Login setIsLoggedIn={setIsLoggedIn} setUserRole={setUserRole} />} />
-          <Route path="/preise" element={<Preise />} />
-          <Route path="/elternschueler" element={<ElternSchueler />} />
-          <Route path="/lehrer" element={<Lehrer />} />
-          <Route path="/konzept" element={<Konzept />} />
-          <Route path="/schuelerseite" element={<SchuelerSeite />} />
-          <Route path="/tutorseite" element={<TutorSeite />} />
+          <Route path="/" element={<Homepage/>}/>
+          <Route path="/registrierung" element={<Register />}/>
+          <Route path="/abikurs" element={<Abikurs />}/>
+          <Route path="/beratung" element={<Beratung />}/>
+          <Route path="/ueberuns" element={<AboutUs />}/>
+          <Route path="/login" element={<Login setIsLoggedIn={setIsLoggedIn} setUserRole={setUserRole}/>}/>
+          <Route path="/preise" element={<Prices />}/>
+          <Route path="/elternschueler" element={<ElternSchueler />}/>
+          <Route path="/lehrer" element={<Lehrer />}/>
+          <Route path="/konzept" element={<Konzept />}/>
+          <Route path="/schuelerseite" element={<SchuelerSeite />}/>
+          <Route path="/tutorseite" element={<TutorSeite />}/>
+          <Route path="/vortraege" element={<Vortraege />}/>
+          <Route path="/tutors" element={<Tutors />}/>
+          <Route path="*" element={<Notfound />}/>
         </Routes>
       </BrowserRouter>
   );
