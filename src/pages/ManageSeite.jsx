@@ -1,11 +1,11 @@
 import React from "react";
 
-function SupporterSeite() {
+function ManageSeite() {
     return (
         <div className="page">
-
+Manage Bereit
         </div>
     );
 }
 
-export default SupporterSeite;
+export default ManageSeite;

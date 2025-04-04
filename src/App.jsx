@@ -32,6 +32,10 @@ import Tutors from "./pages/Tutors.jsx";
 import Register from "./pages/Register.jsx";
 import Notfound from "./pages/Notfound.jsx";
 import Vortraege from "./pages/Vortraege.jsx";
+import AdminSeite  from "./pages/AdminSeite.jsx";
+import EnterpriseSeite from "./pages/EnterpriseSeite.jsx";
+import ManageSeite  from "./pages/ManageSeite.jsx";
+import FinanceSeite from "./pages/FinanceSeite.jsx";
 
 export default function App() {
   const [isOpen, setIsOpen] = useState(false);
@@ -144,7 +148,12 @@ export default function App() {
           <Route path="/tutorseite" element={<TutorSeite />}/>
           <Route path="/vortraege" element={<Vortraege />}/>
           <Route path="/tutors" element={<Tutors />}/>
+          <Route path="/enterpriseseite" element={<EnterpriseSeite />}/>
+          <Route path="/manageseite" element={<ManageSeite />}/>
+          <Route path="/adminSeite" element={<AdminSeite />}/>
+          <Route path="/financeseite" element={<FinanceSeite />}/>
           <Route path="*" element={<Notfound />}/>
+
         </Routes>
       </BrowserRouter>
   );

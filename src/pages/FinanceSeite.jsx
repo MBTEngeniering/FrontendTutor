@@ -1,11 +1,11 @@
 import React from "react";
 
-function BearbeiterSeite() {
+function FinanceSeite() {
     return (
         <div className="page">
-
+Finance Bereit
         </div>
     );
 }
 
-export default BearbeiterSeite;
+export default FinanceSeite;
