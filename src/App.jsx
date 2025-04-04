@@ -35,6 +35,7 @@ import Vortraege from "./pages/Vortraege.jsx";
 import AdminSeite  from "./pages/AdminSeite.jsx";
 import EnterpriseSeite from "./pages/EnterpriseSeite.jsx";
 import ManageSeite  from "./pages/ManageSeite.jsx";
+import PasswortZuruecsetzen from "./pages/PasswortZuruecsetzen.jsx";
 import FinanceSeite from "./pages/FinanceSeite.jsx";
 
 export default function App() {
@@ -152,6 +153,7 @@ export default function App() {
           <Route path="/manageseite" element={<ManageSeite />}/>
           <Route path="/adminSeite" element={<AdminSeite />}/>
           <Route path="/financeseite" element={<FinanceSeite />}/>
+          <Route path="/passwort-vergessen" element={<PasswortZuruecsetzen />}/>
           <Route path="*" element={<Notfound />}/>
 
         </Routes>
