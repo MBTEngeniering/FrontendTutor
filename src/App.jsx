@@ -19,29 +19,29 @@ import "./App.css";
 import Homepage from "./pages/Homepage.jsx";
 import Abikurs from "./pages/Abikurs.jsx";
 import Beratung from "./pages/Beratung.jsx";
-import ElternSchueler from "./pages/ElternSchueler.jsx";
+import RegisterStudent from "./pages/RegisterStudent.jsx";
 import Konzept from "./pages/Konzept.jsx";
-import Lehrer from "./pages/Lehrer.jsx";
+import RegisterTutor from "./pages/RegisterTutor.jsx";
 import Prices from "./pages/Prices.jsx";
 import Login from "./pages/Login.jsx";
 import AboutUs from "./pages/AboutUs.jsx";
 import Linker from "./components/Linker.jsx";
-import TutorSeite from "./pages/TutorSeite.jsx";
-import SchuelerSeite from "./pages/SchuelerSeite.jsx";
-import Tutors from "./pages/Tutors.jsx";
+import TutorSeite from "./pages/Tutor/TutorSeite.jsx";
+import SchuelerSeite from "./pages/Student/SchuelerSeite.jsx";
+import Tutors from "./pages/Tutor/Tutors.jsx";
 import Register from "./pages/Register.jsx";
 import Notfound from "./pages/Notfound.jsx";
 import Vortraege from "./pages/Vortraege.jsx";
-import AdminSeite  from "./pages/AdminSeite.jsx";
+import AdminSeite from "./pages/Admin/AdminSeite.jsx";
 import EnterpriseSeite from "./pages/EnterpriseSeite.jsx";
-import ManageSeite  from "./pages/ManageSeite.jsx";
-import PasswortZuruecsetzen from "./pages/PasswortZuruecsetzen.jsx";
-import FinanceSeite from "./pages/FinanceSeite.jsx";
+import ManageSeite from "./pages/Support/ManageSeite.jsx";
+import PasswordReset from "./pages/PasswordReset.jsx";
+import FinanceSeite from "./pages/Billing/FinanceSeite.jsx";
 
 export default function App() {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);  // Benutzer-Login-Status
-  const [userRole, setUserRole] = useState(null); // Benutzer-Rolle (Schüler oder Lehrer)
+  const [userRole, setUserRole] = useState(null); // Benutzer-Rolle (Schüler oder RegisterTutor)
 
   const toggle = () => setIsOpen(!isOpen);
 
@@ -108,25 +108,24 @@ export default function App() {
                   <DropdownItem><Linker link='/vortraege'>Vorträge</Linker></DropdownItem>
                 </DropdownMenu>
               </UncontrolledDropdown>
-              <NavItem className="float-end">
+              <NavItem className="float-end d-flex justify-content-end">
                 {!isLoggedIn ? (
-                    <Link className="nav-link" to="/login">Anmelden</Link>
+                    <Link className="navbar-text" to="/login">Anmelden</Link>
                 ) : (
                     <>
-                      <span className="nav-link">{userRole === "STUDENT" ? "Schüler" : "Tutor"} eingeloggt</span>
-                      <button
-                          onClick={handleLogout}
-                          style={{
-                            padding: '5px 10px',
-                            backgroundColor: 'rgba(204,0,0,0.2)',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '5px',
-                            cursor: 'pointer',
-                          }}
-                      >
-                        <Link className="nav-link" to="/">Abmelden</Link>
-                      </button>
+                      <span className="nav-link">{userRole === "STUDENT" ? "Schüler" : "Tutor"} eingeloggt<br/></span>
+                      <Link className="nav-link me-lg-3" onClick={handleLogout}
+                            style={{
+                              marginLeft: "20px",
+                              padding: '10px 10px',
+                              backgroundColor: 'rgb(61,100,196)',
+                              color: 'white',
+                              border: 'none',
+                              borderRadius: '5px',
+                              textAlign: 'center',
+                            }}
+                            to="/">Abmelden<br/>
+                      </Link>
                     </>
                 )}
               </NavItem>
@@ -136,26 +135,27 @@ export default function App() {
 
         <Routes>
           <Route path="/" element={<Homepage/>}/>
-          <Route path="/registrierung" element={<Register />}/>
-          <Route path="/abikurs" element={<Abikurs />}/>
-          <Route path="/beratung" element={<Beratung />}/>
-          <Route path="/ueberuns" element={<AboutUs />}/>
+          <Route path="/registrierung" element={<Register/>}/>
+          <Route path="/abikurs" element={<Abikurs/>}/>
+          <Route path="/beratung" element={<Beratung/>}/>
+          <Route path="/ueberuns" element={<AboutUs/>}/>
           <Route path="/login" element={<Login setIsLoggedIn={setIsLoggedIn} setUserRole={setUserRole}/>}/>
-          <Route path="/preise" element={<Prices />}/>
-          <Route path="/elternschueler" element={<ElternSchueler />}/>
-          <Route path="/lehrer" element={<Lehrer />}/>
-          <Route path="/konzept" element={<Konzept />}/>
-          <Route path="/schuelerseite" element={<SchuelerSeite />}/>
-          <Route path="/tutorseite" element={<TutorSeite />}/>
-          <Route path="/vortraege" element={<Vortraege />}/>
-          <Route path="/tutors" element={<Tutors />}/>
-          <Route path="/enterpriseseite" element={<EnterpriseSeite />}/>
-          <Route path="/manageseite" element={<ManageSeite />}/>
-          <Route path="/adminSeite" element={<AdminSeite />}/>
-          <Route path="/financeseite" element={<FinanceSeite />}/>
-          <Route path="/passwort-vergessen" element={<PasswortZuruecsetzen />}/>
-          <Route path="*" element={<Notfound />}/>
+          <Route path="/preise" element={<Prices/>}/>
+          <Route path="/elternschueler" element={<RegisterStudent/>}/>
+          <Route path="/lehrer" element={<RegisterTutor/>}/>
+          <Route path="/konzept" element={<Konzept/>}/>
+          <Route path="/schuelerseite" element={<SchuelerSeite/>}/>
+          <Route path="/tutorseite" element={<TutorSeite/>}/>
+          <Route path="/vortraege" element={<Vortraege/>}/>
+          <Route path="/tutors" element={<Tutors/>}/>
+          <Route path="/enterpriseseite" element={<EnterpriseSeite/>}/>
+          <Route path="/manageseite" element={<ManageSeite/>}/>
+          <Route path="/adminSeite" element={<AdminSeite/>}/>
+          <Route path="/financeseite" element={<FinanceSeite/>}/>
+          <Route path="/passwort-vergessen" element={<PasswordReset/>}/>
 
+          {/* Immer zuletzt */}
+          <Route path="*" element={<Notfound/>}/>
         </Routes>
       </BrowserRouter>
   );

@@ -1,6 +1,6 @@
 import React from "react";
 
-function PasswortZuruecsetzen() {
+function PasswordReset() {
     return (
         <div className="page">
             <h2>Passwort zurücksetzen</h2>
@@ -12,4 +12,4 @@ function PasswortZuruecsetzen() {
     );
 }
 
-export default PasswortZuruecsetzen;
+export default PasswordReset;

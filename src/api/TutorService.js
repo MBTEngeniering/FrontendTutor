@@ -10,7 +10,6 @@ const TutorService = {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
-            //console.log(apiUrl+`/api/nutzer/all`);
 
             const data = await response.json();
             console.log(data);

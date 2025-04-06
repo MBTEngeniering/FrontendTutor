@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-
-function ElternSchueler() {
+const RegisterTutor = () => {
     const apiUrl = import.meta.env.VITE_API_URL;
     const [selectedSubject, setSelectedSubject] = useState("");
+    const [selectedCountry, setSelectedCountry] = useState("");
     const [subjects, setSubjects] = useState([]);
     const [availableSubjects, setAvailableSubjects] = useState([]);
     const [countries, setCountries] = useState([]);
@@ -27,12 +27,13 @@ function ElternSchueler() {
         iban: "",
         description: "",
         picture: "",
-
+        taxId: "",
+        hobbies: "",
+        zoomLink: ""
     });
 
-    // Fächer aus dem Backend laden
     useEffect(() => {
-        axios.get(`${apiUrl}/api/fach`)
+        axios.get(apiUrl+"/api/fach")
             .then(response => setAvailableSubjects(response.data))
             .catch(error => console.error("Fehler beim Laden der Fächer:", error));
 
@@ -51,6 +52,7 @@ function ElternSchueler() {
                     }
                     return 0;
                 });
+                // console.log(sortedCountries);
                 setCountries(sortedCountries);
             })
             .catch(error => console.error("Fehler beim Laden der Länder:", error));
@@ -62,11 +64,11 @@ function ElternSchueler() {
             setSelectedSubject("");
         }
     };
+    const navigate = useNavigate();
 
     const handleRemoveSubject = (subjectToRemove) => {
         setSubjects(subjects.filter(subject => subject !== subjectToRemove));
     };
-    const navigate = useNavigate();
 
     const handleRegistration = (e) => {
         e.preventDefault();
@@ -74,21 +76,17 @@ function ElternSchueler() {
         const selectedFachIds = availableSubjects
             .filter(fach => subjects.includes(fach.fach))
             .map(fach => fach.id);
-        if (formData.password !== formData.repeatPassword) {
-            alert("Passwörter stimmen nicht überein!");
-            return;
-        }
 
-        const studentData = {
+        const tutorData = {
             ...formData,
             accountActive: false,
-            userRoleIds: [1],
+            userRoleIds: [2],
             fachIds: selectedFachIds
         };
 
-        axios.post(`${apiUrl}/api/students`, studentData)
+        axios.post(apiUrl+"/api/tutors", tutorData)
             .then(response => {
-                alert("Du hast dich erfolgreich registriert!");
+                alert("Tutor erfolgreich registriert!");
                 navigate("/login");
             })
             .catch(error => {
@@ -99,7 +97,7 @@ function ElternSchueler() {
 
     return (
         <div className="page p-10 max-w-lg mx-auto bg-white shadow-md rounded-md">
-            <h2 className="text-2xl font-bold mb-6 text-center">Sich Registrieren</h2>
+            <h2 className="text-2xl font-bold mb-6 text-center">Lehrer werden</h2>
             <form className="space-y-6">
                 <div className="space-y-2">
                     <label className="block font-semibold">Anrede </label>
@@ -175,12 +173,29 @@ function ElternSchueler() {
                            onChange={(e) => setFormData({...formData, city: e.target.value})}/>
                     <br/><br/>
                 </div>
+{/*
+
                 <div className="space-y-2">
                     <label className="block font-semibold">Land </label>
+                    <input list="countries" name="country" id="country"/>
+                    <datalist className="w-full border p-3 rounded" id="countries" value={selectedCountry}
+                              style={{overflowY: "auto" }}
+                              onChange={(e) => setSelectedCountry(e.target.value)}>
+                        <option value="">Bitte wählen</option>
+                        {countries.map((fach, index) => (
+                            <option key={index} value={fach.name.common}/>
+                        ))}
+                    </datalist>
+                </div>
+*/}
+
+                <div className="space-y-2">
+                <label className="block font-semibold">Land </label>
                     <input type="text" className="w-full border p-3 rounded" required value={formData.country || ""}
                            onChange={(e) => setFormData({...formData, country: e.target.value})}/>
                     <br/><br/>
                 </div>
+
                 <div className="space-y-2">
                     <label className="block font-semibold">Telefonnummer </label>
                     <input type="tel" className="w-full border p-3 rounded" required value={formData.phoneNumber || ""}
@@ -233,6 +248,6 @@ function ElternSchueler() {
             </form>
         </div>
     );
-}
+};
 
-export default ElternSchueler;
+export default RegisterTutor;
