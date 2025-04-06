@@ -1,5 +1,5 @@
 import React from "react";
-import logo from "../../public/assets/android-chrome-512x512.png";
+import logo from "/assets/android-chrome-512x512.png";
 
 const Homepage = () => {
   return (

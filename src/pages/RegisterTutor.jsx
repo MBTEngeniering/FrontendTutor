@@ -211,18 +211,18 @@ const RegisterTutor = () => {
                             <option key={index} value={fach.fach}>{fach.fach}</option>
                         ))}
                     </select>
-                    <button type="button" className="mt-3 p-3 bg-blue-500 text-white rounded w-full"
+                    <button type="button" className="mt-3 p-3 bg-primary text-white rounded w-full"
                             onClick={handleAddSubject}>Fach hinzufügen
                     </button>
                     <div className="mt-3 space-x-2">
                         {subjects.map((subject, index) => (
                             <div key={index} className="inline-block">
-                                                            <span className="p-2 bg-gray-200 rounded inline-block mr-2">
+                                        <span className="p-2 bg-body rounded inline-block mr-2">
                                     {subject}
                                 </span>
                                 <button
                                     type="button"
-                                    className="p-2 text-red-500"
+                                    className="p-2 bg-warning text-white rounded"
                                     onClick={() => handleRemoveSubject(subject)}
                                 >
                                     X
@@ -235,13 +235,13 @@ const RegisterTutor = () => {
                 <div className="flex space-x-4 mt-6 justify-between">
                     <button
                         type="submit"
-                        className="p-3 bg-green-500 text-white rounded w-1/2"
+                        className="p-3 bg-success text-white rounded w-1/2"
                         onClick={handleRegistration}>
                         Registrieren
                     </button>
                     <button
                         type="button"
-                        className="p-3 bg-red-500 text-white rounded w-1/2">
+                        className="p-3 bg-dark text-white rounded w-1/2">
                         Abbrechen
                     </button>
                 </div>

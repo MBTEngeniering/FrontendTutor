@@ -110,7 +110,7 @@ export default function App() {
               </UncontrolledDropdown>
               <NavItem className="float-end d-flex justify-content-end">
                 {!isLoggedIn ? (
-                    <Link className="navbar-text" to="/login">Anmelden</Link>
+                    <Link className="nav-link" to="/login">Anmelden</Link>
                 ) : (
                     <>
                       <span className="nav-link">{userRole === "STUDENT" ? "Schüler" : "Tutor"} eingeloggt<br/></span>
