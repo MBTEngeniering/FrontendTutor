@@ -29,15 +29,16 @@ import Linker from "./components/Linker.jsx";
 import TutorSeite from "./pages/Tutor/TutorSeite.jsx";
 import SchuelerSeite from "./pages/Student/SchuelerSeite.jsx";
 import Tutors from "./pages/Tutor/Tutors.jsx";
-import Register from "./pages/Register.jsx";
-
-const Notfound = lazy(() => import("./pages/Notfound.jsx"));
-const Vortraege = lazy(() => import("./pages/Vortraege.jsx"));
 import AdminSeite from "./pages/Admin/AdminSeite.jsx";
 import EnterpriseSeite from "./pages/EnterpriseSeite.jsx";
 import ManageSeite from "./pages/Support/ManageSeite.jsx";
 import PasswordReset from "./pages/PasswordReset.jsx";
 import FinanceSeite from "./pages/Billing/FinanceSeite.jsx";
+import Loader from "./components/Loader.jsx";
+
+const Notfound = lazy(() => import("./pages/Notfound.jsx"));
+const Vortraege = lazy(() => import("./pages/Vortraege.jsx"));
+const Register = lazy(() => import("./pages/Register.jsx"));
 
 export default function App() {
   const [isOpen, setIsOpen] = useState(false);
@@ -136,7 +137,7 @@ export default function App() {
 
         <Routes>
           <Route path="/" element={<Homepage/>}/>
-          <Route path="/registrierung" element={<Register/>}/>
+          <Route path="/registrierung" element={<Suspense fallback={<Loader/>}><Register/></Suspense>}/>
           <Route path="/abikurs" element={<Abikurs/>}/>
           <Route path="/beratung" element={<Beratung/>}/>
           <Route path="/ueberuns" element={<AboutUs/>}/>
@@ -147,7 +148,7 @@ export default function App() {
           <Route path="/konzept" element={<Konzept/>}/>
           <Route path="/schuelerseite" element={<SchuelerSeite/>}/>
           <Route path="/tutorseite" element={<TutorSeite/>}/>
-          <Route path="/vortraege" element={<Suspense fallback={<div>Loading...</div>}><Vortraege/></Suspense>}/>
+          <Route path="/vortraege" element={<Suspense fallback={<Loader/>}><Vortraege/></Suspense>}/>
           <Route path="/tutors" element={<Tutors/>}/>
           <Route path="/enterpriseseite" element={<EnterpriseSeite/>}/>
           <Route path="/manageseite" element={<ManageSeite/>}/>
