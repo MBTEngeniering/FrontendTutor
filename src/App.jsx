@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { BrowserRouter, Link, Route, Routes } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {
@@ -30,8 +30,9 @@ import TutorSeite from "./pages/Tutor/TutorSeite.jsx";
 import SchuelerSeite from "./pages/Student/SchuelerSeite.jsx";
 import Tutors from "./pages/Tutor/Tutors.jsx";
 import Register from "./pages/Register.jsx";
-import Notfound from "./pages/Notfound.jsx";
-import Vortraege from "./pages/Vortraege.jsx";
+
+const Notfound = lazy(() => import("./pages/Notfound.jsx"));
+const Vortraege = lazy(() => import("./pages/Vortraege.jsx"));
 import AdminSeite from "./pages/Admin/AdminSeite.jsx";
 import EnterpriseSeite from "./pages/EnterpriseSeite.jsx";
 import ManageSeite from "./pages/Support/ManageSeite.jsx";
@@ -146,7 +147,7 @@ export default function App() {
           <Route path="/konzept" element={<Konzept/>}/>
           <Route path="/schuelerseite" element={<SchuelerSeite/>}/>
           <Route path="/tutorseite" element={<TutorSeite/>}/>
-          <Route path="/vortraege" element={<Vortraege/>}/>
+          <Route path="/vortraege" element={<Suspense fallback={<div>Loading...</div>}><Vortraege/></Suspense>}/>
           <Route path="/tutors" element={<Tutors/>}/>
           <Route path="/enterpriseseite" element={<EnterpriseSeite/>}/>
           <Route path="/manageseite" element={<ManageSeite/>}/>
