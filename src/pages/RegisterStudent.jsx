@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-function ElternSchueler() {
+function RegisterStudent() {
     const apiUrl = import.meta.env.VITE_API_URL;
     const [selectedSubject, setSelectedSubject] = useState("");
     const [subjects, setSubjects] = useState([]);
@@ -235,4 +235,4 @@ function ElternSchueler() {
     );
 }
 
-export default ElternSchueler;
+export default RegisterStudent;

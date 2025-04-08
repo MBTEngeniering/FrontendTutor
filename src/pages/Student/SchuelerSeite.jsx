@@ -190,7 +190,7 @@ function SchuelerSeite() {
                         ))}
                     </div>
                 );
-            case "Meine Lehrer":
+            case "Meine RegisterTutor":
                 return (
                     <div>
                         <h3>LehrerListe</h3>
@@ -227,7 +227,7 @@ function SchuelerSeite() {
                 <button onClick={() => setActiveContent("Kalender")}>Kalender</button>
                 <button onClick={() => setActiveContent("Vertrag")}>Vertrag</button>
                 <button onClick={() => setActiveContent("Meine Termine")}>Meine Termine</button>
-                <button onClick={() => setActiveContent("Meine Lehrer")}>Meine Lehrer</button>
+                <button onClick={() => setActiveContent("Meine RegisterTutor")}>Meine Lehrer</button>
                 <button onClick={() => setActiveContent("RestStunde")}>Mein Stunde</button>
                 <button onClick={() => setActiveContent("Support")}>Support</button>
             </div>
