@@ -6,7 +6,6 @@ import { Link } from "react-router-dom";
 const Register = () => {
   return (
       <div className="page">
-
         <h2 className="text-lg-center">Registrierung</h2>
         <Container className="mt-2 mt-sm-4">
           <Row>
