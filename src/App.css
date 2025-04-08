@@ -1,5 +1,5 @@
 body {
-  font-family: Roboto, system-ui, -apple-system, "Segoe UI", "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";  
+  font-family: Roboto, system-ui, -apple-system, "Segoe UI", "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
 
 .roboto-300 {
@@ -8,7 +8,7 @@ body {
   font-weight: 300;
   font-style: normal;
   font-variation-settings: "wdth" 100;
-}  
+}
 
 .page {
   margin: 16px 10px 0 10px;
@@ -46,6 +46,12 @@ body {
 
 .navbar-toggler {
   background-color: gold;
+}
+
+footer .list-inline-item a {
+  color: darkblue;
+  text-decoration: none;
+  margin-right: 1rem;
 }
 
 

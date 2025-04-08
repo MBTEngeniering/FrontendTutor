@@ -35,6 +35,7 @@ import ManageSeite from "./pages/Support/ManageSeite.jsx";
 import PasswordReset from "./pages/PasswordReset.jsx";
 import FinanceSeite from "./pages/Billing/FinanceSeite.jsx";
 import Loader from "./components/Loader.jsx";
+import Footer from "./pages/Footer.jsx";
 
 const Notfound = lazy(() => import("./pages/Notfound.jsx"));
 const Vortraege = lazy(() => import("./pages/Vortraege.jsx"));
@@ -67,12 +68,12 @@ export default function App() {
 
   return (
       <BrowserRouter>
-        <Navbar container="fluid" className="mb-1" expand="lg">
+        <Navbar container="fluid" className="mb-0" expand="lg">
           <NavbarBrand style={{cursor: 'pointer'}}>
             <Linker link='/' title="Home">
               <div className="logo-title">
                 <img src="/assets/android-chrome-512x512.png" alt="Logo" className="logo"/>
-                <span className="title">FGQTUTOR</span>
+                <span className="title">fairstudy</span>
               </div>
             </Linker>
           </NavbarBrand>
@@ -159,6 +160,7 @@ export default function App() {
           {/* Immer zuletzt */}
           <Route path="*" element={<Notfound/>}/>
         </Routes>
+         <Footer/>
       </BrowserRouter>
   );
 }
