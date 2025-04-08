@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 
 function AdminSeite() {
+    const apiUrl = import.meta.env.VITE_API_URL;
     const [data, setData] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedUser, setSelectedUser] = useState(null);
@@ -38,7 +39,7 @@ function AdminSeite() {
     const fetchData = async (endpoint) => {
         try {
             const response = await axios.get(
-                `http://localhost:8080/api/userstatus/${endpoint}`
+                `${apiUrl}/api/userstatus/${endpoint}`
             );
             setData(response.data);
             setCurrentEndpoint(endpoint); // Hier speichern wir, ob "students" oder "tutors" geladen wurden
@@ -74,9 +75,9 @@ function AdminSeite() {
     const handleSave = async () => {
         let updateEndpoint = "";
         if (formData.userRoleIds && formData.userRoleIds.some((role) => role === 1)) {
-            updateEndpoint = `http://localhost:8080/api/students/${formData.id}`;
+            updateEndpoint = `${apiUrl}/api/students/${formData.id}`;
         } else {
-            updateEndpoint = `http://localhost:8080/api/tutors/${formData.id}`;
+            updateEndpoint = `${apiUrl}/api/tutors/${formData.id}`;
         }
 
         try {
@@ -96,9 +97,9 @@ function AdminSeite() {
 
         let deleteEndpoint = "";
         if (formData.userRoleIds && formData.userRoleIds.some((role) => role === 1)) {
-            deleteEndpoint = `http://localhost:8080/api/students/${formData.id}`;
+            deleteEndpoint =`${apiUrl}/api/students/${formData.id}`;
         } else  {
-            deleteEndpoint = `http://localhost:8080/api/tutors/${formData.id}`;
+            deleteEndpoint = `${apiUrl}/api/tutors/${formData.id}`;
         }
 
         try {
