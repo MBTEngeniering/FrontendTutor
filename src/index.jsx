@@ -10,7 +10,7 @@ function Root() {
     // Simulate loading time (can be replaced with actual async operations)
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 2000);
+    }, 700);
 
     return () => clearTimeout(timer);
   }, []);

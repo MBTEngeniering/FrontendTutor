@@ -1,6 +1,6 @@
 import React from "react";
 
-function ManageSeite() {
+function SupportSeite() {
     return (
         <div className="page">
 Manage Bereit
@@ -8,4 +8,4 @@ Manage Bereit
     );
 }
 
-export default ManageSeite;
+export default SupportSeite;

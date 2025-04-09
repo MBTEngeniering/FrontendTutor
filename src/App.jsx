@@ -31,11 +31,12 @@ import SchuelerSeite from "./pages/Student/SchuelerSeite.jsx";
 import Tutors from "./pages/Tutor/Tutors.jsx";
 import AdminSeite from "./pages/Admin/AdminSeite.jsx";
 import EnterpriseSeite from "./pages/EnterpriseSeite.jsx";
-import ManageSeite from "./pages/Support/ManageSeite.jsx";
+import SupportSeite from "./pages/Support/SupportSeite.jsx";
 import PasswordReset from "./pages/PasswordReset.jsx";
 import FinanceSeite from "./pages/Billing/FinanceSeite.jsx";
-import Loader from "./components/Loader.jsx";
-import Footer from "./pages/Footer.jsx";
+import Footer from "./components/Footer.jsx";
+import logo from "/assets/android-chrome-512x512.png";
+import LoadingScreen from "./components/LoadingScreen.jsx";
 
 const Notfound = lazy(() => import("./pages/Notfound.jsx"));
 const Vortraege = lazy(() => import("./pages/Vortraege.jsx"));
@@ -72,7 +73,7 @@ export default function App() {
           <NavbarBrand style={{cursor: 'pointer'}}>
             <Linker link='/' title="Home">
               <div className="logo-title">
-                <img src="/assets/android-chrome-512x512.png" alt="Logo" className="logo"/>
+                <img src={logo} alt="Logo" className="logo"/>
                 <span className="title">fairstudy</span>
               </div>
             </Linker>
@@ -138,23 +139,23 @@ export default function App() {
 
         <Routes>
           <Route path="/" element={<Homepage/>}/>
-          <Route path="/registrierung" element={<Suspense fallback={<Loader/>}><Register/></Suspense>}/>
+          <Route path="/registrierung" element={<Suspense fallback={<LoadingScreen/>}><Register/></Suspense>}/>
           <Route path="/abikurs" element={<Abikurs/>}/>
           <Route path="/beratung" element={<Beratung/>}/>
           <Route path="/ueberuns" element={<AboutUs/>}/>
           <Route path="/login" element={<Login setIsLoggedIn={setIsLoggedIn} setUserRole={setUserRole}/>}/>
           <Route path="/preise" element={<Prices/>}/>
-          <Route path="/elternschueler" element={<RegisterStudent/>}/>
-          <Route path="/lehrer" element={<RegisterTutor/>}/>
+          <Route path="/elternschueler" element={<Suspense fallback={LoadingScreen}><RegisterStudent/></Suspense>}/>
+          <Route path="/lehrer" element={<Suspense fallback={LoadingScreen}><RegisterTutor/></Suspense>}/>
           <Route path="/konzept" element={<Konzept/>}/>
-          <Route path="/schuelerseite" element={<SchuelerSeite/>}/>
+          <Route path="/schueler" element={<SchuelerSeite/>}/>
           <Route path="/tutorseite" element={<TutorSeite/>}/>
-          <Route path="/vortraege" element={<Suspense fallback={<Loader/>}><Vortraege/></Suspense>}/>
+          <Route path="/vortraege" element={<Suspense fallback={<LoadingScreen/>}><Vortraege/></Suspense>}/>
           <Route path="/tutors" element={<Tutors/>}/>
           <Route path="/enterpriseseite" element={<EnterpriseSeite/>}/>
-          <Route path="/manageseite" element={<ManageSeite/>}/>
-          <Route path="/adminSeite" element={<AdminSeite/>}/>
-          <Route path="/financeseite" element={<FinanceSeite/>}/>
+          <Route path="/support" element={<SupportSeite/>}/>
+          <Route path="/admin" element={<AdminSeite/>}/>
+          <Route path="/finance" element={<FinanceSeite/>}/>
           <Route path="/passwort-vergessen" element={<PasswordReset/>}/>
 
           {/* Immer zuletzt */}

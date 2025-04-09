@@ -52,7 +52,7 @@ const Homepage = () => {
                  position: "absolute",
                  top: "10px",
                  right: "20px",
-                 backgroundColor: "rgba(0, 0, 0, 0.75)",
+                 backgroundColor: "rgba(0, 0, 0, 0.70)",
                  color: "white",
                  padding: "20px",
                  borderRadius: "12px",

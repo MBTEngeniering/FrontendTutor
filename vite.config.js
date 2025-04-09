@@ -10,6 +10,12 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks(id) {
+          if (id.includes('node_modules/html2canvas')) {
+            return 'vendor-html2canvas';
+          }
+          if (id.includes('node_modules/react-dom')) {
+            return 'vendor-react-dom';
+          }
           if (id.includes('node_modules/react')) {
             return 'vendor-react';
           }

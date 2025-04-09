@@ -1,9 +1,15 @@
 .registration-container {
   display: flex;
   justify-content: center;
-  padding: 2rem;
   background: #f5f7fa;
   min-height: 100vh;
+  padding: 0.5em;
+}
+
+@media (min-width: 768px) {
+  .registration-container {
+    padding: 2rem;
+  }
 }
 
 .registration-card {

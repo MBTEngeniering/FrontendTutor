@@ -258,17 +258,18 @@ const RegisterTutor = () => {
 
                 <div className="form-group">
                     <label className="form-label">Land *</label>
-                    <select
+                    <input
+                        list="countries"
                         className="form-input"
                         value={formData.country || ""}
                         onChange={(e) => setFormData({...formData, country: e.target.value})}
                         required
-                    >
-                        <option value="">Bitte wählen</option>
+                    />
+                        <datalist id="countries">
                         {countries.map((country, index) => (
-                            <option key={index} value={country.name.common}>{country.name.common}</option>
+                            <option key={index} value={country.name.common}></option>
                         ))}
-                    </select>
+                        </datalist>
                 </div>
 
                 <div className="form-group">
