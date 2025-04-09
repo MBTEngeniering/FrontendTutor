@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import './RegisterForm.css';
+
 const RegisterTutor = () => {
     const apiUrl = import.meta.env.VITE_API_URL;
     const [selectedSubject, setSelectedSubject] = useState("");
-    const [selectedCountry, setSelectedCountry] = useState("");
     const [subjects, setSubjects] = useState([]);
     const [availableSubjects, setAvailableSubjects] = useState([]);
     const [countries, setCountries] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
+    const [errors, setErrors] = useState({});
     const [formData, setFormData] = useState({
         salutation: "",
         title: "",
@@ -24,12 +27,9 @@ const RegisterTutor = () => {
         dateOfBirth: "",
         placeOfBirth: "",
         bankCode: "",
-        iban: "",
         description: "",
         picture: "",
-        taxId: "",
-        hobbies: "",
-        zoomLink: ""
+        hobbies: ""
     });
 
     useEffect(() => {
@@ -52,7 +52,6 @@ const RegisterTutor = () => {
                     }
                     return 0;
                 });
-                // console.log(sortedCountries);
                 setCountries(sortedCountries);
             })
             .catch(error => console.error("Fehler beim Laden der Länder:", error));
@@ -70,9 +69,31 @@ const RegisterTutor = () => {
         setSubjects(subjects.filter(subject => subject !== subjectToRemove));
     };
 
-    const handleRegistration = (e) => {
-        e.preventDefault();
+    const validateForm = () => {
+        const newErrors = {};
+        if (!formData.salutation) newErrors.salutation = "Anrede ist erforderlich";
+        if (!formData.lastName) newErrors.lastName = "Name ist erforderlich";
+        if (!formData.firstName) newErrors.firstName = "Vorname ist erforderlich";
+        if (!formData.emailAddress || !/^\S+@\S+\.\S+$/.test(formData.emailAddress)) 
+            newErrors.emailAddress = "Gültige E-Mail ist erforderlich";
+        if (!formData.password || formData.password.length < 8) 
+            newErrors.password = "Passwort muss mindestens 8 Zeichen haben";
+        if (formData.password !== formData.repeatPassword) 
+            newErrors.repeatPassword = "Passwörter stimmen nicht überein";
+        
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
 
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        if (!validateForm()) return;
+        
+        setIsLoading(true);
+        handleRegistration(e);
+    };
+
+    const handleRegistration = (e) => {
         const selectedFachIds = availableSubjects
             .filter(fach => subjects.includes(fach.fach))
             .map(fach => fach.id);
@@ -92,161 +113,244 @@ const RegisterTutor = () => {
             .catch(error => {
                 console.error("Fehler bei der Registrierung:", error);
                 alert("Ein Fehler ist aufgetreten. Bitte versuche es erneut.");
+            })
+            .finally(() => {
+                setIsLoading(false);
             });
     };
 
     return (
-        <div className="page p-10 max-w-lg mx-auto bg-white shadow-md rounded-md">
-            <h2 className="text-2xl font-bold mb-6 text-center">Lehrer werden</h2>
-            <form className="space-y-6">
-                <div className="space-y-2">
-                    <label className="block font-semibold">Anrede </label>
-                    <select className="w-full border p-3 rounded" required value={formData.salutation || ""}
-                            onChange={(e) => setFormData({...formData, salutation: e.target.value})}>
+        <>
+          <div className="registration-container">
+            <div className="registration-card">
+                <h2 className="registration-title">Tutor Registrierung</h2>
+                <p className="registration-subtitle">Werden Sie Nachhilfelehrer</p>
+                
+                <form onSubmit={handleSubmit} className="registration-form">
+                <div className="form-group">
+                    <label className="form-label">Anrede *</label>
+                    <select 
+                        className={`form-input ${errors.salutation ? 'error' : ''}`}
+                        value={formData.salutation || ""}
+                        onChange={(e) => setFormData({...formData, salutation: e.target.value})}
+                        required
+                    >
                         <option value="">Bitte wählen</option>
                         <option value="Herr">Herr</option>
                         <option value="Frau">Frau</option>
                         <option value="Divers">Divers</option>
                     </select>
-                    <br/><br/>
+                    {errors.salutation && <div className="error-message">{errors.salutation}</div>}
                 </div>
-                <div className="space-y-2">
-                    <label className="block font-semibold">Titel </label>
-                    <input type="text" className="w-full border p-3 rounded" value={formData.title || ""}
-                           onChange={(e) => setFormData({...formData, title: e.target.value})}/>
-                    <br/><br/>
+                <div className="form-group">
+                    <label className="form-label">Titel</label>
+                    <input 
+                        type="text" 
+                        className="form-input"
+                        value={formData.title || ""}
+                        onChange={(e) => setFormData({...formData, title: e.target.value})}
+                    />
                 </div>
-                <div className="space-y-2">
-                    <label className="block font-semibold">Name </label>
-                    <input type="text" className="w-full border p-3 rounded" required value={formData.lastName || ""}
-                           onChange={(e) => setFormData({...formData, lastName: e.target.value})}/>
-                    <br/><br/>
-                </div>
-                <div className="space-y-2">
-                    <label className="block font-semibold">Vorname </label>
-                    <input type="text" className="w-full border p-3 rounded" required value={formData.firstName || ""}
-                           onChange={(e) => setFormData({...formData, firstName: e.target.value})}/>
-                    <br/><br/>
-                </div>
-                <div className="space-y-2">
-                    <label className="block font-semibold">E-Mail </label>
-                    <input type="email" className="w-full border p-3 rounded" required
-                           value={formData.emailAddress || ""}
-                           onChange={(e) => setFormData({...formData, emailAddress: e.target.value})}/>
-                </div>
-                <br/><br/>
-                <div className="space-y-2">
-                    <label className="block font-semibold">Passwort </label>
-                    <input type="password" className="w-full border p-3 rounded" required
-                           value={formData.password || ""}
-                           onChange={(e) => setFormData({...formData, password: e.target.value})}/>
-                </div>
-                <br/><br/>
-                <div className="space-y-2">
-                    <label className="block font-semibold">Passwort wiederholen </label>
-                    <input type="password" className="w-full border p-3 rounded" required
-                           value={formData.repeatPassword || ""}
-                           onChange={(e) => setFormData({...formData, repeatPassword: e.target.value})}/>
-                </div>
-                <br/><br/>
-                <div className="space-y-2">
-                    <label className="block font-semibold">Straße </label>
-                    <input type="text" className="w-full border p-3 rounded" required value={formData.street || ""}
-                           onChange={(e) => setFormData({...formData, street: e.target.value})}/>
-                    <br/><br/>
-                </div>
-                <div className="space-y-2">
-                    <label className="block font-semibold">Hausnummer </label>
-                    <input type="text" className="w-full border p-3 rounded" required value={formData.houseNumber || ""}
-                           onChange={(e) => setFormData({...formData, houseNumber: e.target.value})}/>
-                    <br/><br/>
-                </div>
-                <div className="space-y-2">
-                    <label className="block font-semibold">Postleitzahl </label>
-                    <input type="text" className="w-full border p-3 rounded" required value={formData.postalCode || ""}
-                           onChange={(e) => setFormData({...formData, postalCode: e.target.value})}/>
-                    <br/><br/>
-                </div>
-                <div className="space-y-2">
-                    <label className="block font-semibold">Stadt </label>
-                    <input type="text" className="w-full border p-3 rounded" required value={formData.city || ""}
-                           onChange={(e) => setFormData({...formData, city: e.target.value})}/>
-                    <br/><br/>
-                </div>
-{/*
 
-                <div className="space-y-2">
-                    <label className="block font-semibold">Land </label>
-                    <input list="countries" name="country" id="country"/>
-                    <datalist className="w-full border p-3 rounded" id="countries" value={selectedCountry}
-                              style={{overflowY: "auto" }}
-                              onChange={(e) => setSelectedCountry(e.target.value)}>
+                <div className="form-group">
+                    <label className="form-label">Name *</label>
+                    <input 
+                        type="text" 
+                        className={`form-input ${errors.lastName ? 'error' : ''}`}
+                        value={formData.lastName || ""}
+                        onChange={(e) => setFormData({...formData, lastName: e.target.value})}
+                        required
+                    />
+                    {errors.lastName && <div className="error-message">{errors.lastName}</div>}
+                </div>
+
+                <div className="form-group">
+                    <label className="form-label">Vorname *</label>
+                    <input 
+                        type="text" 
+                        className={`form-input ${errors.firstName ? 'error' : ''}`}
+                        value={formData.firstName || ""}
+                        onChange={(e) => setFormData({...formData, firstName: e.target.value})}
+                        required
+                    />
+                    {errors.firstName && <div className="error-message">{errors.firstName}</div>}
+                </div>
+
+                <div className="form-group full-width">
+                    <label className="form-label">E-Mail *</label>
+                    <input 
+                        type="email" 
+                        className={`form-input ${errors.emailAddress ? 'error' : ''}`}
+                        value={formData.emailAddress || ""}
+                        onChange={(e) => setFormData({...formData, emailAddress: e.target.value})}
+                        required
+                    />
+                    {errors.emailAddress && <div className="error-message">{errors.emailAddress}</div>}
+                </div>
+
+                <div className="form-group">
+                    <label className="form-label">Passwort *</label>
+                    <input 
+                        type="password" 
+                        className={`form-input ${errors.password ? 'error' : ''}`}
+                        value={formData.password || ""}
+                        onChange={(e) => setFormData({...formData, password: e.target.value})}
+                        required
+                    />
+                    {errors.password && <div className="error-message">{errors.password}</div>}
+                </div>
+
+                <div className="form-group">
+                    <label className="form-label">Passwort wiederholen *</label>
+                    <input 
+                        type="password" 
+                        className={`form-input ${errors.repeatPassword ? 'error' : ''}`}
+                        value={formData.repeatPassword || ""}
+                        onChange={(e) => setFormData({...formData, repeatPassword: e.target.value})}
+                        required
+                    />
+                    {errors.repeatPassword && <div className="error-message">{errors.repeatPassword}</div>}
+                </div>
+
+                <div className="form-group">
+                    <label className="form-label">Straße *</label>
+                    <input 
+                        type="text" 
+                        className="form-input"
+                        value={formData.street || ""}
+                        onChange={(e) => setFormData({...formData, street: e.target.value})}
+                        required
+                    />
+                </div>
+
+                <div className="form-group">
+                    <label className="form-label">Hausnummer *</label>
+                    <input 
+                        type="text" 
+                        className="form-input"
+                        value={formData.houseNumber || ""}
+                        onChange={(e) => setFormData({...formData, houseNumber: e.target.value})}
+                        required
+                    />
+                </div>
+
+                <div className="form-group">
+                    <label className="form-label">Postleitzahl *</label>
+                    <input 
+                        type="text" 
+                        className="form-input"
+                        value={formData.postalCode || ""}
+                        onChange={(e) => setFormData({...formData, postalCode: e.target.value})}
+                        required
+                    />
+                </div>
+
+                <div className="form-group">
+                    <label className="form-label">Stadt *</label>
+                    <input 
+                        type="text" 
+                        className="form-input"
+                        value={formData.city || ""}
+                        onChange={(e) => setFormData({...formData, city: e.target.value})}
+                        required
+                    />
+                </div>
+
+                <div className="form-group">
+                    <label className="form-label">Land *</label>
+                    <select
+                        className="form-input"
+                        value={formData.country || ""}
+                        onChange={(e) => setFormData({...formData, country: e.target.value})}
+                        required
+                    >
                         <option value="">Bitte wählen</option>
-                        {countries.map((fach, index) => (
-                            <option key={index} value={fach.name.common}/>
-                        ))}
-                    </datalist>
-                </div>
-*/}
-
-                <div className="space-y-2">
-                <label className="block font-semibold">Land </label>
-                    <input type="text" className="w-full border p-3 rounded" required value={formData.country || ""}
-                           onChange={(e) => setFormData({...formData, country: e.target.value})}/>
-                    <br/><br/>
-                </div>
-
-                <div className="space-y-2">
-                    <label className="block font-semibold">Telefonnummer </label>
-                    <input type="tel" className="w-full border p-3 rounded" required value={formData.phoneNumber || ""}
-                           onChange={(e) => setFormData({...formData, phoneNumber: e.target.value})}/>
-                    <br/><br/>
-                </div>
-                <div className="space-y-2">
-                    <label className="block font-semibold">Fächer </label>
-                    <select className="w-full border p-3 rounded" value={selectedSubject}
-                            onChange={(e) => setSelectedSubject(e.target.value)}>
-                        <option value="">Bitte wählen</option>
-                        {availableSubjects.map((fach, index) => (
-                            <option key={index} value={fach.fach}>{fach.fach}</option>
+                        {countries.map((country, index) => (
+                            <option key={index} value={country.name.common}>{country.name.common}</option>
                         ))}
                     </select>
-                    <button type="button" className="mt-3 p-3 bg-primary text-white rounded w-full"
-                            onClick={handleAddSubject}>Fach hinzufügen
-                    </button>
-                    <div className="mt-3 space-x-2">
-                        {subjects.map((subject, index) => (
-                            <div key={index} className="inline-block">
-                                        <span className="p-2 bg-body rounded inline-block mr-2">
-                                    {subject}
-                                </span>
-                                <button
-                                    type="button"
-                                    className="p-2 bg-warning text-white rounded"
-                                    onClick={() => handleRemoveSubject(subject)}
-                                >
-                                    X
-                                </button>
-                            </div>
-                        ))}
+                </div>
+
+                <div className="form-group">
+                    <label className="form-label">Telefonnummer *</label>
+                    <input 
+                        type="tel" 
+                        className="form-input"
+                        value={formData.phoneNumber || ""}
+                        onChange={(e) => setFormData({...formData, phoneNumber: e.target.value})}
+                        required
+                        pattern="[0-9]{10,15}"
+                    />
+                    <small className="text-gray-500">Format: 1234567890 (10-15 digits)</small>
+                </div>
+                <div className="form-group full-width">
+                    <label className="form-label">Fächer</label>
+                    <div className="subjects-container">
+                        <select 
+                            className="form-input"
+                            value={selectedSubject}
+                            onChange={(e) => setSelectedSubject(e.target.value)}
+                        >
+                            <option value="">Bitte wählen</option>
+                            {availableSubjects.map((fach, index) => (
+                                <option key={index} value={fach.fach}>{fach.fach}</option>
+                            ))}
+                        </select>
+                        <button 
+                            type="button" 
+                            className="submit-btn mt-3"
+                            onClick={handleAddSubject}
+                        >
+                            Fach hinzufügen
+                        </button>
+                        <div className="subjects-list">
+                            {subjects.map((subject, index) => (
+                                <div key={index} className="subject-tag">
+                                    <span>{subject}</span>
+                                    <button
+                                        type="button"
+                                        className="remove-subject"
+                                        onClick={() => handleRemoveSubject(subject)}
+                                    >
+                                        ×
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </div>
-                <br/><br/>
-                <div className="flex space-x-4 mt-6 justify-between">
+
+                <div className="form-group full-width">
+                    <label className="form-label">Beschreibung</label>
+                    <textarea
+                        className="form-input"
+                        rows="4"
+                        value={formData.description || ""}
+                        onChange={(e) => setFormData({...formData, description: e.target.value})}
+                        placeholder="Erzählen Sie etwas über sich und Ihre Qualifikationen"
+                    />
+                </div>
+
+                <div className="form-actions">
                     <button
                         type="submit"
-                        className="p-3 bg-success text-white rounded w-1/2"
-                        onClick={handleRegistration}>
-                        Registrieren
+                        className={`submit-btn ${isLoading ? 'loading' : ''}`}
+                        disabled={isLoading}
+                    >
+                        {isLoading ? 'Wird verarbeitet...' : 'Registrieren'}
                     </button>
                     <button
                         type="button"
-                        className="p-3 bg-dark text-white rounded w-1/2">
+                        className="cancel-btn"
+                        onClick={() => navigate('/')}
+                    >
                         Abbrechen
                     </button>
                 </div>
             </form>
-        </div>
+            </div>
+          </div>
+        </>
     );
 };
 

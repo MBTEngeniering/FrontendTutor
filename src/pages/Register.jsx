@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 const Register = () => {
   return (
       <div className="page">
+
         <h2 className="text-lg-center">Registrierung</h2>
         <Container className="mt-2 mt-sm-4">
           <Row>
@@ -22,8 +23,8 @@ const Register = () => {
                 </CardBody>
                 <CardFooter style={{backgroundColor: "transparent", border: "none"}}>
                   <hr/>
-                  <Link to="/elternschueler" title="Eltern/Schüler-Portal">
                   <button
+                      onClick={() => window.location.href = "/elternschueler"}
                       className="mb-2 btn btn-primary glossy-button"
                       style={{
                         padding: '10px',
@@ -39,7 +40,6 @@ const Register = () => {
                   >
                     Registrieren
                   </button>
-                    </Link>
                 </CardFooter>
               </Card>
             </Col>
