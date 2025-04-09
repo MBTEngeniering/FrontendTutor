@@ -12,4 +12,4 @@ function Vortraege() {
     );
 }
 
-export default Vortraege;  
+export default Vortraege;
