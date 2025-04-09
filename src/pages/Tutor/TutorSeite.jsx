@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { jsPDF } from "jspdf";
+import Calendar from "../../components/Calendar";
 import '../../styles/UserPage.css';
 
 function TutorSeite() {
@@ -18,7 +19,7 @@ function TutorSeite() {
         { id: 1, termin: "Mathe Nachhilfe", betrag: "15€" },
         { id: 2, termin: "Physik Nachhilfe", betrag: "15€" },
         { id: 3, termin: "Englisch Nachhilfe", betrag: "15€" },
-        { id: 4, termin: "Geschichte Nachhilfe", betrag: "15€" }
+        { id: 4, termin: "Geschichte Nachhilfe", betrag: "15€" } 
     ];
 
     const handleMarkCell = (day, hour, minute) => {
@@ -33,61 +34,21 @@ function TutorSeite() {
     };
 
     const renderWeeklyCalendar = () => {
-        const startOfWeek = new Date(selectedDate);
-        startOfWeek.setDate(selectedDate.getDate() - selectedDate.getDay());
-
-        const weekDays = Array.from({ length: 7 }, (_, index) => {
-            const day = new Date(startOfWeek);
-            day.setDate(day.getDate() + index);
-            return day;
-        });
-
         return (
             <div>
-                <table className="calendar-table">
-                    <thead>
-                    <tr>
-                        <th>Uhrzeit</th>
-                        {weekDays.map((day, index) => (
-                            <th key={index}>
-                                {day.toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long' })}
-                            </th>
-                        ))}
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {Array.from({ length: 48 }, (_, index) => {
-                        const hour = Math.floor(index / 2);
-                        const minute = index % 2 === 0 ? 0 : 30;
-                        return (
-                            <tr key={index}>
-                                <td className="calendar-time-cell">{`${hour}:${minute === 0 ? "00" : minute}`}</td>
-                                {weekDays.map((day, index) => {
-                                    const termin = termine.find((t) =>
-                                        t.datum.getDay() === day.getDay() &&
-                                        t.datum.getHours() === hour &&
-                                        t.datum.getMinutes() === minute
-                                    );
-                                    const isMarked = markedDates.some((md) =>
-                                        md.getDay() === day.getDay() &&
-                                        md.getHours() === hour &&
-                                        md.getMinutes() === minute
-                                    );
-                                    return (
-                                        <td
-                                            key={index}
-                                            className={`calendar-event-cell ${isMarked ? 'marked' : ''}`}
-                                            onClick={() => handleMarkCell(day, hour, minute)}
-                                        >
-                                            {termin ? `${termin.schueler} (${termin.fach})` : ""}
-                                        </td>
-                                    );
-                                })}
-                            </tr>
-                        );
-                    })}
-                    </tbody>
-                </table>
+                <Calendar 
+                    events={termine.map(t => ({
+                        ...t,
+                        person: t.schueler
+                    }))}
+                    onDateClick={(date) => {
+                        const newMarkedDate = new Date(date);
+                        setMarkedDates([...markedDates, newMarkedDate]);
+                    }}
+                    onEventClick={(event) => {
+                        console.log('Event clicked:', event);
+                    }}
+                />
                 <button className="action-button" onClick={saveChanges}>
                     Änderungen speichern
                 </button>
