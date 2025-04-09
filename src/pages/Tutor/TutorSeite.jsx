@@ -1,7 +1,7 @@
-
 import React, { useState } from "react";
 import { jsPDF } from "jspdf";
-import 'react-calendar/dist/Calendar.css';
+import '../../styles/UserPage.css';
+
 function TutorSeite() {
     const [activeContent, setActiveContent] = useState(null);
     const [selectedDate, setSelectedDate] = useState(new Date());
@@ -26,6 +26,7 @@ function TutorSeite() {
         newMarkedDate.setHours(hour, minute);
         setMarkedDates([...markedDates, newMarkedDate]);
     };
+
     const saveChanges = () => {
         console.log("Änderungen gespeichert:", markedDates);
         alert("Änderungen im Kalender wurden gespeichert!");
@@ -33,7 +34,7 @@ function TutorSeite() {
 
     const renderWeeklyCalendar = () => {
         const startOfWeek = new Date(selectedDate);
-        startOfWeek.setDate(selectedDate.getDate() - selectedDate.getDay()); // Montag als Start der Woche
+        startOfWeek.setDate(selectedDate.getDate() - selectedDate.getDay());
 
         const weekDays = Array.from({ length: 7 }, (_, index) => {
             const day = new Date(startOfWeek);
@@ -43,12 +44,12 @@ function TutorSeite() {
 
         return (
             <div>
-                <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                <table className="calendar-table">
                     <thead>
                     <tr>
-                        <th style={{ border: "1px solid #ccc", padding: "5px" }}>Uhrzeit</th>
+                        <th>Uhrzeit</th>
                         {weekDays.map((day, index) => (
-                            <th key={index} style={{ border: "1px solid #ccc", padding: "5px" }}>
+                            <th key={index}>
                                 {day.toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long' })}
                             </th>
                         ))}
@@ -60,7 +61,7 @@ function TutorSeite() {
                         const minute = index % 2 === 0 ? 0 : 30;
                         return (
                             <tr key={index}>
-                                <td style={{ border: "1px solid #ccc", padding: "5px" }}>{`${hour}:${minute === 0 ? "00" : minute}`}</td>
+                                <td className="calendar-time-cell">{`${hour}:${minute === 0 ? "00" : minute}`}</td>
                                 {weekDays.map((day, index) => {
                                     const termin = termine.find((t) =>
                                         t.datum.getDay() === day.getDay() &&
@@ -75,13 +76,7 @@ function TutorSeite() {
                                     return (
                                         <td
                                             key={index}
-                                            style={{
-                                                border: "1px solid #ccc",
-                                                padding: "5px",
-                                                textAlign: "center",
-                                                backgroundColor: isMarked ? "lightgreen" : "white",
-                                                cursor: "pointer"
-                                            }}
+                                            className={`calendar-event-cell ${isMarked ? 'marked' : ''}`}
                                             onClick={() => handleMarkCell(day, hour, minute)}
                                         >
                                             {termin ? `${termin.schueler} (${termin.fach})` : ""}
@@ -93,18 +88,7 @@ function TutorSeite() {
                     })}
                     </tbody>
                 </table>
-                <button
-                    style={{
-                        marginTop: "10px",
-                        padding: "10px 20px",
-                        backgroundColor: "blue",
-                        color: "white",
-                        border: "none",
-                        borderRadius: "5px",
-                        cursor: "pointer"
-                    }}
-                    onClick={saveChanges}
-                >
+                <button className="action-button" onClick={saveChanges}>
                     Änderungen speichern
                 </button>
             </div>
@@ -152,17 +136,7 @@ function TutorSeite() {
                     <div>
                         <h3>Liste der Termine</h3>
                         {termine.map((termin) => (
-                            <div
-                                key={termin.id}
-                                style={{
-                                    border: "1px solid #ccc",
-                                    borderRadius: "5px",
-                                    padding: "10px",
-                                    margin: "10px 0",
-                                    backgroundColor: "#f9f9f9",
-                                    boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)"
-                                }}
-                            >
+                            <div key={termin.id} className="appointment-card">
                                 <p><strong>Datum:</strong> {termin.datum.toLocaleDateString('de-DE')}</p>
                                 <p><strong>Uhrzeit:</strong> {termin.datum.toLocaleTimeString([], {
                                     hour: '2-digit',
@@ -171,15 +145,7 @@ function TutorSeite() {
                                 <p><strong>Fach:</strong> {termin.fach}</p>
                                 <p><strong>Schüler:</strong> {termin.schueler}</p>
                                 <button
-                                    style={{
-                                        marginTop: "10px",
-                                        padding: "5px 10px",
-                                        backgroundColor: "#4caf50",
-                                        color: "white",
-                                        border: "none",
-                                        borderRadius: "5px",
-                                        cursor: "pointer"
-                                    }}
+                                    className="action-button"
                                     onClick={() => window.open("https://rwth.zoom-x.de/j/2697981011", "_blank")}
                                 >
                                     Einheit starten
@@ -201,13 +167,13 @@ function TutorSeite() {
                 );
             case "Mein Gehalt":
                 return (
-                    <ul>
+                    <div>
                         {gehalt.map((eintrag) => (
-                            <li key={eintrag.id}>
-                                {eintrag.termin}: {eintrag.betrag}
-                            </li>
+                            <div key={eintrag.id} className="salary-item">
+                                <strong>{eintrag.termin}:</strong> {eintrag.betrag}
+                            </div>
                         ))}
-                    </ul>
+                    </div>
                 );
             case "Support":
                 return <p>Support-Bereich. Hier kannst du Hilfe anbieten oder anfordern.</p>;
@@ -217,24 +183,23 @@ function TutorSeite() {
     };
 
     return (
-        <div className="page" style={{ display: "flex" }}>
-            {/* Linke Spalte mit allen Buttons */}
-            <div style={{ flex: 1, padding: "10px", borderRight: "1px solid gray", display: "flex", flexDirection: "column" }}>
-                <button onClick={() => setActiveContent("Kalender")}>Kalender</button>
-                <button onClick={() => setActiveContent("Vertrag")}>Vertrag</button>
-                <button onClick={() => setActiveContent("Meine Termine")}>Meine Termine</button>
-                <button onClick={() => setActiveContent("Meine Schüler")}>Meine Schüler</button>
-                <button onClick={() => setActiveContent("Mein Gehalt")}>Mein Gehalt</button>
-                <button onClick={() => setActiveContent("Support")}>Support</button>
-            </div>
+        <>
+            <div className="user-container">
+                <div className="user-sidebar">
+                    <button onClick={() => setActiveContent("Kalender")}>📅 Kalender</button>
+                    <button onClick={() => setActiveContent("Vertrag")}>📝 Vertrag</button>
+                    <button onClick={() => setActiveContent("Meine Termine")}>⏰ Meine Termine</button>
+                    <button onClick={() => setActiveContent("Meine Schüler")}>👨‍🏫 Meine Schüler</button>
+                    <button onClick={() => setActiveContent("Mein Gehalt")}>⏳ Mein Gehalt</button>
+                    <button onClick={() => setActiveContent("Support")}>🛟 Support</button>
+                </div>
 
-            {/* Rechte Spalte */}
-            <div style={{ flex: 2, padding: "10px" }}>
-                {renderContent()}
+                <div className="user-content">
+                    {renderContent()}
+                </div>
             </div>
-        </div>
+        </>
     );
 }
-
 
 export default TutorSeite;

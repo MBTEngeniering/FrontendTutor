@@ -1,0 +1,150 @@
+/* Main container styles */
+.schueler-container {
+    display: flex;
+    min-height: 100vh;
+    background-color: #f5f7fa;
+  }
+  
+  /* Navigation sidebar */
+  .schueler-sidebar {
+    width: 250px;
+    background-color: #2c3e50;
+    padding: 20px 0;
+    color: white;
+  }
+  
+  .schueler-sidebar button {
+    display: block;
+    width: 100%;
+    padding: 12px 20px;
+    background: none;
+    border: none;
+    color: white;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .schueler-sidebar button:hover {
+    background-color: #34495e;
+  }
+  
+  /* Content area */
+  .schueler-content {
+    flex: 1;
+    padding: 30px;
+    background-color: white;
+    border-radius: 8px;
+    margin: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  }
+  
+  /* Calendar styles */
+  .calendar-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  
+  .calendar-table th, 
+  .calendar-table td {
+    border: 1px solid #e0e0e0;
+    padding: 8px;
+    text-align: center;
+  }
+  
+  .calendar-table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+  }
+  
+  .calendar-time-cell {
+    background-color: #f8f9fa;
+    font-weight: 500;
+  }
+  
+  .calendar-event-cell {
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .calendar-event-cell:hover {
+    background-color: #f0f7ff;
+  }
+  
+  .calendar-event-cell.marked {
+    background-color: #e1f5e1;
+    border: 2px solid #4caf50;
+  }
+  
+  /* Event badge styles */
+  .event-badge {
+    display: flex;
+    flex-direction: column;
+    padding: 4px;
+    border-radius: 4px;
+    background-color: #e3f2fd;
+    font-size: 0.8rem;
+  }
+  
+  .event-time {
+    color: #0d47a1;
+    font-weight: bold;
+  }
+  
+  .event-title {
+    color: #1565c0;
+    font-weight: 500;
+  }
+  
+  .event-student {
+    color: #1976d2;
+    font-style: italic;
+  }
+  
+  /* Appointment card styles */
+  .appointment-card {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+  
+  .appointment-card h4 {
+    margin-top: 0;
+    color: #2c3e50;
+  }
+  
+  /* Button styles */
+  .action-button {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .action-button:hover {
+    background-color: #2980b9;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .schueler-container {
+      flex-direction: column;
+    }
+    
+    .schueler-sidebar {
+      width: 100%;
+      padding: 10px 0;
+    }
+    
+    .schueler-content {
+      margin: 10px;
+      padding: 15px;
+    }
+  }
+  

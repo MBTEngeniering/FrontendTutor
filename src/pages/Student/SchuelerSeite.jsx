@@ -1,140 +1,305 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
+import { jsPDF } from "jspdf";
+import "../../styles/UserPage.css";
 
 function SchuelerSeite() {
-    const apiUrl = import.meta.env.VITE_API_URL;
-    const [avatar, setAvatar] = useState(null);
-    const [contracts, setContracts] = useState([]);
-    const [isContractModalOpen, setIsContractModalOpen] = useState(false);
+    const [activeContent, setActiveContent] = useState("Kalender");
+    const [selectedDate, setSelectedDate] = useState(new Date());
+    const [markedDates, setMarkedDates] = useState([]);
 
+    // Student-specific data
+    const termine = [
+        { id: 1, datum: new Date(2025, 2, 24, 10, 30), fach: "Mathematik", tutor: "Herr Müller" },
+        { id: 2, datum: new Date(2025, 2, 25, 14, 0), fach: "Physik", tutor: "Frau Schmidt" },
+        { id: 3, datum: new Date(2025, 2, 27, 16, 0), fach: "Englisch", tutor: "Herr Wagner" }
+    ];
 
-    const handleAvatarChange = (event) => {
-        const file = event.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setAvatar(reader.result);
-            };
-            reader.readAsDataURL(file);
+    const stunden = [
+        { id: 1, fach: "Mathematik", verbleibend: 5 },
+        { id: 2, fach: "Physik", verbleibend: 3 },
+        { id: 3, fach: "Englisch", verbleibend: 2 }
+    ];
+
+    const handleMarkCell = (day, hour, minute) => {
+        const newMarkedDate = new Date(day);
+        newMarkedDate.setHours(hour, minute);
+        setMarkedDates([...markedDates, newMarkedDate]);
+    };
+
+    const saveChanges = () => {
+        console.log("Änderungen gespeichert:", markedDates);
+        alert("Änderungen im Kalender wurden gespeichert!");
+    };
+
+    const renderWeeklyCalendar = () => {
+        const startOfWeek = new Date(selectedDate);
+        startOfWeek.setDate(selectedDate.getDate() - selectedDate.getDay());
+
+        const weekDays = Array.from({ length: 7 }, (_, index) => {
+            const day = new Date(startOfWeek);
+            day.setDate(day.getDate() + index);
+            return day;
+        });
+
+        return (
+            <div>
+                <h3>Mein Stundenplan</h3>
+                <table className="calendar-table">
+                    <thead>
+                    <tr>
+                        <th>Uhrzeit</th>
+                        {weekDays.map((day, index) => (
+                            <th key={index}>
+                                {day.toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long' })}
+                            </th>
+                        ))}
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {Array.from({ length: 48 }, (_, index) => {
+                        const hour = Math.floor(index / 2);
+                        const minute = index % 2 === 0 ? 0 : 30;
+                        return (
+                            <tr key={index}>
+                                <td className="calendar-time-cell">{`${hour}:${minute === 0 ? "00" : minute}`}</td>
+                                {weekDays.map((day, index) => {
+                                    const termin = termine.find((t) =>
+                                        t.datum.getDay() === day.getDay() &&
+                                        t.datum.getHours() === hour &&
+                                        t.datum.getMinutes() === minute
+                                    );
+                                    const isMarked = markedDates.some((md) =>
+                                        md.getDay() === day.getDay() &&
+                                        md.getHours() === hour &&
+                                        md.getMinutes() === minute
+                                    );
+                                    return (
+                                        <td
+                                            key={index}
+                                            className={`calendar-event-cell ${isMarked ? 'marked' : ''}`}
+                                            onClick={() => handleMarkCell(day, hour, minute)}
+                                        >
+                                            {termin ? `${termin.tutor} (${termin.fach})` : ""}
+                                        </td>
+                                    );
+                                })}
+                            </tr>
+                        );
+                    })}
+                    </tbody>
+                </table>
+                <button className="action-button" onClick={saveChanges}>
+                    Terminwünsche speichern
+                </button>
+            </div>
+        );
+    };
+
+    const downloadPDF = () => {
+        const doc = new jsPDF();
+        doc.text("Vertrag: Nachhilfevereinbarung", 10, 10);
+        doc.text("Dieser Vertrag regelt die Zusammenarbeit zwischen Ihnen und Ihrem Nachhilfelehrer.", 10, 20);
+        doc.text("AGB:", 10, 30);
+        doc.text("- Pünktlichkeit und Einhaltung der Termine.", 10, 40);
+        doc.text("- 24 Stunden vorher absagen, um Gebühren zu vermeiden.", 10, 50);
+        doc.text("- Technische Voraussetzungen müssen erfüllt sein.", 10, 60);
+        doc.save("Nachhilfevertrag.pdf");
+    };
+
+    const renderContent = () => {
+        switch (activeContent) {
+            case "Postfach":
+                return (
+                    <div>
+                        <h3>Mein Postfach</h3>
+                        <p>Hier finden Sie alle Nachrichten und Benachrichtigungen.</p>
+                    </div>
+                );
+            case "Studienübersicht":
+                return (
+                    <div>
+                        <h3>Meine Studienübersicht</h3>
+                        <p>Hier sehen Sie Ihren Lernfortschritt in allen Fächern.</p>
+                    </div>
+                );
+            case "Kalender":
+                return renderWeeklyCalendar();
+            case "Vertrag":
+                return (
+                    <div>
+                        <h3>Mein Vertrag</h3>
+                        <p>
+                            Dieser Vertrag regelt die Zusammenarbeit zwischen Ihnen und Ihrem Nachhilfelehrer.
+                        </p>
+                        <ul>
+                            <li>Pünktlichkeit und Einhaltung der Termine</li>
+                            <li>Absage von Terminen mindestens 24 Stunden im Voraus</li>
+                            <li>Technische Voraussetzungen müssen erfüllt sein</li>
+                        </ul>
+                        <button className="action-button" onClick={downloadPDF}>
+                            Vertrag herunterladen
+                        </button>
+                    </div>
+                );
+            case "Meine Termine":
+                return (
+                    <div>
+                        <h3>Meine gebuchten Termine</h3>
+                        {termine.map((termin) => (
+                            <div key={termin.id} className="appointment-card">
+                                <p><strong>Datum:</strong> {termin.datum.toLocaleDateString('de-DE')}</p>
+                                <p><strong>Uhrzeit:</strong> {termin.datum.toLocaleTimeString([], {
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                })}</p>
+                                <p><strong>Fach:</strong> {termin.fach}</p>
+                                <p><strong>Lehrer:</strong> {termin.tutor}</p>
+                                <button
+                                    className="action-button"
+                                    onClick={() => window.open("https://rwth.zoom-x.de/j/2697981011", "_blank")}
+                                >
+                                    Unterricht starten
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                );
+            case "Meine Lehrer":
+                return (
+                    <div>
+                        <h3>Meine Lehrer</h3>
+                        <ul>
+                            {termine.map((termin) => (
+                                <li key={termin.id}>
+                                    <strong>{termin.tutor}</strong> ({termin.fach})
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                );
+            case "Meine Stunden":
+                return (
+                    <div>
+                        <h3>Verbleibende Stunden</h3>
+                        {stunden.map((stunde) => (
+                            <div key={stunde.id} className="appointment-card">
+                                <p><strong>{stunde.fach}:</strong> {stunde.verbleibend} Stunden verbleibend</p>
+                            </div>
+                        ))}
+                    </div>
+                );
+            case "Support":
+                return (
+                    <div>
+                        <h3>Support</h3>
+                        <p>Bei Fragen oder Problemen kontaktieren Sie uns bitte:</p>
+                        <p>Email: support@fgqtutor.de</p>
+                        <p>Telefon: 0123-456789</p>
+                    </div>
+                );
+            case "Meine Zahlung":
+                return (
+                    <div>
+                        <h3>Meine Zahlungen</h3>
+                        <p>Hier können Sie Ihre Zahlungshistorie einsehen.</p>
+                    </div>
+                );
+            case "Mein Profil":
+                return (
+                    <div>
+                        <h3>Mein Profil</h3>
+                        <p>Hier können Sie Ihre persönlichen Daten verwalten.</p>
+                    </div>
+                );
+            case "Lehrer suchen":
+                return (
+                    <div>
+                        <h3>Lehrer suchen</h3>
+                        <p>Hier können Sie nach neuen Lehrern für weitere Fächer suchen.</p>
+                    </div>
+                );
+            default:
+                return <p>Bitte wählen Sie eine Option aus der linken Spalte aus.</p>;
         }
     };
 
-    const openContractModal = () => {
-        setIsContractModalOpen(true);
-    };
-
-    const closeContractModal = () => {
-        setIsContractModalOpen(false);
-    };
-
-    const handleNewContract = () => {
-        // Hier könnte Logik für das Erstellen eines neuen Vertrags hinzukommen
-        console.log("Neuen Vertrag abschließen");
-    };
-
     return (
-        <div className="flex flex-col items-center">
-            <div className="flex justify-between w-full p-4">
-                <div className="flex items-center space-x-4">
-                    <label htmlFor="avatar-upload" className="cursor-pointer">
-                        <div className="w-12 h-12 rounded-full overflow-hidden">
-                            <img
-                                src={avatar || "path_to_default_avatar_image"}
-                                alt="Avatar"
-                                className="w-full h-full object-cover"
-                            />
-                        </div>
-                    </label>
-                    <input
-                        type="file"
-                        id="avatar-upload"
-                        accept="image/*"
-                        onChange={handleAvatarChange}
-                        className="hidden"
-                    />
-                </div>
-            </div>
-
-            <div className="flex flex-col items-center mt-10 space-y-4">
-                <ul className="space-y-4 list-none p-0 w-full">
-                    <button className="bg-blue-500 text-white px-6 py-3 rounded w-64 h-12 border-none focus:outline-none">
-                        Postfach
-                    </button>
-
-                    <button className="bg-blue-500 text-white px-6 py-3 rounded w-64 h-12 border-none focus:outline-none">
-                        Studienübersicht
-                    </button>
-
-                    <button className="bg-blue-500 text-white px-6 py-3 rounded w-64 h-12 border-none focus:outline-none">
-                        Kalender
-                    </button>
-
-                    <button className="bg-blue-500 text-white px-6 py-3 rounded w-64 h-12 border-none focus:outline-none">
-                        Meine Lehrer
-                    </button>
-
-                    <button className="bg-blue-500 text-white px-6 py-3 rounded w-64 h-12 border-none focus:outline-none">
-                        Meine Stunde
-                    </button>
-
-                    <button className="bg-blue-500 text-white px-6 py-3 rounded w-64 h-12 border-none focus:outline-none">
-                        Support
-                    </button>
-
-                    <button
-                        className="bg-blue-500 text-white px-6 py-3 rounded w-64 h-12 border-none focus:outline-none"
-                        onClick={openContractModal}
+        <>
+            <div className="user-container">
+                <div className="user-sidebar">
+                    <button 
+                        className={activeContent === "Postfach" ? "active" : ""}
+                        onClick={() => setActiveContent("Postfach")}
                     >
-                        Mein Vertrag
+                        📬 Postfach
                     </button>
-
-                    <button className="bg-blue-500 text-white px-6 py-3 rounded w-64 h-12 border-none focus:outline-none">
-                        Meine Zahlung
+                    <button 
+                        className={activeContent === "Studienübersicht" ? "active" : ""}
+                        onClick={() => setActiveContent("Studienübersicht")}
+                    >
+                        📊 Studienübersicht
                     </button>
-
-                    <button className="bg-blue-500 text-white px-6 py-3 rounded w-64 h-12 border-none focus:outline-none">
-                        Mein Profil
+                    <button 
+                        className={activeContent === "Kalender" ? "active" : ""}
+                        onClick={() => setActiveContent("Kalender")}
+                    >
+                        📅 Kalender
                     </button>
-
-                    <button className="bg-blue-500 text-white px-6 py-3 rounded w-64 h-12 border-none focus:outline-none">
-                        Lehrer suchen
+                    <button 
+                        className={activeContent === "Meine Termine" ? "active" : ""}
+                        onClick={() => setActiveContent("Meine Termine")}
+                    >
+                        ⏰ Meine Termine
                     </button>
-                </ul>
-            </div>
-
-            {/* Modal für Verträge */}
-            {isContractModalOpen && (
-                <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center">
-                    <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-                        <h2 className="text-xl font-bold mb-4">Mein Vertrag</h2>
-                        {contracts.length === 0 ? (
-                            <p>Sie haben noch keinen Vertrag abgeschlossen.</p>
-                        ) : (
-                            <ul>
-                                {contracts.map((contractId, index) => (
-                                    <li key={index} className="mb-2">
-                                        Vertrag ID: {contractId}
-                                    </li>
-                                ))}
-                            </ul>
-                        )}
-                        <div className="mt-4 flex space-x-4">
-                            <button
-                                onClick={closeContractModal}
-                                className="bg-gray-500 text-white px-6 py-3 rounded w-32"
-                            >
-                                Schließen
-                            </button>
-                            <button
-                                onClick={handleNewContract}
-                                className="bg-blue-500 text-white px-6 py-3 rounded w-32"
-                            >
-                                Neuen Vertrag abschließen
-                            </button>
-                        </div>
-                    </div>
+                    <button 
+                        className={activeContent === "Meine Lehrer" ? "active" : ""}
+                        onClick={() => setActiveContent("Meine Lehrer")}
+                    >
+                        👨‍🏫 Meine Lehrer
+                    </button>
+                    <button 
+                        className={activeContent === "Meine Stunden" ? "active" : ""}
+                        onClick={() => setActiveContent("Meine Stunden")}
+                    >
+                        ⏳ Meine Stunden
+                    </button>
+                    <button 
+                        className={activeContent === "Support" ? "active" : ""}
+                        onClick={() => setActiveContent("Support")}
+                    >
+                        🛟 Support
+                    </button>
+                    <button 
+                        className={activeContent === "Vertrag" ? "active" : ""}
+                        onClick={() => setActiveContent("Vertrag")}
+                    >
+                        📝 Vertrag
+                    </button>
+                    <button 
+                        className={activeContent === "Meine Zahlung" ? "active" : ""}
+                        onClick={() => setActiveContent("Meine Zahlung")}
+                    >
+                        💰 Meine Zahlung
+                    </button>
+                    <button 
+                        className={activeContent === "Mein Profil" ? "active" : ""}
+                        onClick={() => setActiveContent("Mein Profil")}
+                    >
+                        👤 Mein Profil
+                    </button>
+                    <button 
+                        className={activeContent === "Lehrer suchen" ? "active" : ""}
+                        onClick={() => setActiveContent("Lehrer suchen")}
+                    >
+                        🔍 Lehrer suchen
+                    </button>
                 </div>
-            )}
-        </div>
+
+                <div className="user-content">
+                    {renderContent()}
+                </div>
+            </div>
+        </>
     );
 }
 
