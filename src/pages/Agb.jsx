@@ -3,7 +3,7 @@ import '../styles/UserPage.css';
 
 export default function Agb() {
   return (
-    <div className="page-container legal-page">
+    <div className="page page-container legal-page">
       <h1>Allgemeine Geschäftsbedingungen (AGB)</h1>
       
       <h2>§ 1 Geltungsbereich</h2>

@@ -3,7 +3,7 @@ import '../styles/UserPage.css';
 
 export default function Blog() {
   return (
-    <div className="page-container">
+    <div className="page page-container">
       <h1>Unser Blog</h1>
       <div className="blog-posts">
         <article className="blog-post">

@@ -22,16 +22,19 @@ export default defineConfig({
           if (id.includes('node_modules/jspdf')) {
             return 'vendor-jspdf';
           }
-          if (id.includes('node_modules')) {
-            return 'vendor';
+          if (id.includes('node_modules/@fullcalendar')) {
+            return 'vendor-fullcalendar';
           }
           // Split routes into individual chunks based on folder structure
           if (id.includes('/src/pages/')) {
             const route = id.split('/src/pages/')[1].split('/')[0];
             return `page-${route}`;
           }
+          if (id.includes('node_modules')) {
+            return 'vendor';
+          }
         }
-      },      
+      },
     }
   },
   server: {

@@ -3,7 +3,7 @@ import '../styles/UserPage.css';
 
 export default function Hilfe() {
   return (
-    <div className="page-container">
+    <div className="page page-container">
       <h1>Hilfe & Support</h1>
       <div className="content-section">
         <h2>Kontaktieren Sie uns</h2>

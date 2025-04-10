@@ -3,7 +3,7 @@ import '../styles/UserPage.css';
 
 export default function Faq() {
   return (
-    <div className="page-container">
+    <div className="page page-container">
       <h1>Häufig gestellte Fragen (FAQ)</h1>
       <div className="content-section">
         <h2>Allgemeine Fragen</h2>

@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client'
 import App from './App.jsx'
 import LoadingScreen from './components/LoadingScreen.jsx'
 
-function Root() {
+export default function Root() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -22,4 +22,4 @@ function Root() {
   );
 }
 
-createRoot(document.getElementById('root')).render(<Root />);
+createRoot(document.getElementById('root')).render(<Root/>);

@@ -14,36 +14,35 @@ import {
   UncontrolledDropdown,
 } from 'reactstrap';
 import "./App.css";
+import LoadingScreen from "./components/LoadingScreen.jsx";
+import logo from "/assets/android-chrome-512x512.png";
 
 // Seitenkomponenten importieren
-import Homepage from "./pages/Homepage.jsx";
-import Abikurs from "./pages/Abikurs.jsx";
-import Beratung from "./pages/Beratung.jsx";
-import RegisterStudent from "./pages/RegisterStudent.jsx";
-import Konzept from "./pages/Konzept.jsx";
-import RegisterTutor from "./pages/RegisterTutor.jsx";
-import Prices from "./pages/Prices.jsx";
-import Login from "./pages/Login.jsx";
-import AboutUs from "./pages/AboutUs.jsx";
-import Linker from "./components/Linker.jsx";
-import TutorSeite from "./pages/Tutor/TutorSeite.jsx";
-import SchuelerSeite from "./pages/Student/SchuelerSeite.jsx";
-import Tutors from "./pages/Tutor/Tutors.jsx";
-import AdminSeite from "./pages/Admin/AdminSeite.jsx";
-import EnterpriseSeite from "./pages/EnterpriseSeite.jsx";
-import SupportSeite from "./pages/Support/SupportSeite.jsx";
-import PasswordReset from "./pages/PasswordReset.jsx";
-import FinanceSeite from "./pages/Billing/FinanceSeite.jsx";
-import Footer from "./components/Footer.jsx";
-import logo from "/assets/android-chrome-512x512.png";
-import LoadingScreen from "./components/LoadingScreen.jsx";
-import Impressum from "./pages/Impressum.jsx";
-import Datenschutz from "./pages/Datenschutz.jsx";
-import Agb from "./pages/Agb.jsx";
-import Faq from "./pages/Faq.jsx";
-import Hilfe from "./pages/Hilfe.jsx";
-import Blog from "./pages/Blog.jsx";
-
+const Homepage = lazy(() => import("./pages/Homepage.jsx"));
+const Abikurs = lazy(() => import("./pages/Abikurs.jsx"));
+const Beratung = lazy(() => import("./pages/Beratung.jsx"));
+const RegisterStudent = lazy(() => import("./pages/RegisterStudent.jsx"));
+const Konzept = lazy(() => import("./pages/Konzept.jsx"));
+const RegisterTutor = lazy(() => import("./pages/RegisterTutor.jsx"));
+const Prices = lazy(() => import("./pages/Prices.jsx"));
+const Login = lazy(() => import("./pages/Login.jsx"));
+const AboutUs = lazy(() => import("./pages/AboutUs.jsx"));
+const Linker = lazy(() => import("./components/Linker.jsx"));
+const TutorSeite = lazy(() => import("./pages/Tutor/TutorSeite.jsx"));
+const SchuelerSeite = lazy(() => import("./pages/Student/SchuelerSeite.jsx"));
+const Tutors = lazy(() => import("./pages/Tutor/Tutors.jsx"));
+const AdminSeite = lazy(() => import("./pages/Admin/AdminSeite.jsx"));
+const EnterpriseSeite = lazy(() => import("./pages/EnterpriseSeite.jsx"));
+const SupportSeite = lazy(() => import("./pages/Support/SupportSeite.jsx"));
+const PasswordReset = lazy(() => import("./pages/PasswordReset.jsx"));
+const FinanceSeite = lazy(() => import("./pages/Billing/FinanceSeite.jsx"));
+const Footer = lazy(() => import("./components/Footer.jsx"));
+const Impressum = lazy(() => import("./pages/Impressum.jsx"));
+const Datenschutz = lazy(() => import("./pages/Datenschutz.jsx"));
+const Agb = lazy(() => import("./pages/Agb.jsx"));
+const Faq = lazy(() => import("./pages/Faq.jsx"));
+const Hilfe = lazy(() => import("./pages/Hilfe.jsx"));
+const Blog = lazy(() => import("./pages/Blog.jsx"));
 const Notfound = lazy(() => import("./pages/Notfound.jsx"));
 const Vortraege = lazy(() => import("./pages/Vortraege.jsx"));
 const Register = lazy(() => import("./pages/Register.jsx"));
@@ -146,7 +145,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Homepage/>}/>
           <Route path="/registrierung" element={<Suspense fallback={<LoadingScreen/>}><Register/></Suspense>}/>
-          <Route path="/abikurs" element={<Abikurs/>}/>
+          <Route path="/abikurs" element={<Suspense fallback={<LoadingScreen/>}><Abikurs/></Suspense>}/>
           <Route path="/beratung" element={<Beratung/>}/>
           <Route path="/ueberuns" element={<AboutUs/>}/>
           <Route path="/login" element={<Login setIsLoggedIn={setIsLoggedIn} setUserRole={setUserRole}/>}/>
@@ -158,7 +157,7 @@ export default function App() {
           <Route path="/tutorseite" element={<TutorSeite/>}/>
           <Route path="/vortraege" element={<Suspense fallback={<LoadingScreen/>}><Vortraege/></Suspense>}/>
           <Route path="/tutors" element={<Tutors/>}/>
-          <Route path="/enterpriseseite" element={<EnterpriseSeite/>}/>
+          <Route path="/enterprise" element={<EnterpriseSeite/>}/>
           <Route path="/support" element={<SupportSeite/>}/>
           <Route path="/admin" element={<AdminSeite/>}/>
           <Route path="/finance" element={<FinanceSeite/>}/>

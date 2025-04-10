@@ -3,7 +3,7 @@ import '../styles/UserPage.css';
 
 export default function Impressum() {
   return (
-    <div className="page-container legal-page">
+    <div className="page page-container legal-page">
       <h1>Impressum</h1>
       
       <h2>Angaben gemäß § 5 TMG</h2>

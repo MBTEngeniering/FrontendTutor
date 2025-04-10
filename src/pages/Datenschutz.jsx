@@ -3,7 +3,7 @@ import '../styles/UserPage.css';
 
 export default function Datenschutz() {
   return (
-    <div className="page-container legal-page">
+    <div className="page page-container legal-page">
       <h1>Datenschutzerklärung</h1>
       
       <h2>1. Datenschutz auf einen Blick</h2>
