@@ -5,6 +5,7 @@ import '../../styles/UserPage.css';
 
 function TutorSeite() {
     const [activeContent, setActiveContent] = useState(null);
+    const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [markedDates, setMarkedDates] = useState([]);
 
@@ -146,7 +147,13 @@ function TutorSeite() {
     return (
         <>
             <div className="user-container">
-                <div className="user-sidebar">
+                <button 
+                    className="sidebar-toggle" 
+                    onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+                >
+                    ☰
+                </button>
+                <div className={`user-sidebar ${isSidebarCollapsed ? 'collapsed' : ''}`}>
                     <button onClick={() => setActiveContent("Kalender")}>📅 Kalender</button>
                     <button onClick={() => setActiveContent("Vertrag")}>📝 Vertrag</button>
                     <button onClick={() => setActiveContent("Meine Termine")}>⏰ Meine Termine</button>

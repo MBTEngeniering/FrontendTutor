@@ -5,6 +5,7 @@ import "../../styles/UserPage.css";
 
 function SchuelerSeite() {
     const [activeContent, setActiveContent] = useState("Kalender");
+    const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [markedDates, setMarkedDates] = useState([]);
 
@@ -187,7 +188,13 @@ function SchuelerSeite() {
     return (
         <>
             <div className="user-container">
-                <div className="user-sidebar">
+                <button 
+                    className="sidebar-toggle" 
+                    onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+                >
+                    ☰
+                </button>
+                <div className={`user-sidebar ${isSidebarCollapsed ? 'collapsed' : ''}`}>
                     <button 
                         className={activeContent === "Postfach" ? "active" : ""}
                         onClick={() => setActiveContent("Postfach")}
