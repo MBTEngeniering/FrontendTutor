@@ -1,27 +1,46 @@
+import React from 'react';
+import '../styles/Footer.css';
+
 export default function Footer() {
   return (
-      <footer className="footer text-center bg-warning pt-4 pb-4">
-        <div className="container">
-          <div className="row">
-            <div className="col-12 text-md-right">
-              <ul className="list-inline">
-                <li className="list-inline-item"><a href="#">Impressum</a></li>
-                <li className="list-inline-item"><a href="#">Datenschutz</a></li>
-                <li className="list-inline-item"><a href="#">AGB</a></li>
-                <li className="list-inline-item"><a href="#">Kontakt</a></li>
-                <li className="list-inline-item"><a href="#">FAQ</a></li>
-                <li className="list-inline-item"><a href="#">Hilfe</a></li>
-                <li className="list-inline-item"><a href="#">Blog</a></li>
-                <li className="list-inline-item"><a href="#">Presse</a></li>
-                <li className="list-inline-item"><a href="#">Partner</a></li>
-              </ul>
-            </div>
-
-            <div className="col-12">
-              <p>&copy; 2025 fairstudy UG. Alle Rechte vorbehalten.</p>
-            </div>
+    <footer className="footer">
+      <div className="footer-content">
+        <div className="footer-section">
+          <h3>Rechtliches</h3>
+          <ul>
+            <li><a href="/impressum">Impressum</a></li>
+            <li><a href="/datenschutz">Datenschutz</a></li>
+            <li><a href="/agb">AGB</a></li>
+          </ul>
+        </div>
+        <div className="footer-section">
+          <h3>Hilfe & Support</h3>
+          <ul>
+            <li><a href="/faq">FAQ</a></li>
+            <li><a href="/hilfe">Hilfe</a></li>
+            <li><a href="/blog">Blog</a></li>
+          </ul>
+        </div>
+        <div className="footer-section">
+          <h3>Kontakt</h3>
+          <ul>
+            <li>Email: info@frontendtutor.de</li>
+            <li>Telefon: +49 123 456789</li>
+            <li>Adresse: Musterstraße 1, 12345 Berlin</li>
+          </ul>
+        </div>
+        <div className="footer-section">
+          <h3>Folgen Sie uns</h3>
+          <div className="social-icons">
+            <a href="#"><i className="fab fa-facebook"></i></a>
+            <a href="#"><i className="fab fa-twitter"></i></a>
+            <a href="#"><i className="fab fa-instagram"></i></a>
           </div>
         </div>
-      </footer>
+      </div>
+      <div className="footer-bottom">
+        &copy; {new Date().getFullYear()} FrontendTutor. Alle Rechte vorbehalten.
+      </div>
+    </footer>
   );
 };

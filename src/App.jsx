@@ -37,6 +37,12 @@ import FinanceSeite from "./pages/Billing/FinanceSeite.jsx";
 import Footer from "./components/Footer.jsx";
 import logo from "/assets/android-chrome-512x512.png";
 import LoadingScreen from "./components/LoadingScreen.jsx";
+import Impressum from "./pages/Impressum.jsx";
+import Datenschutz from "./pages/Datenschutz.jsx";
+import Agb from "./pages/Agb.jsx";
+import Faq from "./pages/Faq.jsx";
+import Hilfe from "./pages/Hilfe.jsx";
+import Blog from "./pages/Blog.jsx";
 
 const Notfound = lazy(() => import("./pages/Notfound.jsx"));
 const Vortraege = lazy(() => import("./pages/Vortraege.jsx"));
@@ -157,6 +163,12 @@ export default function App() {
           <Route path="/admin" element={<AdminSeite/>}/>
           <Route path="/finance" element={<FinanceSeite/>}/>
           <Route path="/passwort-vergessen" element={<PasswordReset/>}/>
+          <Route path="/impressum" element={<Impressum/>}/>
+          <Route path="/datenschutz" element={<Datenschutz/>}/>
+          <Route path="/agb" element={<Agb/>}/>
+          <Route path="/faq" element={<Faq/>}/>
+          <Route path="/hilfe" element={<Hilfe/>}/>
+          <Route path="/blog" element={<Blog/>}/>
 
           {/* Immer zuletzt */}
           <Route path="*" element={<Notfound/>}/>
