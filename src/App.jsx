@@ -150,8 +150,8 @@ export default function App() {
           <Route path="/ueberuns" element={<AboutUs/>}/>
           <Route path="/login" element={<Login setIsLoggedIn={setIsLoggedIn} setUserRole={setUserRole}/>}/>
           <Route path="/preise" element={<Prices/>}/>
-          <Route path="/elternschueler" element={<Suspense fallback={LoadingScreen}><RegisterStudent/></Suspense>}/>
-          <Route path="/lehrer" element={<Suspense fallback={LoadingScreen}><RegisterTutor/></Suspense>}/>
+          <Route path="/elternschueler" element={<Suspense fallback={<LoadingScreen/>}><RegisterStudent/></Suspense>}/>
+          <Route path="/lehrer" element={<Suspense fallback={<LoadingScreen/>}><RegisterTutor/></Suspense>}/>
           <Route path="/konzept" element={<Konzept/>}/>
           <Route path="/schueler" element={<SchuelerSeite/>}/>
           <Route path="/tutorseite" element={<TutorSeite/>}/>

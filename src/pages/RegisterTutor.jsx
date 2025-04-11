@@ -33,9 +33,16 @@ const RegisterTutor = () => {
     });
 
     useEffect(() => {
-        axios.get(apiUrl+"/api/fach")
+        // @TTODO: Use language from settings
+        const lang = navigator.languages[1];
+        axios.get(`${apiUrl}/api/fach/trans/${lang}`)
             .then(response => setAvailableSubjects(response.data))
-            .catch(error => console.error("Fehler beim Laden der Fächer:", error));
+            .catch(function (error) {
+                console.error("Fehler beim Laden der Fächer:", error.message);
+                axios.get(`${apiUrl}/api/fach`)
+                    .then(response => setAvailableSubjects(response.data))
+                    .catch(error => console.error("Fehler beim Laden der Fächer:", error))
+            });
 
         // Länder aus der API laden
         axios.get("https://restcountries.com/v3.1/all")
@@ -55,7 +62,7 @@ const RegisterTutor = () => {
                 setCountries(sortedCountries);
             })
             .catch(error => console.error("Fehler beim Laden der Länder:", error));
-    }, []);
+    }, [apiUrl]);
 
     const handleAddSubject = () => {
         if (selectedSubject && !subjects.includes(selectedSubject)) {
@@ -74,13 +81,13 @@ const RegisterTutor = () => {
         if (!formData.salutation) newErrors.salutation = "Anrede ist erforderlich";
         if (!formData.lastName) newErrors.lastName = "Name ist erforderlich";
         if (!formData.firstName) newErrors.firstName = "Vorname ist erforderlich";
-        if (!formData.emailAddress || !/^\S+@\S+\.\S+$/.test(formData.emailAddress)) 
+        if (!formData.emailAddress || !/^\S+@\S+\.\S+$/.test(formData.emailAddress))
             newErrors.emailAddress = "Gültige E-Mail ist erforderlich";
-        if (!formData.password || formData.password.length < 8) 
+        if (!formData.password || formData.password.length < 8)
             newErrors.password = "Passwort muss mindestens 8 Zeichen haben";
-        if (formData.password !== formData.repeatPassword) 
+        if (formData.password !== formData.repeatPassword)
             newErrors.repeatPassword = "Passwörter stimmen nicht überein";
-        
+
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
@@ -88,12 +95,12 @@ const RegisterTutor = () => {
     const handleSubmit = (e) => {
         e.preventDefault();
         if (!validateForm()) return;
-        
+
         setIsLoading(true);
         handleRegistration(e);
     };
 
-    const handleRegistration = (e) => {
+    const handleRegistration = () => {
         const selectedFachIds = availableSubjects
             .filter(fach => subjects.includes(fach.fach))
             .map(fach => fach.id);
@@ -105,8 +112,8 @@ const RegisterTutor = () => {
             fachIds: selectedFachIds
         };
 
-        axios.post(apiUrl+"/api/tutors", tutorData)
-            .then(response => {
+        axios.post(`${apiUrl}/api/tutors`, tutorData)
+            .then(() => {
                 alert("Tutor erfolgreich registriert!");
                 navigate("/login");
             })
@@ -125,11 +132,11 @@ const RegisterTutor = () => {
             <div className="registration-card">
                 <h2 className="registration-title">Tutor Registrierung</h2>
                 <p className="registration-subtitle">Werden Sie Nachhilfelehrer</p>
-                
+
                 <form onSubmit={handleSubmit} className="registration-form">
                 <div className="form-group">
                     <label className="form-label">Anrede *</label>
-                    <select 
+                    <select
                         className={`form-input ${errors.salutation ? 'error' : ''}`}
                         value={formData.salutation || ""}
                         onChange={(e) => setFormData({...formData, salutation: e.target.value})}
@@ -144,8 +151,8 @@ const RegisterTutor = () => {
                 </div>
                 <div className="form-group">
                     <label className="form-label">Titel</label>
-                    <input 
-                        type="text" 
+                    <input
+                        type="text"
                         className="form-input"
                         value={formData.title || ""}
                         onChange={(e) => setFormData({...formData, title: e.target.value})}
@@ -154,8 +161,8 @@ const RegisterTutor = () => {
 
                 <div className="form-group">
                     <label className="form-label">Name *</label>
-                    <input 
-                        type="text" 
+                    <input
+                        type="text"
                         className={`form-input ${errors.lastName ? 'error' : ''}`}
                         value={formData.lastName || ""}
                         onChange={(e) => setFormData({...formData, lastName: e.target.value})}
@@ -166,8 +173,8 @@ const RegisterTutor = () => {
 
                 <div className="form-group">
                     <label className="form-label">Vorname *</label>
-                    <input 
-                        type="text" 
+                    <input
+                        type="text"
                         className={`form-input ${errors.firstName ? 'error' : ''}`}
                         value={formData.firstName || ""}
                         onChange={(e) => setFormData({...formData, firstName: e.target.value})}
@@ -178,8 +185,8 @@ const RegisterTutor = () => {
 
                 <div className="form-group full-width">
                     <label className="form-label">E-Mail *</label>
-                    <input 
-                        type="email" 
+                    <input
+                        type="email"
                         className={`form-input ${errors.emailAddress ? 'error' : ''}`}
                         value={formData.emailAddress || ""}
                         onChange={(e) => setFormData({...formData, emailAddress: e.target.value})}
@@ -190,8 +197,8 @@ const RegisterTutor = () => {
 
                 <div className="form-group">
                     <label className="form-label">Passwort *</label>
-                    <input 
-                        type="password" 
+                    <input
+                        type="password"
                         className={`form-input ${errors.password ? 'error' : ''}`}
                         value={formData.password || ""}
                         onChange={(e) => setFormData({...formData, password: e.target.value})}
@@ -202,8 +209,8 @@ const RegisterTutor = () => {
 
                 <div className="form-group">
                     <label className="form-label">Passwort wiederholen *</label>
-                    <input 
-                        type="password" 
+                    <input
+                        type="password"
                         className={`form-input ${errors.repeatPassword ? 'error' : ''}`}
                         value={formData.repeatPassword || ""}
                         onChange={(e) => setFormData({...formData, repeatPassword: e.target.value})}
@@ -214,8 +221,8 @@ const RegisterTutor = () => {
 
                 <div className="form-group">
                     <label className="form-label">Straße *</label>
-                    <input 
-                        type="text" 
+                    <input
+                        type="text"
                         className="form-input"
                         value={formData.street || ""}
                         onChange={(e) => setFormData({...formData, street: e.target.value})}
@@ -225,8 +232,8 @@ const RegisterTutor = () => {
 
                 <div className="form-group">
                     <label className="form-label">Hausnummer *</label>
-                    <input 
-                        type="text" 
+                    <input
+                        type="text"
                         className="form-input"
                         value={formData.houseNumber || ""}
                         onChange={(e) => setFormData({...formData, houseNumber: e.target.value})}
@@ -236,8 +243,8 @@ const RegisterTutor = () => {
 
                 <div className="form-group">
                     <label className="form-label">Postleitzahl *</label>
-                    <input 
-                        type="text" 
+                    <input
+                        type="text"
                         className="form-input"
                         value={formData.postalCode || ""}
                         onChange={(e) => setFormData({...formData, postalCode: e.target.value})}
@@ -247,8 +254,8 @@ const RegisterTutor = () => {
 
                 <div className="form-group">
                     <label className="form-label">Stadt *</label>
-                    <input 
-                        type="text" 
+                    <input
+                        type="text"
                         className="form-input"
                         value={formData.city || ""}
                         onChange={(e) => setFormData({...formData, city: e.target.value})}
@@ -274,8 +281,8 @@ const RegisterTutor = () => {
 
                 <div className="form-group">
                     <label className="form-label">Telefonnummer *</label>
-                    <input 
-                        type="tel" 
+                    <input
+                        type="tel"
                         className="form-input"
                         value={formData.phoneNumber || ""}
                         onChange={(e) => setFormData({...formData, phoneNumber: e.target.value})}
@@ -287,19 +294,21 @@ const RegisterTutor = () => {
                 <div className="form-group full-width">
                     <label className="form-label">Fächer</label>
                     <div className="subjects-container">
-                        <select 
+                        <select
                             className="form-input"
                             value={selectedSubject}
                             onChange={(e) => setSelectedSubject(e.target.value)}
                         >
                             <option value="">Bitte wählen</option>
-                            {availableSubjects.map((fach, index) => (
-                                <option key={index} value={fach.fach}>{fach.fach}</option>
+                            {availableSubjects.map((f, index) => (
+                                <option key={index} value={f.fach}>
+                                    {f.translation ? f.translation : f.fach}
+                                </option>
                             ))}
                         </select>
                         <button 
                             type="button" 
-                            className="submit-btn mt-3"
+                            className="submit-btn"
                             onClick={handleAddSubject}
                         >
                             Fach hinzufügen
@@ -308,13 +317,13 @@ const RegisterTutor = () => {
                             {subjects.map((subject, index) => (
                                 <div key={index} className="subject-tag">
                                     <span>{subject}</span>
-                                    <button
-                                        type="button"
-                                        className="remove-subject"
-                                        onClick={() => handleRemoveSubject(subject)}
-                                    >
-                                        ×
-                                    </button>
+                                  <button
+                                      type="button"
+                                      className="remove-subject"
+                                      onClick={() => handleRemoveSubject(subject)}
+                                  >
+                                    ×
+                                  </button>
                                 </div>
                             ))}
                         </div>
