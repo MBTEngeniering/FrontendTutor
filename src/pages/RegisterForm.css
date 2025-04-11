@@ -56,6 +56,27 @@
   grid-column: span 2;
 }
 
+@media (max-width: 768px) {
+  .registration-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .form-group {
+    width: 100%;
+    margin-bottom: 1rem;
+  }
+  
+  .form-input {
+    width: 100%;
+  }
+  
+  .form-actions {
+    flex-direction: column;
+  }
+}
+
 .form-label {
   display: block;
   margin-bottom: 0.5rem;
@@ -213,12 +234,3 @@
   pointer-events: none;
 }
 
-@media (max-width: 768px) {
-  .registration-form {
-    grid-template-columns: 1fr;
-  }
-  
-  .form-group.full-width {
-    grid-column: span 1;
-  }
-}
