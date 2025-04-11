@@ -11,5 +11,4 @@ function PasswordReset() {
         </div>
     );
 }
-
 export default PasswordReset;

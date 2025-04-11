@@ -1,5 +1,5 @@
 import React from 'react';
-import '../styles/UserPage.css';
+import '../../styles/UserPage.css';
 
 export default function Datenschutz() {
   return (

@@ -23,8 +23,8 @@ const Register = () => {
                 </CardBody>
                 <CardFooter style={{backgroundColor: "transparent", border: "none"}}>
                   <hr/>
+                  <Link to="/elternschueler" title="Als Schüler registrieren">
                   <button
-                      onClick={() => window.location.href = "/elternschueler"}
                       className="mb-2 btn btn-primary glossy-button"
                       style={{
                         padding: '10px',
@@ -40,6 +40,7 @@ const Register = () => {
                   >
                     Registrieren
                   </button>
+                  </Link>
                 </CardFooter>
               </Card>
             </Col>

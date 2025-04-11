@@ -13,6 +13,7 @@ body {
 
 .page {
   margin: 16px 10px 30px 10px;
+  min-height: 64vh;
 }
 
 .logo-title {

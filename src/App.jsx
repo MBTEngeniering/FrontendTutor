@@ -37,12 +37,12 @@ const SupportSeite = lazy(() => import("./pages/Support/SupportSeite.jsx"));
 const PasswordReset = lazy(() => import("./pages/PasswordReset.jsx"));
 const FinanceSeite = lazy(() => import("./pages/Billing/FinanceSeite.jsx"));
 const Footer = lazy(() => import("./components/Footer.jsx"));
-const Impressum = lazy(() => import("./pages/Impressum.jsx"));
-const Datenschutz = lazy(() => import("./pages/Datenschutz.jsx"));
-const Agb = lazy(() => import("./pages/Agb.jsx"));
-const Faq = lazy(() => import("./pages/Faq.jsx"));
-const Hilfe = lazy(() => import("./pages/Hilfe.jsx"));
-const Blog = lazy(() => import("./pages/Blog.jsx"));
+const Impressum = lazy(() => import("./pages/FooterPages/Impressum.jsx"));
+const Datenschutz = lazy(() => import("./pages/FooterPages/Datenschutz.jsx"));
+const Agb = lazy(() => import("./pages/FooterPages/Agb.jsx"));
+const Faq = lazy(() => import("./pages/FooterPages/Faq.jsx"));
+const Hilfe = lazy(() => import("./pages/FooterPages/Hilfe.jsx"));
+const Blog = lazy(() => import("./pages/FooterPages/Blog.jsx"));
 const Notfound = lazy(() => import("./pages/Notfound.jsx"));
 const Vortraege = lazy(() => import("./pages/Vortraege.jsx"));
 const Register = lazy(() => import("./pages/Register.jsx"));
@@ -172,7 +172,14 @@ export default function App() {
           {/* Immer zuletzt */}
           <Route path="*" element={<Notfound/>}/>
         </Routes>
-         <Footer/>
+
+
+
+        {/*<div className=" position-absolute bottom-0 w-100">*/}
+        {/*<div className=" justify-content-sm-around position-relative w-100">*/}
+          <Footer/>
+        {/*</div>*/}
+        {/*</div>*/}
       </BrowserRouter>
   );
 }

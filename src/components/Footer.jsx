@@ -1,24 +1,25 @@
-import React from 'react';
 import '../styles/Footer.css';
+import { Link } from "react-router-dom";
 
 export default function Footer() {
+    // Footer component
   return (
     <footer className="footer">
       <div className="footer-content">
         <div className="footer-section">
           <h3>Rechtliches</h3>
           <ul>
-            <li><a href="/impressum">Impressum</a></li>
-            <li><a href="/datenschutz">Datenschutz</a></li>
-            <li><a href="/agb">AGB</a></li>
+            <li><Link to="/impressum">Impressum</Link></li>
+            <li><Link to="/datenschutz">Datenschutz</Link></li>
+            <li><Link to="/agb">AGB</Link></li>
           </ul>
         </div>
         <div className="footer-section">
           <h3>Hilfe & Support</h3>
           <ul>
-            <li><a href="/faq">FAQ</a></li>
-            <li><a href="/hilfe">Hilfe</a></li>
-            <li><a href="/blog">Blog</a></li>
+            <li><Link to="/faq">FAQ</Link></li>
+            <li><Link to="/hilfe">Hilfe</Link></li>
+            <li><Link to="/blog">Blog</Link></li>
           </ul>
         </div>
         <div className="footer-section">
@@ -32,14 +33,14 @@ export default function Footer() {
         <div className="footer-section">
           <h3>Folgen Sie uns</h3>
           <div className="social-icons">
-            <a href="#"><i className="fab fa-facebook"></i></a>
-            <a href="#"><i className="fab fa-twitter"></i></a>
-            <a href="#"><i className="fab fa-instagram"></i></a>
+            <Link to="#"><i className="fab fa-facebook"></i></Link>
+            <Link to="#"><i className="fab fa-twitter"></i></Link>
+            <Link to="#"><i className="fab fa-instagram"></i></Link>
           </div>
         </div>
       </div>
       <div className="footer-bottom">
-        &copy; {new Date().getFullYear()} FrontendTutor. Alle Rechte vorbehalten.
+        &copy; {new Date().getFullYear()} fairstudy UG. Alle Rechte vorbehalten.
       </div>
     </footer>
   );

@@ -16,19 +16,16 @@ const Homepage = () => {
     "/assets/pictures/pexels-yankrukov-8520496.jpg",
   ];
 
-  // currentIndex is declared here
-
-
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentIndex(prev => (prev + 1) % images.length);
-    }, 8000);
+    }, 6000);
     return () => clearInterval(interval);
   }, [images.length]);
 
   return (
       <div className="m-0 p-0">
-        <div style={{position: "relative", height: "92vh"}}>
+        <div style={{position: "relative", height: "94vh"}}>
           {images.map((image, mapIndex) => (
               <img
                   key={image}
