@@ -138,7 +138,7 @@ export default function App() {
                   Registrierung
                 </Link>
               </NavItem>
-              <NavItem>
+              <NavItem className="d-flex">
                 {!isLoggedIn ? (
                     <Link className="nav-link" to="/login">Anmelden</Link>
                 ) : (
@@ -154,7 +154,7 @@ export default function App() {
                               borderRadius: '5px',
                               textAlign: 'center',
                             }}
-                            to="/">Abmelden<br/>
+                            to="/">Abmelden
                       </Link>
                     </>
                 )}
