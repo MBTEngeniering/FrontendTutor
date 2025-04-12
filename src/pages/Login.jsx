@@ -104,7 +104,7 @@ function Login({ setIsLoggedIn, setUserRole }) {
     };
 
     return (
-        <Container>
+        <Container className="page m-auto mt-2">
             <div
                 className="m-auto mt-3"
                 style={{

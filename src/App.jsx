@@ -16,6 +16,7 @@ import {
 import "./App.css";
 import LoadingScreen from "./components/LoadingScreen.jsx";
 import logo from "/assets/android-chrome-512x512.png";
+import lupe from "bootstrap-icons/icons/search.svg";
 
 // Seitenkomponenten importieren
 const Homepage = lazy(() => import("./pages/Homepage.jsx"));
@@ -84,11 +85,27 @@ export default function App() {
             </Linker>
           </NavbarBrand>
           <NavbarToggler onClick={toggle}/>
-          <Collapse isOpen={isOpen} navbar>
-            <Nav className="me-auto" navbar>
+          <Collapse isOpen={isOpen} navbar className="justify-content-end">
+            <form>
+              <input name="search" type="text" placeholder="Schnellsuche..." className="form-control-sm bg-body-secondary"
+              style={{
+                borderRadius: '20px 0 0 20px',
+              }}
+              />
+                <button type="submit" className="btn btn-primary btn-sm" style={{
+                    marginLeft: "0px",
+                    marginRight: "10px",
+                    padding: '5px 10px',
+                    backgroundColor: 'rgb(70,119,241)',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '0 20px 20px 0',
+                }}><img src={lupe} alt="Search"/></button>
+          </form>
+            <Nav className="" navbar>
               <NavItem>
-                <Link to="/registrierung" className="nav-link">
-                  Registrierung
+                <Link to="/abikurs" className="nav-link">
+                  Aktuelles
                 </Link>
               </NavItem>
               <NavItem>
@@ -97,12 +114,10 @@ export default function App() {
                 </Link>
               </NavItem>
               <NavItem>
-                <Link to="/beratung" className="nav-link">
-                  Kostenlose Beratung
-                </Link>
+                <Link className="nav-link" to="/ueberuns">Über Uns</Link>
               </NavItem>
               <NavItem>
-                <Link className="nav-link" to="/ueberuns">Über Uns</Link>
+                <Link className="nav-link" to="/ueberuns">Angebote</Link>
               </NavItem>
               <UncontrolledDropdown nav inNavbar>
                 <DropdownToggle nav caret>
@@ -115,9 +130,15 @@ export default function App() {
                   <DropdownItem><Linker link='/lehrer'>Lehrer werden</Linker></DropdownItem>
                   <DropdownItem><Linker link='/konzept'>Konzept</Linker></DropdownItem>
                   <DropdownItem><Linker link='/vortraege'>Vorträge</Linker></DropdownItem>
+                  <DropdownItem><Linker link="/beratung">Kostenlose Beratung</Linker></DropdownItem>
                 </DropdownMenu>
               </UncontrolledDropdown>
-              <NavItem className="float-end d-flex justify-content-end">
+              <NavItem>
+                <Link to="/registrierung" className="nav-link">
+                  Registrierung
+                </Link>
+              </NavItem>
+              <NavItem>
                 {!isLoggedIn ? (
                     <Link className="nav-link" to="/login">Anmelden</Link>
                 ) : (
@@ -172,14 +193,7 @@ export default function App() {
           {/* Immer zuletzt */}
           <Route path="*" element={<Notfound/>}/>
         </Routes>
-
-
-
-        {/*<div className=" position-absolute bottom-0 w-100">*/}
-        {/*<div className=" justify-content-sm-around position-relative w-100">*/}
-          <Footer/>
-        {/*</div>*/}
-        {/*</div>*/}
+        <Footer/>
       </BrowserRouter>
   );
 }
