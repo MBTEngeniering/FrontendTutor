@@ -17,6 +17,8 @@ import "./App.css";
 import LoadingScreen from "./components/LoadingScreen.jsx";
 import logo from "/img/android-chrome-512x512.png";
 import lupe from "bootstrap-icons/icons/search.svg";
+import WhoWeAre from "./pages/WhoWeAre.jsx";
+import Kontakt from "./pages/Kontakt.jsx";
 
 // Seitenkomponenten importieren
 const Homepage = lazy(() => import("./pages/Homepage.jsx"));
@@ -104,8 +106,8 @@ export default function App() {
           </form>
             <Nav className="" navbar>
               <NavItem>
-                <Link to="/abikurs" className="nav-link">
-                  Aktuelles
+                <Link to="/wer-sind-wir" className="nav-link">
+                  Wer sind wir?
                 </Link>
               </NavItem>
               <NavItem>
@@ -189,6 +191,8 @@ export default function App() {
           <Route path="/faq" element={<Faq/>}/>
           <Route path="/hilfe" element={<Hilfe/>}/>
           <Route path="/blog" element={<Blog/>}/>
+          <Route path="/wer-sind-wir" element={<WhoWeAre/>}/>
+          <Route path="/kontakt" element={<Kontakt/>}/>
 
           {/* Immer zuletzt */}
           <Route path="*" element={<Notfound/>}/>

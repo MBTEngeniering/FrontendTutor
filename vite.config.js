@@ -22,8 +22,12 @@ export default defineConfig({
           if (id.includes('node_modules/@fullcalendar')) {
             return 'vendor-fullcalendar';
           }
+          if (id.includes('/src/components')) {
+            const route = id.split('/src/components/')[1].split('/')[0];
+            return `page-${route}`;
+          }
           // Split routes into individual chunks based on folder structure
-          if (id.includes('/src/pages/')) {
+          if (id.includes('/src/pages')) {
             const route = id.split('/src/pages/')[1].split('/')[0];
             return `page-${route}`;
           }
