@@ -15,7 +15,7 @@ import {
 } from 'reactstrap';
 import "./App.css";
 import LoadingScreen from "./components/LoadingScreen.jsx";
-import logo from "/assets/android-chrome-512x512.png";
+import logo from "/img/android-chrome-512x512.png";
 import lupe from "bootstrap-icons/icons/search.svg";
 
 // Seitenkomponenten importieren

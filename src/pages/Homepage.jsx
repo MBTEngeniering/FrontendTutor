@@ -1,19 +1,19 @@
 import React, { useEffect, useState } from "react";
-import logo from "/assets/android-chrome-512x512.png";
+import logo from "/img/android-chrome-512x512.png";
 
 const Homepage = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const images = [
-    "/assets/pictures/istockphoto-875614148-1024x1024.jpg",
-    "/assets/pictures/istockphoto-1864671713-1024x1024.jpg",
-    "/assets/pictures/pexels-diimejii-3118214.jpg",
-    "/assets/pictures/pexels-gabby-k-6238038.jpg",
-    "/assets/pictures/pexels-george-milton-7014876.jpg",
-    "/assets/pictures/pexels-katerina-holmes-5905557.jpg",
-    "/assets/pictures/pexels-katerina-holmes-5905703.jpg",
-    "/assets/pictures/pexels-keira-burton-6084263.jpg",
-    "/assets/pictures/pexels-yankrukov-8520496.jpg",
+    "/img/pictures/istockphoto-875614148-1024x1024.jpg",
+    "/img/pictures/istockphoto-1864671713-1024x1024.jpg",
+    "/img/pictures/pexels-diimejii-3118214.jpg",
+    "/img/pictures/pexels-gabby-k-6238038.jpg",
+    "/img/pictures/pexels-george-milton-7014876.jpg",
+    "/img/pictures/pexels-katerina-holmes-5905557.jpg",
+    "/img/pictures/pexels-katerina-holmes-5905703.jpg",
+    "/img/pictures/pexels-keira-burton-6084263.jpg",
+    "/img/pictures/pexels-yankrukov-8520496.jpg",
   ];
 
   useEffect(() => {
