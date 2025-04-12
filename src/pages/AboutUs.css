@@ -1,7 +1,7 @@
 .about-us-container {
     display: flex;
     flex-direction: column;
-^^^^^^^^^^    background-color: #f8f9fa;
+    background-color: #f8f9fa;
 }
 
 .about-us-content {
