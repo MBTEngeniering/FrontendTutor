@@ -5,7 +5,7 @@ export default function Kontakt() {
       <Container className="page">
         <Row>
           <Col xs="12" md="8" className="">
-            <h2>Kontakt</h2>
+            <h1>Kontakt</h1>
             <p>Wir freuen uns, von Ihnen zu hören! Bitte füllen Sie das folgende Formular aus, um uns zu
               kontaktieren.</p>
             <form>
