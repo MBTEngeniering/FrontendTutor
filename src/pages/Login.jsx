@@ -22,12 +22,12 @@ function Login({ setIsLoggedIn, setUserRole }) {
         6: "Manage",
     };
     const userRoleIdToPage = {
-        1: "/schuelerseite",
-        2: "/tutorseite",
-        3: "/enterpriseseite",
-        4: "/financeseite",
-        5: "/adminSeite",
-        6: "/manageseite",
+        1: "/schueler",
+        2: "/tutor",
+        3: "/enterprise",
+        4: "/finance",
+        5: "/admin",
+        6: "/manage",
     };
 
 

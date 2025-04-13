@@ -32,14 +32,14 @@ const Prices = lazy(() => import("./pages/Prices.jsx"));
 const Login = lazy(() => import("./pages/Login.jsx"));
 const AboutUs = lazy(() => import("./pages/AboutUs.jsx"));
 const Linker = lazy(() => import("./components/Linker.jsx"));
-const TutorSeite = lazy(() => import("./pages/Tutor/TutorSeite.jsx"));
-const SchuelerSeite = lazy(() => import("./pages/Student/SchuelerSeite.jsx"));
+const Tutor = lazy(() => import("./pages/Tutor/TutorSeite.jsx"));
+const Schueler = lazy(() => import("./pages/Student/SchuelerSeite.jsx"));
 const Tutors = lazy(() => import("./pages/Tutor/Tutors.jsx"));
-const AdminSeite = lazy(() => import("./pages/Admin/AdminSeite.jsx"));
-const EnterpriseSeite = lazy(() => import("./pages/EnterpriseSeite.jsx"));
-const SupportSeite = lazy(() => import("./pages/Support/SupportSeite.jsx"));
+const Admin = lazy(() => import("./pages/Admin/AdminSeite.jsx"));
+const Enterprise = lazy(() => import("./pages/EnterpriseSeite.jsx"));
+const Support = lazy(() => import("./pages/Support/SupportSeite.jsx"));
 const PasswordReset = lazy(() => import("./pages/PasswordReset.jsx"));
-const FinanceSeite = lazy(() => import("./pages/Billing/FinanceSeite.jsx"));
+const Finance = lazy(() => import("./pages/Billing/FinanceSeite.jsx"));
 const Footer = lazy(() => import("./components/Footer.jsx"));
 const Impressum = lazy(() => import("./pages/FooterPages/Impressum.jsx"));
 const Datenschutz = lazy(() => import("./pages/FooterPages/Datenschutz.jsx"));
@@ -178,15 +178,15 @@ export default function App() {
           <Route path="/elternschueler" element={<Suspense fallback={<LoadingScreen/>}><RegisterStudent/></Suspense>}/>
           <Route path="/lehrer" element={<Suspense fallback={<LoadingScreen/>}><RegisterTutor/></Suspense>}/>
           <Route path="/konzept" element={<Konzept/>}/>
-          <Route path="/schueler" element={<SchuelerSeite/>}/>
-          <Route path="/tutorseite" element={<TutorSeite/>}/>
+          <Route path="/schueler" element={<Schueler/>}/>
+          <Route path="/tutor" element={<Tutor/>}/>
           <Route path="/vortraege" element={<Suspense fallback={<LoadingScreen/>}><Vortraege/></Suspense>}/>
           <Route path="/tutors" element={<Tutors/>}/>
-          <Route path="/enterpriseseite" element={<EnterpriseSeite/>}/>
-          <Route path="/manageseite" element={<Manage/>}/>
-          <Route path="/support" element={<SupportSeite/>}/>
-          <Route path="/adminSeite" element={<AdminSeite/>}/>
-          <Route path="/financeseite" element={<FinanceSeite/>}/>
+          <Route path="/enterprise" element={<Enterprise/>}/>
+          <Route path="/manage" element={<Manage/>}/>
+          <Route path="/support" element={<Support/>}/>
+          <Route path="/admin" element={<Admin/>}/>
+          <Route path="/finance" element={<Finance/>}/>
           <Route path="/passwort-vergessen" element={<PasswordReset/>}/>
           <Route path="/impressum" element={<Impressum/>}/>
           <Route path="/datenschutz" element={<Datenschutz/>}/>
