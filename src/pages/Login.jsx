@@ -98,7 +98,7 @@ function Login({ setIsLoggedIn, setUserRole }) {
         localStorage.setItem("userRole", "TUTOR");
         localStorage.setItem("selectedUserRoleId", roleId);
         setIsLoggedIn(true);
-        setUserRole("TUTOR");
+        setUserRole(userRoleIdToName[roleId]);
         setModalOpen(false); // Schließe das Modal
         navigate(userRoleIdToPage[roleId]);
     };

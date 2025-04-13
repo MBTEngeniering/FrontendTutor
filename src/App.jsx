@@ -19,6 +19,7 @@ import logo from "/img/android-chrome-512x512.png";
 import lupe from "bootstrap-icons/icons/search.svg";
 import WhoWeAre from "./pages/WhoWeAre.jsx";
 import Kontakt from "./pages/Kontakt.jsx";
+import ManageSeite from "./pages/ManageSeite.jsx";
 
 // Seitenkomponenten importieren
 const Homepage = lazy(() => import("./pages/Homepage.jsx"));
@@ -49,6 +50,7 @@ const Blog = lazy(() => import("./pages/FooterPages/Blog.jsx"));
 const Notfound = lazy(() => import("./pages/Notfound.jsx"));
 const Vortraege = lazy(() => import("./pages/Vortraege.jsx"));
 const Register = lazy(() => import("./pages/Register.jsx"));
+const Manage = lazy(() => import("./pages/ManageSeite.jsx"));
 
 export default function App() {
   const [isOpen, setIsOpen] = useState(false);
@@ -145,7 +147,7 @@ export default function App() {
                     <Link className="nav-link" to="/login">Anmelden</Link>
                 ) : (
                     <>
-                      <span className="nav-link">{userRole === "STUDENT" ? "Schüler" : "Tutor"} eingeloggt<br/></span>
+                      <span className="nav-link"> erfolgreich eingeloggt<br/></span>
                       <Link className="nav-link me-lg-3" onClick={handleLogout}
                             style={{
                               marginLeft: "20px",
@@ -180,10 +182,11 @@ export default function App() {
           <Route path="/tutorseite" element={<TutorSeite/>}/>
           <Route path="/vortraege" element={<Suspense fallback={<LoadingScreen/>}><Vortraege/></Suspense>}/>
           <Route path="/tutors" element={<Tutors/>}/>
-          <Route path="/enterprise" element={<EnterpriseSeite/>}/>
+          <Route path="/enterpriseseite" element={<EnterpriseSeite/>}/>
+          <Route path="/manageseite" element={<Manage/>}/>
           <Route path="/support" element={<SupportSeite/>}/>
-          <Route path="/admin" element={<AdminSeite/>}/>
-          <Route path="/finance" element={<FinanceSeite/>}/>
+          <Route path="/adminSeite" element={<AdminSeite/>}/>
+          <Route path="/financeseite" element={<FinanceSeite/>}/>
           <Route path="/passwort-vergessen" element={<PasswordReset/>}/>
           <Route path="/impressum" element={<Impressum/>}/>
           <Route path="/datenschutz" element={<Datenschutz/>}/>
