@@ -147,7 +147,7 @@ export default function App() {
                     <Link className="nav-link" to="/login">Anmelden</Link>
                 ) : (
                     <>
-                      <span className="nav-link"> erfolgreich eingeloggt<br/></span>
+                      <span className="nav-link">  Willkommen, {localStorage.getItem("firstName")} {localStorage.getItem("lastName")}<br/></span>
                       <Link className="nav-link me-lg-3" onClick={handleLogout}
                             style={{
                               marginLeft: "20px",

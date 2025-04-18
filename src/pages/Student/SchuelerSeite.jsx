@@ -1,39 +1,256 @@
-import React, { useState } from "react";
+import React, {useEffect, useState} from "react";
 import { jsPDF } from "jspdf";
 import "../../styles/UserPage.css";
+import axios from "axios";
+import { DateTime } from 'luxon';
 
 function SchuelerSeite() {
+    const apiUrl = import.meta.env.VITE_API_URL;
     const [activeContent, setActiveContent] = useState("Kalender");
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [markedDates, setMarkedDates] = useState([]);
+    const [selectedSubject, setSelectedSubject] = useState("");
+    const [availableSubjects, setAvailableSubjects] = useState([]);
+    const [subjects, setSubjects] = useState([]);
+    const [tutors, setTutors] = useState([]);
+    const [selectedTutor, setSelectedTutor] = useState(null); // Zustand für den ausgewählten Tutor
+    const [showModal, setShowModal] = useState(false);
+    const [selectedSalutation, setSelectedSalutation] = useState("");
+    const [selectedTitle, setSelectedTitle] = useState("");
+    const [selectedPostalCode, setSelectedPostalCode] = useState("");
+    const [selectedCity, setSelectedCity] = useState("");
+    const [selectedCountry, setSelectedCountry] = useState("");
+    const [selectedAge, setSelectedAge] = useState("");
+    const [selectedFachId, setSelectedFachId] = useState(null);
+    const [meineTutoren, setMeineTutoren] = useState([]);
+
 
     // Student-specific data
     const termine = [
-        { id: 1, datum: new Date(2025, 2, 24, 10, 30), fach: "Mathematik", tutor: "Herr Müller" },
-        { id: 2, datum: new Date(2025, 2, 25, 14, 0), fach: "Physik", tutor: "Frau Schmidt" },
-        { id: 3, datum: new Date(2025, 2, 27, 16, 0), fach: "Englisch", tutor: "Herr Wagner" }
+
     ];
+
 
     const stunden = [
-        { id: 1, fach: "Mathematik", verbleibend: 5 },
-        { id: 2, fach: "Physik", verbleibend: 3 },
-        { id: 3, fach: "Englisch", verbleibend: 2 }
-    ];
 
-    const handleMarkCell = (day, hour, minute) => {
-        const newMarkedDate = new Date(day);
-        newMarkedDate.setHours(hour, minute);
-        setMarkedDates([...markedDates, newMarkedDate]);
+    ];
+    useEffect(() => {
+        // @TTODO: Use language from settings
+        const lang = navigator.languages[1];
+        axios.get(`${apiUrl}/api/fach/trans/${lang}`)
+            .then(response => setAvailableSubjects(response.data))
+            .catch(function (error) {
+                console.error("Fehler beim Laden der Fächer:", error.message);
+                axios.get(`${apiUrl}/api/fach`)
+                    .then(response => setAvailableSubjects(response.data))
+                    .catch(error => console.error("Fehler beim Laden der Fächer:", error))
+            })
+
+            .catch(error => console.error("Fehler beim Laden der Fächer:", error));
+
+        axios.get(`${apiUrl}/api/tutors`)
+            .then(response => {
+                console.log(response.data);  // Überprüfe, ob die Tutor-Daten ankommen
+                setTutors(response.data);
+            })
+            .catch(error => console.error("Fehler beim Laden der Tutoren:", error));
+        const fetchMeineTutoren = async () => {
+            const result = await MeineTutor();
+            setMeineTutoren(result);
+        };
+
+        fetchMeineTutoren();
+    }, [apiUrl]);
+
+
+    const showDetails = (tutor) => {
+        setSelectedTutor(tutor);
+        //setShowModal(true); // Modal anzeigen
+        const tutorInfo = `
+        Name: ${tutor.firstName} ${tutor.lastName}
+        Titel: ${tutor.title}
+        Anrede: ${tutor.salutation}
+        Land: ${tutor.country}
+        Stadt: ${tutor.city}
+        Postleitzahl: ${tutor.postalCode}
+        Alter: ${calculateAge(tutor.dateOfBirth)}
+        Beschreibung: ${tutor.description || 'Keine Beschreibung verfügbar'}
+    `;
+        alert(tutorInfo);
     };
+
+    const MeineTutor = async () => {
+        try {
+            const loggedInUser = JSON.parse(localStorage.getItem('isLoggedIn'));
+            if (!loggedInUser) {
+                alert("Bitte melden Sie sich an, um einen Tutor auszuwählen.");
+                return [];
+            }
+
+            const userId = localStorage.getItem("userId");
+            const userRole = localStorage.getItem("userRole");
+
+            if (!userId || !userRole) {
+                console.warn("Benutzer nicht eingeloggt oder keine Rolle gesetzt.");
+                return [];
+            }
+
+            let response;
+
+            if (userRole === "STUDENT") {
+                response = await axios.get(`${apiUrl}/api/students/${userId}`);
+            } else {
+                response = await axios.get(`${apiUrl}/api/tutors/${userId}`);
+            }
+
+            const user = response.data;
+            const tutorsIds = user.tutorsIds || [];
+            const tutorsList = [];
+            for (const tutorId of tutorsIds) {
+                try {
+                    const tutorResponse = await axios.get(`${apiUrl}/api/tutors/${tutorId}`);
+                    tutorsList.push(tutorResponse.data);
+                } catch (tutorError) {
+                    console.warn(`Tutor mit ID ${tutorId} konnte nicht geladen werden:`, tutorError);
+                }
+            }
+
+            return tutorsList;
+
+        } catch (error) {
+            console.error("Fehler beim Laden der Tutoren:", error);
+            return [];
+        }
+    };
+
+    const chooseTutor = async (tutor) => {
+        try {
+            setSelectedTutor(tutor);
+            const loggedInUser = JSON.parse(localStorage.getItem('isLoggedIn'));
+            if (!loggedInUser) {
+                alert("Bitte melden Sie sich an, um einen Tutor auszuwählen.");
+                return;
+            }
+            const userId = localStorage.getItem("userId");
+            const userRole = localStorage.getItem("userRole");
+
+            let response;
+            if (userRole === "STUDENT") {
+                response = await axios.get(`${apiUrl}/api/students/${userId}`);
+            } else {
+                response = await axios.get(`${apiUrl}/api/tutors/${userId}`);
+            }
+
+
+            const user = response.data;
+            const tutorsIds = user.tutorsIds || [];
+            if (tutorsIds.includes(tutor.id)) {
+                alert("Dieser Tutor wurde bereits als dein Tutor .");
+                return;
+            }
+            else{
+                tutorsIds.push(tutor.id)
+
+                if (userRole === "STUDENT") {
+                    await axios.put(`${apiUrl}/api/students/${userId}`, user);
+                } else {
+                    await axios.put(`${apiUrl}/api/tutors/${userId}`, user);
+                }
+                alert("Du hast den Tutor "+ tutor.lastName +" "+ tutor.firstName +" erfolgreich ausgewählen und  kannst schon Studen buchen")
+
+            }
+
+
+        } catch (error) {
+            console.error("Fehler:", error);
+            alert("Es gab ein Problem beim Wählen des Tutors.");
+        }
+    };
+
+    const closeModal = () => {
+        setShowModal(false);
+        setSelectedTutor(null);
+    };
+    const handleMarkCell = (day, hour, minute) => {
+
+    };
+
+    const calculateAge = (birthdate) => {
+        if (!birthdate) { // Prüfen, ob birthdate null oder leer ist
+            return null;
+        }
+
+        const currentDate = DateTime.now();
+        const birthDate = DateTime.fromISO(birthdate);
+
+        let age = currentDate.year - birthDate.year;
+
+        // Überprüfen, ob der Geburtstag in diesem Jahr bereits vergangen ist
+        if (
+            currentDate.month < birthDate.month ||
+            (currentDate.month === birthDate.month && currentDate.day < birthDate.day)
+        ) {
+            age--;
+        }
+
+        return age;
+    };
+
+
+    const filteredTutors = tutors.filter((tutor) => {
+        const matchesSubject =
+            selectedSubject === "" ||
+            (selectedFachId && tutor.fachIds?.includes(selectedFachId));
+
+        const matchesSalutation =
+            selectedSalutation === "" || tutor.salutation?.toLowerCase().includes(selectedSalutation.toLowerCase());
+        const matchesTitle =
+            selectedTitle === "" || tutor.title?.toLowerCase().includes(selectedTitle.toLowerCase());
+        const matchesPostalCode =
+            selectedPostalCode === "" || tutor.postalCode?.toString().includes(selectedPostalCode);
+        const matchesCity =
+            selectedCity === "" || tutor.city?.toLowerCase().includes(selectedCity.toLowerCase());
+        const matchesCountry =
+            selectedCountry === "" || tutor.country?.toLowerCase().includes(selectedCountry.toLowerCase());
+        const matchesAge =
+            selectedAge === "" || calculateAge(tutor.dateOfBirth)?.toString().includes(selectedAge);
+
+        return (
+            matchesSubject &&
+            matchesSalutation &&
+            matchesTitle &&
+            matchesPostalCode &&
+            matchesCity &&
+            matchesCountry &&
+            matchesAge
+        );
+    });
 
     const saveChanges = () => {
-        console.log("Änderungen gespeichert:", markedDates);
-        alert("Änderungen im Kalender wurden gespeichert!");
+
+    };
+    const getFachId = async (fachName) => {
+        try {
+            const response = await fetch(`${apiUrl}/api/fach/search?fach=${encodeURIComponent(fachName)}`);
+            if (!response.ok) {
+                throw new Error("Fehler beim Abrufen des Fachs");
+            }
+            const data = await response.json();
+            if (data && data.id) {
+                return data.id;
+            } else {
+                throw new Error("Fach nicht gefunden");
+            }
+        } catch (error) {
+            console.error("Fehler in getFachId:", error);
+            return null;
+        }
     };
 
+
     const renderWeeklyCalendar = () => {
-       
+
         const startOfWeek = new Date(selectedDate);
         startOfWeek.setDate(selectedDate.getDate() - selectedDate.getDay());
 
@@ -42,7 +259,7 @@ function SchuelerSeite() {
             day.setDate(day.getDate() + index);
             return day;
         });
- 
+
         return (
             <div>
                 <h3>Mein Stundenplan</h3>
@@ -97,6 +314,16 @@ function SchuelerSeite() {
         );
     };
 
+    const handleStundeBuchen = (tutor) => {
+        alert(
+            "Stunde buchen mit:\n" +
+            "Vorname: " + tutor.firstName + "\n" +
+            "Nachname: " + tutor.lastName + "\n" +
+            "E-Mail: " + tutor.emailAddress + "\n" +
+            "Land: " + tutor.country + "\n" +
+            "ID: " + tutor.id
+        );
+    };
     const downloadPDF = () => {
         const doc = new jsPDF();
         doc.text("Vertrag: Nachhilfevereinbarung", 10, 10);
@@ -170,13 +397,23 @@ function SchuelerSeite() {
                 return (
                     <div>
                         <h3>Meine Lehrer</h3>
-                        <ul>
-                            {termine.map((termin) => (
-                                <li key={termin.id}>
-                                    <strong>{termin.tutor}</strong> ({termin.fach})
-                                </li>
-                            ))}
-                        </ul>
+                        {meineTutoren.length === 0 ? (
+                            <p>Keine Lehrer vorhanden. Bitte wählen Sie Lehrer aus.</p>
+                        ) : (
+                            <ul>
+                                {meineTutoren.map((tutor, index) => (
+                                    <li key={index} style={{ marginBottom: "10px" }}>
+                                        {tutor.firstName} {tutor.lastName}
+                                        <button
+                                            className="btn btn-primary btn-sm"
+                                            onClick={() => handleStundeBuchen(tutor)}
+                                        >
+                                            Stunde buchen
+                                        </button>
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
                     </div>
                 );
             case "Meine Stunden":
@@ -215,11 +452,146 @@ function SchuelerSeite() {
                 );
             case "Lehrer suchen":
                 return (
-                    <div>
-                        <h3>Lehrer suchen</h3>
-                        <p>Hier können Sie nach neuen Lehrern für weitere Fächer suchen.</p>
+                    <div className="form-group full-width">
+                        <label className="form-label">Fächer</label>
+                        <div className="subjects-container">
+                            <select
+                                className="form-input"
+                                value={selectedSubject}
+                                onChange={async (e) => {
+                                    const selectedFach = e.target.value;
+                                    setSelectedSubject(selectedFach);
+
+                                    // Aufrufen der Funktion getFachId mit dem ausgewählten Fachnamen
+                                    const fachId = await getFachId(selectedFach);
+
+                                    if (fachId) {
+                                        setSelectedFachId(fachId);
+                                    }
+                                }}
+                            >
+                                <option value="">Bitte wählen</option>
+                                {availableSubjects.map((f, index) => (
+                                    <option key={index} value={f.fach}>
+                                        {f.translation ? f.translation : f.fach}
+                                    </option>
+                                ))}
+                            </select>
+
+                            <div className="subjects-list">
+                                {subjects.map((subject, index) => (
+                                    <div key={index} className="subject-tag">
+                                        <span>{subject}</span>
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* Tutor List Table */}
+                            <h3>Verfügbare Lehrer</h3>
+                            {/* Filterfelder */}
+                            <div className="filter-grid">
+                                <input
+                                    type="text"
+                                    className="form-input"
+                                    placeholder="Anrede"
+                                    value={selectedSalutation}
+                                    onChange={(e) => setSelectedSalutation(e.target.value)}
+                                />
+                                <input
+                                    type="text"
+                                    className="form-input"
+                                    placeholder="Titel"
+                                    value={selectedTitle}
+                                    onChange={(e) => setSelectedTitle(e.target.value)}
+                                />
+                                <input
+                                    type="text"
+                                    className="form-input"
+                                    placeholder="Land"
+                                    value={selectedCountry}
+                                    onChange={(e) => setSelectedCountry(e.target.value)}
+                                />
+                                <input
+                                    type="text"
+                                    className="form-input"
+                                    placeholder="Postleitzahl"
+                                    value={selectedPostalCode}
+                                    onChange={(e) => setSelectedPostalCode(e.target.value)}
+                                />
+                                <input
+                                    type="text"
+                                    className="form-input"
+                                    placeholder="Stadt"
+                                    value={selectedCity}
+                                    onChange={(e) => setSelectedCity(e.target.value)}
+                                />
+                                <input
+                                    type="number"
+                                    className="form-input"
+                                    placeholder="Alter"
+                                    value={selectedAge}
+                                    onChange={(e) => setSelectedAge(e.target.value)}
+                                />
+                            </div>
+
+                            {/* Tutorentabelle */}
+                            <table className="tutor-table">
+                                <thead>
+                                <tr>
+                                    <th>Anrede</th>
+                                    <th>Titel</th>
+                                    <th>Nachname</th>
+                                    <th>Vorname</th>
+                                    <th>Land</th>
+                                    <th>Postleitzahl</th>
+                                    <th>Stadt</th>
+                                    <th>Alter</th>
+                                    <th>Aktionen</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {filteredTutors.length > 0 ? (
+                                    filteredTutors.map((tutor, index) => (
+                                        <tr key={index}>
+                                            <td>{tutor.salutation}</td>
+                                            <td>{tutor.title}</td>
+                                            <td>{tutor.lastName}</td>
+                                            <td>{tutor.firstName}</td>
+                                            <td>{tutor.country}</td>
+                                            <td>{tutor.postalCode}</td>
+                                            <td>{tutor.city}</td>
+                                            <td>{calculateAge(tutor.dateOfBirth)}</td>
+                                            <td>
+                                                <button className="action-button" onClick={() => showDetails(tutor)}>
+                                                    Details
+                                                </button>
+                                                <button className="action-button" onClick={() => chooseTutor(tutor)}>
+                                                    Auswählen
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))
+                                ) : (
+                                    <tr>
+                                        <td colSpan="9">Keine passenden Tutoren gefunden.</td>
+                                    </tr>
+                                )}
+                                </tbody>
+                            </table>
+                            {showModal && selectedTutor && (
+                                <div className="modal-overlay">
+                                    <div className="modal-content">
+                                        <h2>{selectedTutor.firstName} {selectedTutor.lastName}</h2>
+                                        <p><strong>Beschreibung:</strong></p>
+                                        <p>{selectedTutor.description}</p>
+                                        <button onClick={closeModal}>Schließen</button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 );
+
             default:
                 return <p>Bitte wählen Sie eine Option aus der linken Spalte aus.</p>;
         }
@@ -228,74 +600,74 @@ function SchuelerSeite() {
     return (
         <>
             <div className="user-container">
-                <button 
-                    className="sidebar-toggle" 
+                <button
+                    className="sidebar-toggle"
                     onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
                 >
                     ☰
                 </button>
                 <div className={`user-sidebar ${isSidebarCollapsed ? 'collapsed' : ''}`}>
-                    <button 
+                    <button
                         className={activeContent === "Postfach" ? "active" : ""}
                         onClick={() => setActiveContent("Postfach")}
                     >
                         📬 Postfach
                     </button>
-                    <button 
+                    <button
                         className={activeContent === "Studienübersicht" ? "active" : ""}
                         onClick={() => setActiveContent("Studienübersicht")}
                     >
                         📊 Studienübersicht
                     </button>
-                    <button 
+                    <button
                         className={activeContent === "Kalender" ? "active" : ""}
                         onClick={() => setActiveContent("Kalender")}
                     >
                         📅 Kalender
                     </button>
-                    <button 
+                    <button
                         className={activeContent === "Meine Termine" ? "active" : ""}
                         onClick={() => setActiveContent("Meine Termine")}
                     >
                         ⏰ Meine Termine
                     </button>
-                    <button 
+                    <button
                         className={activeContent === "Meine Lehrer" ? "active" : ""}
                         onClick={() => setActiveContent("Meine Lehrer")}
                     >
                         👨‍🏫 Meine Lehrer
                     </button>
-                    <button 
+                    <button
                         className={activeContent === "Meine Stunden" ? "active" : ""}
                         onClick={() => setActiveContent("Meine Stunden")}
                     >
                         ⏳ Meine Stunden
                     </button>
-                    <button 
+                    <button
                         className={activeContent === "Support" ? "active" : ""}
                         onClick={() => setActiveContent("Support")}
                     >
                         🛟 Support
                     </button>
-                    <button 
+                    <button
                         className={activeContent === "Vertrag" ? "active" : ""}
                         onClick={() => setActiveContent("Vertrag")}
                     >
                         📝 Vertrag
                     </button>
-                    <button 
+                    <button
                         className={activeContent === "Meine Zahlung" ? "active" : ""}
                         onClick={() => setActiveContent("Meine Zahlung")}
                     >
                         💰 Meine Zahlung
                     </button>
-                    <button 
+                    <button
                         className={activeContent === "Mein Profil" ? "active" : ""}
                         onClick={() => setActiveContent("Mein Profil")}
                     >
                         👤 Mein Profil
                     </button>
-                    <button 
+                    <button
                         className={activeContent === "Lehrer suchen" ? "active" : ""}
                         onClick={() => setActiveContent("Lehrer suchen")}
                     >

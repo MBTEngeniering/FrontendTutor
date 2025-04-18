@@ -44,6 +44,9 @@ function Login({ setIsLoggedIn, setUserRole }) {
                 const roleIds = student.userRoleIds || [];
                 setTutorId(student.id);
                 setUserRoleIds(roleIds);
+                localStorage.setItem("userId", student.id);
+                localStorage.setItem("firstName", student.firstName);
+                localStorage.setItem("lastName", student.lastName);
                 if (roleIds.length === 1) {
                     localStorage.setItem("isLoggedIn", "true");
                     localStorage.setItem("userRole", "STUDENT");
@@ -74,6 +77,9 @@ function Login({ setIsLoggedIn, setUserRole }) {
                     //alert(`Erfolgreich als Tutor eingeloggt. Tutor-ID: ${tutor.id}`);
                     setTutorId(tutor.id);
                     setUserRoleIds(roleIds);
+                    localStorage.setItem("userId", tutor.id);
+                    localStorage.setItem("firstName", tutor.firstName);
+                    localStorage.setItem("lastName", tutor.lastName);
 
                     if (roleIds.length === 1) {
                         localStorage.setItem("isLoggedIn", "true");
