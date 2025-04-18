@@ -3,6 +3,7 @@ import { jsPDF } from "jspdf";
 import "../../styles/UserPage.css";
 import axios from "axios";
 import { DateTime } from 'luxon';
+import {Button} from "reactstrap";
 
 function SchuelerSeite() {
     const apiUrl = import.meta.env.VITE_API_URL;
@@ -24,6 +25,9 @@ function SchuelerSeite() {
     const [selectedAge, setSelectedAge] = useState("");
     const [selectedFachId, setSelectedFachId] = useState(null);
     const [meineTutoren, setMeineTutoren] = useState([]);
+    const [loggedInUser, setLoggedInUser] = useState(null);
+    const [originalUser, setOriginalUser] = useState(null);
+
 
 
     // Student-specific data
@@ -59,9 +63,44 @@ function SchuelerSeite() {
             const result = await MeineTutor();
             setMeineTutoren(result);
         };
+        const fetchLoggedInUser = async () => {
+            const loggedInUser = await getLoggedInUser();
+            if (loggedInUser) {
+                setLoggedInUser(loggedInUser); // Zustand aktualisieren
+                setOriginalUser(loggedInUser)// Originalwerte speichern, damit "Abbrechen" funktioniert
+            }
+        };
+
 
         fetchMeineTutoren();
+        fetchLoggedInUser();
     }, [apiUrl]);
+
+    const getLoggedInUser = async () => {
+        const loggedInUser = JSON.parse(localStorage.getItem('isLoggedIn'));
+        if (!loggedInUser) {
+            alert("Bitte melden Sie sich an.");
+            return null;
+        }
+
+        const userId = localStorage.getItem("userId");
+        const userRole = localStorage.getItem("userRole");
+
+        try {
+            let response;
+            if (userRole === "STUDENT") {
+                response = await axios.get(`${apiUrl}/api/students/${userId}`);
+            } else {
+                response = await axios.get(`${apiUrl}/api/tutors/${userId}`);
+            }
+
+            const user = response.data;
+            return user;
+        } catch (error) {
+            console.error("Fehler beim Laden des Benutzers:", error);
+            return null;
+        }
+    };
 
 
     const showDetails = (tutor) => {
@@ -247,7 +286,31 @@ function SchuelerSeite() {
             return null;
         }
     };
+    const updateUser = async () => {
+        try {
+            const userId = loggedInUser.id;
+            const userRole = loggedInUser.role;
+            let endpoint = "";
+            if (userRole === "STUDENT") {
+                endpoint = `${apiUrl}/api/students/${userId}`;
+            } else {
+                endpoint = `${apiUrl}/api/tutors/${userId}`;
+            }
+            const response = await axios.put(endpoint, loggedInUser);
+            // Bei erfolgreichem Update werden beide Zustände aktualisiert
+            setLoggedInUser(response.data);
+            setOriginalUser(response.data);
+            alert("Änderungen wurden gespeichert");
+        } catch (error) {
+            console.error("Fehler beim Aktualisieren des Benutzers:", error);
+            alert("Fehler beim Aktualisieren des Benutzers!");
+        }
+    };
 
+    // Funktion, um alle Änderungen abzubrechen, d.h. den Zustand zurückzusetzen
+    const cancelChanges = () => {
+        setLoggedInUser(originalUser);
+    };
 
     const renderWeeklyCalendar = () => {
 
@@ -447,9 +510,226 @@ function SchuelerSeite() {
                 return (
                     <div>
                         <h3>Mein Profil</h3>
-                        <p>Hier können Sie Ihre persönlichen Daten verwalten.</p>
+                        <p>Hier können Sie Ihre persönlichen Daten bearbeiten:</p>
+                        {loggedInUser ? (
+                            <div className="user-details">
+                                <div>
+                                    <label htmlFor="salutation"><strong>Anrede:</strong></label>
+                                    <input
+                                        type="text"
+                                        id="salutation"
+                                        value={loggedInUser.salutation || ""}
+                                        onChange={(e) =>
+                                            setLoggedInUser({...loggedInUser, salutation: e.target.value})
+                                        }
+                                    />
+                                </div>
+                                <div>
+                                    <label htmlFor="title"><strong>Titel:</strong></label>
+                                    <input
+                                        type="text"
+                                        id="title"
+                                        value={loggedInUser.title || ""}
+                                        onChange={(e) =>
+                                            setLoggedInUser({...loggedInUser, title: e.target.value})
+                                        }
+                                    />
+                                </div>
+                                <div>
+                                    <label htmlFor="lastName"><strong>Nachname:</strong></label>
+                                    <input
+                                        type="text"
+                                        id="lastName"
+                                        value={loggedInUser.lastName || ""}
+                                        onChange={(e) =>
+                                            setLoggedInUser({...loggedInUser, lastName: e.target.value})
+                                        }
+                                    />
+                                </div>
+                                <div>
+                                    <label htmlFor="firstName"><strong>Vorname:</strong></label>
+                                    <input
+                                        type="text"
+                                        id="firstName"
+                                        value={loggedInUser.firstName || ""}
+                                        onChange={(e) =>
+                                            setLoggedInUser({...loggedInUser, firstName: e.target.value})
+                                        }
+                                    />
+                                </div>
+                                <div>
+                                    <label htmlFor="emailAddress"><strong>Email:</strong></label>
+                                    <input
+                                        type="email"
+                                        id="emailAddress"
+                                        value={loggedInUser.emailAddress || ""}
+                                        onChange={(e) =>
+                                            setLoggedInUser({...loggedInUser, emailAddress: e.target.value})
+                                        }
+                                    />
+                                </div>
+                                <div>
+                                    <label htmlFor="password"><strong>Passwort:</strong></label>
+                                    <input
+                                        type="password"
+                                        id="password"
+                                        value={loggedInUser.password || ""}
+                                        onChange={(e) =>
+                                            setLoggedInUser({...loggedInUser, password: e.target.value})
+                                        }
+                                    />
+                                </div>
+                                <div>
+                                    <label htmlFor="street"><strong>Straße:</strong></label>
+                                    <input
+                                        type="text"
+                                        id="street"
+                                        value={loggedInUser.street || ""}
+                                        onChange={(e) =>
+                                            setLoggedInUser({...loggedInUser, street: e.target.value})
+                                        }
+                                    />
+                                </div>
+                                <div>
+                                    <label htmlFor="houseNumber"><strong>Hausnummer:</strong></label>
+                                    <input
+                                        type="text"
+                                        id="houseNumber"
+                                        value={loggedInUser.houseNumber || ""}
+                                        onChange={(e) =>
+                                            setLoggedInUser({...loggedInUser, houseNumber: e.target.value})
+                                        }
+                                    />
+                                </div>
+                                <div>
+                                    <label htmlFor="postalCode"><strong>Postleitzahl:</strong></label>
+                                    <input
+                                        type="text"
+                                        id="postalCode"
+                                        value={loggedInUser.postalCode || ""}
+                                        onChange={(e) =>
+                                            setLoggedInUser({...loggedInUser, postalCode: e.target.value})
+                                        }
+                                    />
+                                </div>
+                                <div>
+                                    <label htmlFor="phoneNumber"><strong>Telefonnummer:</strong></label>
+                                    <input
+                                        type="text"
+                                        id="phoneNumber"
+                                        value={loggedInUser.phoneNumber || ""}
+                                        onChange={(e) =>
+                                            setLoggedInUser({...loggedInUser, phoneNumber: e.target.value})
+                                        }
+                                    />
+                                </div>
+                                <div>
+                                    <label htmlFor="city"><strong>Stadt:</strong></label>
+                                    <input
+                                        type="text"
+                                        id="city"
+                                        value={loggedInUser.city || ""}
+                                        onChange={(e) =>
+                                            setLoggedInUser({...loggedInUser, city: e.target.value})
+                                        }
+                                    />
+                                </div>
+                                <div>
+                                    <label htmlFor="country"><strong>Land:</strong></label>
+                                    <input
+                                        type="text"
+                                        id="country"
+                                        value={loggedInUser.country || ""}
+                                        onChange={(e) =>
+                                            setLoggedInUser({...loggedInUser, country: e.target.value})
+                                        }
+                                    />
+                                </div>
+                                <div>
+                                    <label htmlFor="dateOfBirth"><strong>Geburtsdatum:</strong></label>
+                                    <input
+                                        type="date"
+                                        id="dateOfBirth"
+                                        value={
+                                            loggedInUser.dateOfBirth
+                                                ? loggedInUser.dateOfBirth.substring(0, 10)
+                                                : ""
+                                        }
+                                        onChange={(e) =>
+                                            setLoggedInUser({...loggedInUser, dateOfBirth: e.target.value})
+                                        }
+                                    />
+                                </div>
+                                <div>
+                                    <label htmlFor="placeOfBirth"><strong>Geburtsort:</strong></label>
+                                    <input
+                                        type="text"
+                                        id="placeOfBirth"
+                                        value={loggedInUser.placeOfBirth || ""}
+                                        onChange={(e) =>
+                                            setLoggedInUser({...loggedInUser, placeOfBirth: e.target.value})
+                                        }
+                                    />
+                                </div>
+                                <div>
+                                    <label htmlFor="countryOfBirth"><strong>Geburtsland:</strong></label>
+                                    <input
+                                        type="text"
+                                        id="countryOfBirth"
+                                        value={loggedInUser.countryOfBirth || ""}
+                                        onChange={(e) =>
+                                            setLoggedInUser({...loggedInUser, countryOfBirth: e.target.value})
+                                        }
+                                    />
+                                </div>
+                                <div>
+                                    <label htmlFor="bankCode"><strong>Bankleitzahl:</strong></label>
+                                    <input
+                                        type="text"
+                                        id="bankCode"
+                                        value={loggedInUser.bankCode || ""}
+                                        onChange={(e) =>
+                                            setLoggedInUser({...loggedInUser, bankCode: e.target.value})
+                                        }
+                                    />
+                                </div>
+                                <div>
+                                    <label htmlFor="iban"><strong>IBAN:</strong></label>
+                                    <input
+                                        type="text"
+                                        id="iban"
+                                        value={loggedInUser.iban || ""}
+                                        onChange={(e) =>
+                                            setLoggedInUser({...loggedInUser, iban: e.target.value})
+                                        }
+                                    />
+                                </div>
+                                <div>
+                                    <label htmlFor="description"><strong>Beschreibung:</strong></label>
+                                    <textarea
+                                        id="description"
+                                        value={loggedInUser.description || ""}
+                                        onChange={(e) =>
+                                            setLoggedInUser({...loggedInUser, description: e.target.value})
+                                        }
+                                    />
+                                </div>
+                                <div style={{marginTop: "20px"}}>
+                                    <button className="action-button" onClick={updateUser}>
+                                        Änderung speichern
+                                    </button>
+                                    <button className="action-button" onClick={cancelChanges}
+                                            style={{marginLeft: "10px"}}>
+                                        Abbrechen
+                                    </button>
+                                </div>
+                            </div>
+                        ) : (
+                            <p>Benutzerdaten konnten nicht geladen werden.</p>
+                        )}
                     </div>
                 );
+
             case "Lehrer suchen":
                 return (
                     <div className="form-group full-width">
