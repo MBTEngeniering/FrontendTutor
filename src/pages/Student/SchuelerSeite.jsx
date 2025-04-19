@@ -190,6 +190,12 @@ function SchuelerSeite() {
             }
             else{
                 tutorsIds.push(tutor.id)
+                const tutorResponse = await axios.get(`${apiUrl}/api/tutors/${tutor.id}`);
+                const tutorData = tutorResponse.data;
+                const schoolTutorsIds = tutorData.schoolTutorsIds || [];
+                schoolTutorsIds.push(userId);
+                tutorData.schoolTutorsIds = schoolTutorsIds;
+                await axios.put(`${apiUrl}/api/tutors/${tutor.id}`, tutorData);
 
                 if (userRole === "STUDENT") {
                     await axios.put(`${apiUrl}/api/students/${userId}`, user);

@@ -101,7 +101,6 @@ function Login({ setIsLoggedIn, setUserRole }) {
 
     const handleRoleSelection = (roleId) => {
         localStorage.setItem("isLoggedIn", "true");
-        localStorage.setItem("userRole", "TUTOR");
         localStorage.setItem("selectedUserRoleId", roleId);
         setIsLoggedIn(true);
         setUserRole(userRoleIdToName[roleId]);

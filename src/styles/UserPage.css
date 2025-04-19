@@ -175,5 +175,47 @@
   .sidebar-toggle {
     display: block;
   }
+}.scrollable-calendar {
+   max-height: 300px; /* Maximale Höhe für die Uhrzeiten */
+   overflow-y: scroll; /* Vertikales Scrollen aktivieren */
+   border: 1px solid #ddd; /* Optional: Umrandung für bessere Sichtbarkeit */
+   padding: 5px;
+ }
+
+.calendar-slot {
+  padding: 5px;
+  cursor: pointer;
+  border: 1px solid #ccc;
+  margin: 3px 0;
+  background-color: #f9f9f9;
+  border-radius: 5px;
+  text-align: center;
 }
-  
+
+.calendar-slot.selected {
+  background-color: #a2dff7; /* Markierte Stunden hervorheben */
+}
+
+.calendar-day-week {
+  padding: 10px;
+  border: 1px solid #ccc;
+}
+
+.calendar-day {
+  display: inline-block;
+  width: 30px;
+  text-align: center;
+  padding: 5px;
+  margin: 3px;
+}
+
+.calendar-day.today {
+  background-color: yellow;
+}
+
+.calendar-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
