@@ -26,6 +26,9 @@ export default function WhoWeAre() {
           Wir hoffen sehr, dass alle mit unserer Leistunge und Angebot zufrieden sind. Für Kritik und Anregung
           kann man uns gerne unter <Link to="/kontakt">Kontakt</Link> erreichen.
         </p>
+        <p>
+          Wir freuen uns auf eine gute Zusammenarbeit!
+        </p>
       </div>
   )
 }

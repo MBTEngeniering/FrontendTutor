@@ -20,6 +20,12 @@ import lupe from "bootstrap-icons/icons/search.svg";
 import WhoWeAre from "./pages/WhoWeAre.jsx";
 import Kontakt from "./pages/Kontakt.jsx";
 import ManageSeite from "./pages/ManageSeite.jsx";
+import CorporateIdentity from "./pages/CorporateIdentity.jsx";
+import lettering from "/img/fs-logo-trans.png";
+
+// import { io } from "socket.io-client";
+// import Home from "./pages/chat/Home.jsx";
+// import ChatPage from "./pages/chat/ChatPage.jsx";
 
 // Seitenkomponenten importieren
 const Homepage = lazy(() => import("./pages/Homepage.jsx"));
@@ -84,7 +90,7 @@ export default function App() {
             <Linker link='/' title="Home">
               <div className="logo-title">
                 <img src={logo} alt="Logo" className="logo"/>
-                <span className="title">fairstudy</span>
+                <span><img src={lettering} alt="fairstudy"/></span>
               </div>
             </Linker>
           </NavbarBrand>
@@ -99,8 +105,8 @@ export default function App() {
                 <button type="submit" className="btn btn-primary btn-sm" style={{
                     marginLeft: "0px",
                     marginRight: "10px",
-                    padding: '5px 10px',
-                    backgroundColor: 'rgb(70,119,241)',
+                    padding: '5px 12px',
+                    backgroundColor: '#00847F',
                     color: 'white',
                     border: 'none',
                     borderRadius: '0 20px 20px 0',
@@ -144,7 +150,20 @@ export default function App() {
               </NavItem>
               <NavItem className="d-flex">
                 {!isLoggedIn ? (
-                    <Link className="nav-link" to="/login">Anmelden</Link>
+                    <Link className="nav-link" to="/login">
+                        <button
+                            style={{
+                                padding: '2px 20px',
+                                backgroundColor: 'black',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '6px',
+                                fontWeight: 'bold',
+                                marginTop: '0px',
+                            }}>
+                        Anmelden
+                        </button>
+                    </Link>
                 ) : (
                     <>
                       <span className="nav-link">  Willkommen, {localStorage.getItem("firstName")} {localStorage.getItem("lastName")}<br/></span>
@@ -152,7 +171,7 @@ export default function App() {
                             style={{
                               marginLeft: "20px",
                               padding: '10px 10px',
-                              backgroundColor: 'rgb(61,100,196)',
+                              backgroundColor: 'rgb(1,1,16)',
                               color: 'white',
                               border: 'none',
                               borderRadius: '5px',
@@ -196,6 +215,9 @@ export default function App() {
           <Route path="/blog" element={<Blog/>}/>
           <Route path="/wer-sind-wir" element={<WhoWeAre/>}/>
           <Route path="/kontakt" element={<Kontakt/>}/>
+            <Route path="/ci" element={<CorporateIdentity/>}/>
+          {/*<Route path="/chathome" element={<Home socket={socket}/>}></Route>*/}
+          {/*<Route path="/chat" element={<ChatPage socket={socket}/>}/>*/}
 
           {/* Immer zuletzt */}
           <Route path="*" element={<Notfound/>}/>

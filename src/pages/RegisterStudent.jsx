@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import './RegisterForm.css';
-import './Register.css';
+import '../styles/RegisterForm.css';
+import '../styles/Register.css';
 
 function RegisterStudent() {
     const apiUrl = import.meta.env.VITE_API_URL;

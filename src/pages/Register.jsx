@@ -1,6 +1,6 @@
 import React from "react";
 import { Card, CardBody, CardFooter, CardTitle, Col, Container, Row } from "reactstrap";
-import "./Register.css";
+import "../styles/Register.css";
 import { Link } from "react-router-dom";
 
 const Register = () => {

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import './RegisterForm.css';
+import '../styles/RegisterForm.css';
 
 const RegisterTutor = () => {
     const apiUrl = import.meta.env.VITE_API_URL;
@@ -34,7 +34,7 @@ const RegisterTutor = () => {
 
     useEffect(() => {
         // @TTODO: Use language from settings
-        const lang = navigator.languages[1];
+        const lang = navigator.languages[1].substring(0, 2);
         axios.get(`${apiUrl}/api/fach/trans/${lang}`)
             .then(response => setAvailableSubjects(response.data))
             .catch(function (error) {

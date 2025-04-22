@@ -1,19 +1,16 @@
-body {
-  font-family: Roboto, system-ui, -apple-system, "Segoe UI", "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-  background-color:  #f5f7fa;
+html {
+  scroll-behavior: smooth;
 }
 
-.roboto-300 {
-  font-family: "Roboto", sans-serif;
-  font-optical-sizing: auto;
-  font-weight: 300;
-  font-style: normal;
-  font-variation-settings: "wdth" 100;
+body {
+  font-family: Calibri, Roboto, system-ui, -apple-system, "Segoe UI", "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  background-color: #f8f9fa;
+  font-size: 20px;
 }
 
 .page {
   margin: 16px 10px 30px 10px;
-  min-height: 64vh;
+  min-height: 75vh;
 }
 
 .logo-title {
@@ -32,7 +29,8 @@ body {
 }
 
 .navbar {
-  background-color: #1e40af;
+  background-color: #086972;
+  /*border-color: #00847F;*/
   padding: 1rem;
   color: white;
 }
@@ -42,12 +40,12 @@ body {
   height: 16px;
 }
 
-.navbar-brand, .navbar-brand:hover, .nav-link, .nav-link:hover, .nav-link:visited {
+.navbar-brand, .navbar-brand:hover, .nav-link, .nav-link:hover, .nav-link:visited, .nav-link {
   color: white;
 }
 
 .navbar-toggler {
-  background-color: gold;
+  background-color: whitesmoke;
 }
 
 footer .list-inline-item a {
@@ -56,80 +54,29 @@ footer .list-inline-item a {
   margin-right: 1rem;
 }
 
+.size-50 {
+  font-size: 50px;
+}
 
-/*
-.container {  
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  max-width: 1200px;
+.color-box {
+  width: 200px;
+  height: 200px;
+  display: inline-block;
+  margin: 5px;
+}
+
+.prime-bg {
+  background-color: #f6f6f6;
+}
+
+.petrol-bg {
+  background-color: #086972;
+  color: white;
+}
+
+.profile-pic {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
   margin: 0 auto;
 }
-
-
-.nav-links {
-  display: flex;
-  gap: 20px;
-}
-
-.nav-links a {
-  text-decoration: none;
-  color: white;
-  transition: opacity 0.3s;
-}
-
-.nav-links a:hover {
-  opacity: 0.8;
-}
-
-.dropdown {
-  position: relative;
-}
-
-.dropdown-button {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  cursor: pointer;
-}
-
-/* Dropdown Container */
-/*
-.dropdown {
-  position: relative;
-  cursor: pointer;
-  display: inline-block;
-  padding: 10px;
-}
-
-/* Dropdown Inhalt */
-/*
-.dropdown-content {
-  display: block;
-  position: absolute;
-  background-color: white;
-  border-radius: 4px;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-  list-style: none;
-  margin-top: 10px;
-  padding: 0;
-  min-width: 160px; /* Mindestbreite */
-/*}*/
-
-/* Dropdown-Links */
-/*
-.dropdown-content li {
-  padding: 8px 16px;
-}
-
-.dropdown-content li a {
-  text-decoration: none;
-  color: black;
-}
-
-/* Hover-Effekt */
-/*
-.dropdown-content li:hover {
-  background-color: #f0f0f0;
-}
-*/
