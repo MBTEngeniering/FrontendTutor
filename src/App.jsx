@@ -63,6 +63,24 @@ export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);  // Benutzer-Login-Status
   const [userRole, setUserRole] = useState(null); // Benutzer-Rolle (Schüler oder RegisterTutor)
 
+
+  // Establish a socket connection to the server at the specified URL
+  // const socket = io.connect('http://localhost:3003');
+  const [receiveMessage, setReceiveMessage] = useState(""); // State to store received message
+
+  // Function to send a message
+  /*
+  const sendMessage = async () => {
+
+    // Emit a socket event with the message details
+    socket.emit("send_message", {
+      senderId: "123",     // ID of the sender
+      receiverId: "456", // ID of the receiver
+      message: "Maintenance is going!"   // The actual message content
+    });
+
+  }
+*/
   const toggle = () => setIsOpen(!isOpen);
 
   useEffect(() => {
@@ -73,6 +91,20 @@ export default function App() {
       setIsLoggedIn(true);
       setUserRole(role);
     }
+
+/*
+    console.log("Socket connected: ", socket.id); // Log the socket ID when connected
+    // Listen for incoming messages from the server
+    socket.on("receive_message", (data) => {
+      console.log(data); // Log the received message data to the console
+      setReceiveMessage(data); // Set the received message data to state
+    });
+
+    // Cleanup the effect by removing the event listener when the component unmounts
+    return () => {
+      socket.off("receive_message");
+    };
+ */
   }, []);
 
   const handleLogout = () => {
