@@ -85,8 +85,16 @@ const Homepage = () => {
               <p>Wir sind jederzeit für Sie verfügbar. Sie erhalten immer zügig eine Antwort auf alle Ihre Fragen</p>
             </Col>
           </Row>
+        </Container>
 
-          <p>
+
+        <div className="text-center mt-5 pt-5 pb-5 prime-bg">
+          <h2>Wir sind da, um Ihnen zu helfen!</h2>
+          <h2>Wir bieten individuelle Nachhilfe für alle Schulstufen.</h2>
+          Flexibel, Günstig und Qualitativ lernen
+          Erfahren Sie mehr über uns und unsere Philosophie!
+
+          <p className="text-center pt-5 pb-5">
             <Link to="/wer-sind-wir">
               <button
                   className="btn btn-primary"
@@ -101,17 +109,9 @@ const Homepage = () => {
               </button>
             </Link>
           </p>
-        </Container>
-
-
-        <div className="text-center mt-5 pt-5 pb-5 prime-bg">
-          <h2>Wir sind da, um Ihnen zu helfen!</h2>
-          <h2>Wir bieten individuelle Nachhilfe für alle Schulstufen.</h2>
-          Flexibel, Günstig und Qualitativ lernen
-          Erfahren Sie mehr über uns und unsere Philosophie!
         </div>
 
-        <div className="mt-5 pt-5 pb-5 petrol-bg">
+        <div className="pt-5 pb-5 petrol-bg">
           <Container>
             <ul className="list-group">
               <li><h2>Wir sind ein waschechtes Unternehmen mit Sitz in Deutschland und somit "Made in Germany".</h2>
