@@ -34,7 +34,7 @@ function Login({ setIsLoggedIn, setUserRole }) {
     const handleLogin = async () => {
         setErrorMessage("");
         try {
-            const studentResponse = await axios.post(`${apiUrl}/api/students/login`, {
+            const studentResponse = await axios.post(`${apiUrl}/api/allusers/login`, {
                 emailOrPhoneNumber: username,
                 password: password,
             });

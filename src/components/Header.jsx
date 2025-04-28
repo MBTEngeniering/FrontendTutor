@@ -19,10 +19,12 @@ import logo from "/img/android-chrome-512x512.png";
 
 const Linker = lazy(() => import(":comp/Linker.jsx"));
 
-export default function Header({isLoggedIn, logoutFunc}) {
+export default function Header({logoutFunc, loggedIn}) {
   const [isOpen, setIsOpen] = useState(false);
 
   const toggle = () => setIsOpen(!isOpen);
+  console.log("Header component rendered");
+  console.log("loggedIn:", loggedIn);
 
   return (
       <Navbar container="fluid" className="mb-0" expand="lg">
@@ -89,7 +91,7 @@ export default function Header({isLoggedIn, logoutFunc}) {
               </Link>
             </NavItem>
             <NavItem className="d-flex">
-              {!isLoggedIn ? (
+              {!loggedIn ? (
                   <Link className="nav-link" to="/login">
                     <button
                         style={{
