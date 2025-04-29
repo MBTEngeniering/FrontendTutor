@@ -53,7 +53,7 @@ function SchuelerSeite() {
 
             .catch(error => console.error("Fehler beim Laden der Fächer:", error));
 
-        axios.get(`${apiUrl}/api/tutors`)
+        axios.get(`${apiUrl}/api/allusers`)
             .then(response => {
                 console.log(response.data);  // Überprüfe, ob die Tutor-Daten ankommen
                 setTutors(response.data);

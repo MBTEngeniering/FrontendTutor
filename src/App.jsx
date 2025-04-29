@@ -1,8 +1,8 @@
-import { lazy, Suspense, useEffect, useState } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
-
 import "./App.css";
+import { UserProvider, useUser } from "./context/UserContext";
 
 // Seitenkomponenten importieren
 const Homepage = lazy(() => import(":pages/Homepage.jsx"));
@@ -39,69 +39,77 @@ const Kontakt = lazy(() => import(":pages/Kontakt.jsx"));
 const CorporateIdentity = lazy(() => import(":pages/CorporateIdentity.jsx"));
 const Header = lazy(() => import(":comp/Header.jsx"));
 
-export default function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);  // Benutzer-Login-Status
-  const [userRole, setUserRole] = useState(null); // Benutzer-Rolle (Schüler oder RegisterTutor)
+function AppContent() {
+  const { user, setUser } = useUser();
 
   useEffect(() => {
-    // Überprüfen, ob der Benutzer angemeldet ist (z.B. durch LocalStorage oder Cookies)
-    const loggedInStatus = localStorage.getItem("isLoggedIn");
-    const role = localStorage.getItem("userRole");
-    if (loggedInStatus === "true") {
-      setIsLoggedIn(true);
-      setUserRole(role);
+    // Falls der Benutzer bereits eingeloggt war, Daten wiederherstellen
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+    if (storedUser?.isLoggedIn) {
+      setUser(storedUser);
     }
-  }, []);
+  }, [setUser]);
 
   const handleLogout = () => {
     // Benutzer abmelden
-    localStorage.removeItem("isLoggedIn");
-    localStorage.removeItem("userRole");
-    setIsLoggedIn(false);
-    setUserRole(null);
+    localStorage.removeItem("user");
+    setUser({
+      userId: null,
+      firstName: "",
+      lastName: "",
+      isLoggedIn: false,
+      userRole: "",
+      selectedUserRoleId: null,
+    });
   };
 
   return (
       <BrowserRouter>
         <Suspense fallback={<LoadingScreen/>}>
-          <Header logoutFunc={handleLogout} loggedIn={isLoggedIn}/>
-
+          <Header logoutFunc={handleLogout} isLoggedIn={user.isLoggedIn} />
           <Routes>
-            <Route path="/" element={<Homepage/>}/>
-            <Route path="/registrierung" element={<Register/>}/>
-            <Route path="/abikurs" element={<Abikurs/>}/>
-            <Route path="/beratung" element={<Beratung/>}/>
-            <Route path="/ueberuns" element={<AboutUs/>}/>
-            <Route path="/login" element={<Login setIsLoggedIn={setIsLoggedIn} setUserRole={setUserRole}/>}/>
-            <Route path="/preise" element={<Prices/>}/>
-            <Route path="/elternschueler" element={<RegisterStudent/>}/>
-            <Route path="/lehrer" element={<RegisterTutor/>}/>
-            <Route path="/konzept" element={<Konzept/>}/>
-            <Route path="/schueler" element={<Schueler/>}/>
-            <Route path="/tutor" element={<Tutor/>}/>
-            <Route path="/vortraege" element={<Vortraege/>}/>
-            <Route path="/tutors" element={<Tutors/>}/>
-            <Route path="/enterprise" element={<Enterprise/>}/>
-            <Route path="/manage" element={<Manage/>}/>
-            <Route path="/support" element={<Support/>}/>
-            <Route path="/admin" element={<Admin/>}/>
-            <Route path="/finance" element={<Finance/>}/>
-            <Route path="/passwort-vergessen" element={<PasswordReset/>}/>
-            <Route path="/impressum" element={<Impressum/>}/>
-            <Route path="/datenschutz" element={<Datenschutz/>}/>
-            <Route path="/agb" element={<Agb/>}/>
-            <Route path="/faq" element={<Faq/>}/>
-            <Route path="/hilfe" element={<Hilfe/>}/>
-            <Route path="/blog" element={<Blog/>}/>
-            <Route path="/wer-sind-wir" element={<WhoWeAre/>}/>
-            <Route path="/kontakt" element={<Kontakt/>}/>
-            <Route path="/ci" element={<CorporateIdentity/>}/>
-
+            <Route path="/" element={<Homepage />} />
+            <Route path="/registrierung" element={<Register />} />
+            <Route path="/abikurs" element={<Abikurs />} />
+            <Route path="/beratung" element={<Beratung />} />
+            <Route path="/ueberuns" element={<AboutUs />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/preise" element={<Prices />} />
+            <Route path="/elternschueler" element={<RegisterStudent />} />
+            <Route path="/lehrer" element={<RegisterTutor />} />
+            <Route path="/konzept" element={<Konzept />} />
+            <Route path="/schueler" element={<Schueler />} />
+            <Route path="/tutor" element={<Tutor />} />
+            <Route path="/vortraege" element={<Vortraege />} />
+            <Route path="/tutors" element={<Tutors />} />
+            <Route path="/enterprise" element={<Enterprise />} />
+            <Route path="/manage" element={<Manage />} />
+            <Route path="/support" element={<Support />} />
+            <Route path="/admin" element={<Admin />} />
+            <Route path="/finance" element={<Finance />} />
+            <Route path="/passwort-vergessen" element={<PasswordReset />} />
+            <Route path="/impressum" element={<Impressum />} />
+            <Route path="/datenschutz" element={<Datenschutz />} />
+            <Route path="/agb" element={<Agb />} />
+            <Route path="/faq" element={<Faq />} />
+            <Route path="/hilfe" element={<Hilfe />} />
+            <Route path="/blog" element={<Blog />} />
+            <Route path="/wer-sind-wir" element={<WhoWeAre />} />
+            <Route path="/kontakt" element={<Kontakt />} />
+            <Route path="/ci" element={<CorporateIdentity />} />
             {/* Immer zuletzt */}
-            <Route path="*" element={<Notfound/>}/>
+            <Route path="*" element={<Notfound />} />
           </Routes>
-          <Footer/>
+          <Footer />
         </Suspense>
       </BrowserRouter>
+  );
+}
+
+export default function App() {
+  return (
+      <UserProvider>
+        <AppContent />
+      </UserProvider>
   );
 }

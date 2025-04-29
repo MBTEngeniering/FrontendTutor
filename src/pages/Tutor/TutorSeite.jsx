@@ -13,14 +13,11 @@ function TutorSeite() {
     useEffect(() => {
         const fetchAvailability = async () => {
             const userId = localStorage.getItem("userId");
-            const userRole = localStorage.getItem("userRole");
+
 
             let response;
-            if (userRole === "STUDENT") {
-                response = await axios.get(`${apiUrl}/api/students/${userId}`);
-            } else {
-                response = await axios.get(`${apiUrl}/api/tutors/${userId}`);
-            }
+
+            response = await axios.get(`${apiUrl}/api/allusers/${userId}`);
 
             const availabilityTime = response.data.availabilityTime;
         };

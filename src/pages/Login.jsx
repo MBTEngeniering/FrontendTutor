@@ -1,110 +1,100 @@
 import { useState } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
-import { Container, Input, Modal, ModalHeader, ModalBody, ModalFooter, Button } from "reactstrap";
+import {
+    Container,
+    Input,
+    Modal,
+    ModalHeader,
+    ModalBody,
+    ModalFooter,
+    Button,
+} from "reactstrap";
+import { useUser } from "../context/UserContext";
 
-function Login({ setIsLoggedIn, setUserRole }) {
+function Login() {
     const apiUrl = import.meta.env.VITE_API_URL;
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
     const [userRoleIds, setUserRoleIds] = useState([]);
-    const [tutorId, setTutorId] = useState(null);
-    const [modalOpen, setModalOpen] = useState(false);  // State for modal visibility
+    const [modalOpen, setModalOpen] = useState(false);
     const navigate = useNavigate();
+    const { setUser } = useUser(); // Zugriff auf den Context
 
     const userRoleIdToName = {
-        1: "Student",
-        2: "Tutor",
-        3: "Enterprise",
-        4: "Finance",
-        5: "Admin",
-        6: "Manage",
+        1: "STUDENT",
+        2: "TUTOR",
+        3: "ENTERPRISE",
+        4: "FINANCE",
+        5: "ADMIN",
+        6: "SUPPORT",
     };
+
     const userRoleIdToPage = {
         1: "/schueler",
         2: "/tutor",
         3: "/enterprise",
         4: "/finance",
         5: "/admin",
-        6: "/manage",
+        6: "/support",
     };
-
 
     const handleLogin = async () => {
         setErrorMessage("");
         try {
-            const studentResponse = await axios.post(`${apiUrl}/api/students/login`, {
+            const UserResponse = await axios.post(`${apiUrl}/api/allusers/login`, {
                 emailOrPhoneNumber: username,
                 password: password,
             });
 
-            if (studentResponse.status === 200) {
-                const student = studentResponse.data;
-                const roleIds = student.userRoleIds || [];
-                setTutorId(student.id);
+            if (UserResponse.status === 200) {
+                const allUser = UserResponse.data;
+                const roleIds = allUser.userRoleIds || [];
                 setUserRoleIds(roleIds);
-                localStorage.setItem("userId", student.id);
-                localStorage.setItem("firstName", student.firstName);
-                localStorage.setItem("lastName", student.lastName);
-                if (roleIds.length === 1) {
-                    localStorage.setItem("isLoggedIn", "true");
-                    localStorage.setItem("userRole", "STUDENT");
-                    localStorage.setItem("selectedUserRoleId", roleIds[0]);
-                    setIsLoggedIn(true);
-                    setUserRole("STUDENT");
-                    navigate(userRoleIdToPage[roleIds[0]]);
 
+                if (roleIds.length === 1) {
+                    setUser({
+                        userId: allUser.id,
+                        firstName: allUser.firstName,
+                        lastName: allUser.lastName,
+                        isLoggedIn: true,
+                        userRole: userRoleIdToName[roleIds[0]],
+                        selectedUserRoleId: roleIds[0],
+                        userPage: userRoleIdToPage[roleIds[0]], // 🔥 Speichert die zugehörige Seite
+                    });
+
+                    setModalOpen(false);
+                    navigate(userRoleIdToPage[roleIds[0]]);
                 } else {
+                    setUser({
+                        userId: allUser.id,
+                        firstName: allUser.firstName,
+                        lastName: allUser.lastName,
+                        isLoggedIn: false,
+                        userRole: "",
+                        selectedUserRoleId: null,
+                        userPage: "", // 🔥 Initial leer
+                    });
                     setModalOpen(true);
                 }
-
-                return;
             }
         } catch (error) {
-            // Ignorieren, versuche Tutor-Login
-
-            try {
-                const tutorResponse = await axios.post(`${apiUrl}/api/tutors/login`, {
-                    emailOrPhoneNumber: username,
-                    password: password,
-                });
-
-                if (tutorResponse.status === 200) {
-                    const tutor = tutorResponse.data;
-                    const roleIds = tutor.userRoleIds || [];
-
-                    //alert(`Erfolgreich als Tutor eingeloggt. Tutor-ID: ${tutor.id}`);
-                    setTutorId(tutor.id);
-                    setUserRoleIds(roleIds);
-                    localStorage.setItem("userId", tutor.id);
-                    localStorage.setItem("firstName", tutor.firstName);
-                    localStorage.setItem("lastName", tutor.lastName);
-
-                    if (roleIds.length === 1) {
-                        localStorage.setItem("isLoggedIn", "true");
-                        localStorage.setItem("userRole", "TUTOR");
-                        localStorage.setItem("selectedUserRoleId", roleIds[0]);
-                        setIsLoggedIn(true);
-                        setUserRole("TUTOR");
-                        navigate(userRoleIdToPage[roleIds[0]]);
-                    } else {
-                        setModalOpen(true);
-                    }
-                }
-
-            } catch (error) {
-                setErrorMessage("Email/Telefonnummer und Passwort stimmen nicht.");
-            }
+            setErrorMessage("Email/Telefonnummer und Passwort stimmen nicht.");
         }
     };
 
+
     const handleRoleSelection = (roleId) => {
-        localStorage.setItem("isLoggedIn", "true");
-        localStorage.setItem("selectedUserRoleId", roleId);
-        setIsLoggedIn(true);
-        setUserRole(userRoleIdToName[roleId]);
-        setModalOpen(false); // Schließe das Modal
+        setUser((prevUser) => ({
+            ...prevUser,
+            isLoggedIn: true,
+            userRole: userRoleIdToName[roleId],
+            selectedUserRoleId: roleId,
+            userPage: userRoleIdToPage[roleId],
+        }));
+
+        setModalOpen(false); // Modal wird nach Auswahl der Rolle geschlossen
         navigate(userRoleIdToPage[roleId]);
     };
 
@@ -143,10 +133,7 @@ function Login({ setIsLoggedIn, setUserRole }) {
                 <button
                     className="mb-2 btn btn-primary form-control"
                     onClick={handleLogin}
-                    style={{
-                        padding: "10px",
-                        marginTop: "10px",
-                    }}
+                    style={{ padding: "10px", marginTop: "10px" }}
                 >
                     Login
                 </button>
@@ -161,10 +148,8 @@ function Login({ setIsLoggedIn, setUserRole }) {
                 </p>
             </div>
 
-            {/* Modal für die Auswahl der Rolle */}
             <Modal isOpen={modalOpen} toggle={() => setModalOpen(!modalOpen)}>
-                <ModalHeader toggle={() => setModalOpen(!modalOpen)}>
-                </ModalHeader>
+                <ModalHeader toggle={() => setModalOpen(!modalOpen)}>Rolle auswählen</ModalHeader>
                 <ModalBody>
                     {userRoleIds.map((roleId, index) => (
                         <Button

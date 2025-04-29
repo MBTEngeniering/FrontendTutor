@@ -93,7 +93,7 @@ function RegisterStudent() {
             fachIds: selectedFachIds
         };
 
-        axios.post(`${apiUrl}/api/students`, studentData)
+        axios.post(`${apiUrl}/api/allusers`, studentData)
             .then(response => {
                 alert("Du hast dich erfolgreich registriert!");
                 navigate("/login");

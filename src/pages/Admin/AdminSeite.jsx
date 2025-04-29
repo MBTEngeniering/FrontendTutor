@@ -39,7 +39,7 @@ function AdminSeite() {
     const fetchData = async (endpoint) => {
         try {
             const response = await axios.get(
-                `${apiUrl}/api/userstatus/${endpoint}`
+                `${apiUrl}/api/status/${endpoint}`
             );
             setData(response.data);
             setCurrentEndpoint(endpoint); // Hier speichern wir, ob "students" oder "tutors" geladen wurden
@@ -53,7 +53,10 @@ function AdminSeite() {
         (user) =>
             user.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
             user.lastName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            user.firstName?.toLowerCase().includes(searchTerm.toLowerCase())
+            user.firstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            user.city?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            user.salutation?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            user.country?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     // Öffnet das Modal und setzt die formData mit den Daten des ausgewählten Users
@@ -155,7 +158,7 @@ function AdminSeite() {
                 <button onClick={() => fetchData("tutors")}>Show all Tutors</button>
                 <button onClick={() => fetchData("entreprise")}>Show all Enterprises</button>
                 <button onClick={() => fetchData("finance")}>Show all Finance</button>
-                <button onClick={() => fetchData("managers")}>Show all Managers</button>
+                <button onClick={() => fetchData("support")}>Show all Managers</button>
                 <button onClick={() => fetchData("admins")}>Show all Admins</button>
             </div>
             <div>
@@ -165,20 +168,31 @@ function AdminSeite() {
                     placeholder="Suchen..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    style={{ margin: "10px 0", padding: "5px", width: "300px" }}
+                    style={{margin: "10px 0", padding: "5px", width: "300px"}}
                 />
+            </div>
+            <div style={{display: 'flex', fontWeight: 'bold'}}>
+                <span style={{flex: 3}}>Titel</span>
+                <span style={{flex: 3}}>Nachname</span>
+                <span style={{flex: 3}}>Vorname</span>
+                <span style={{flex: 3}}>Anrede</span>
+                <span style={{flex: 3}}>Stadt</span>
+                <span style={{flex: 3}}>Land</span>
             </div>
             <div>
                 <ul>
                     {filteredData.map((user) => (
                         <li
                             key={user.id}
-                            style={{ display: "flex", alignItems: "center", marginBottom: "5px" }}
+                            style={{display: "flex", alignItems: "center", marginBottom: "5px"}}
                         >
-                            <span style={{ flex: 3 }}>{user.title}</span>
-                            <span style={{ flex: 3 }}>{user.lastName}</span>
-                            <span style={{ flex: 3 }}>{user.firstName}</span>
-                            <button style={{ flex: 2 }} onClick={() => handleVerwaltenClick(user)}>
+                            <span style={{flex: 3}}>{user.title}</span>
+                            <span style={{flex: 3}}>{user.lastName}</span>
+                            <span style={{flex: 3}}>{user.firstName}</span>
+                            <span style={{flex: 3}}>{user.salutation}</span>
+                            <span style={{flex: 3}}>{user.city}</span>
+                            <span style={{flex: 3}}>{user.country}</span>
+                            <button style={{flex: 2}} onClick={() => handleVerwaltenClick(user)}>
                                 Verwalten
                             </button>
                         </li>
@@ -215,7 +229,7 @@ function AdminSeite() {
                         <h2>Benutzerdaten bearbeiten</h2>
                         <form>
                             {Object.entries(formData).map(([key, value]) => (
-                                <div key={key} style={{ marginBottom: "10px" }}>
+                                <div key={key} style={{marginBottom: "10px"}}>
                                     <label>
                                         <strong>{key}</strong>
                                     </label>
@@ -223,17 +237,17 @@ function AdminSeite() {
                                         type="text"
                                         value={value || ""}
                                         onChange={(e) => handleInputChange(key, e.target.value)}
-                                        style={{ width: "100%", padding: "5px", marginTop: "5px" }}
+                                        style={{width: "100%", padding: "5px", marginTop: "5px"}}
                                         disabled={key === "id"} // ID nicht editierbar
                                     />
                                 </div>
                             ))}
                         </form>
                         <div
-                            style={{ display: "flex", justifyContent: "space-between", marginTop: "15px" }}
+                            style={{display: "flex", justifyContent: "space-between", marginTop: "15px"}}
                         >
                             <button onClick={handleSave}>Speichern</button>
-                            <button onClick={handleDelete} style={{ backgroundColor: "#ff4d4d", color: "white" }}>
+                            <button onClick={handleDelete} style={{backgroundColor: "#ff4d4d", color: "white"}}>
                                 Benutzer löschen
                             </button>
                             <button onClick={closeModal}>Abbrechen</button>
