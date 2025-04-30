@@ -11,7 +11,7 @@ const Register = () => {
         <Container className="mt-2 mt-sm-4">
           <Row>
             <Col md="6">
-              <Card className="mb-3 mb-md-0" style={{backgroundColor: "#eff", padding: "20px", border: "1px solid #ccc", borderRadius: "20px"}}>
+              <Card className="mb-3 mb-md-0" style={{backgroundColor: "#eff", padding: "20px", border: "1px solid #ccc", borderRadius: "10px"}}>
                 <CardTitle>
                   <h3>Ich bin...</h3>
                 </CardTitle>
@@ -46,7 +46,7 @@ const Register = () => {
             </Col>
 
             <Col md="6">
-              <Card style={{backgroundColor: "#efe", padding: "20px", border: "1px solid #ccc", borderRadius: "20px"}}>
+              <Card style={{backgroundColor: "#efe", padding: "20px", border: "1px solid #ccc", borderRadius: "10px"}}>
                 <CardTitle>
                   <h3>Ich bin...</h3>
                 </CardTitle>
