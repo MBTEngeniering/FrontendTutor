@@ -55,7 +55,7 @@ export default function Header({ isLoggedIn, logoutFunc }) {
                 type="text"
                 placeholder="Schnellsuche..."
                 className="form-control-sm bg-body-secondary"
-                style={{ borderRadius: '20px 0 0 20px' }}
+                style={{ borderRadius: '14px 0 0 14px' }}
             />
             <button type="submit" className="btn btn-primary btn-sm"
                     style={{
@@ -65,7 +65,7 @@ export default function Header({ isLoggedIn, logoutFunc }) {
                       backgroundColor: '#00847F',
                       color: 'white',
                       border: 'none',
-                      borderRadius: '0 20px 20px 0'
+                      borderRadius: '0 14px 14px 0'
                     }}>
               <img src={lupe} alt="Search" />
             </button>
@@ -107,7 +107,6 @@ export default function Header({ isLoggedIn, logoutFunc }) {
                       backgroundColor: 'black',
                       color: 'white',
                       border: 'none',
-                      borderRadius: '6px',
                       fontWeight: 'bold',
                     }}>
                       Anmelden
