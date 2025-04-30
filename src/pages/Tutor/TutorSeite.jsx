@@ -4,32 +4,65 @@ import "../../styles/UserPage.css";
 import { DayPilotCalendar } from "@daypilot/daypilot-lite-react";
 import { DayPilot } from "@daypilot/daypilot-lite-react";
 import axios from "axios";
+import { useUser } from "../../context/UserContext";
 
 function TutorSeite() {
     const apiUrl = import.meta.env.VITE_API_URL;
     const [activeContent, setActiveContent] = useState(null);
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+    const { user } = useUser();
+    const [startDate, setStartDate] = useState(DayPilot.Date.today());
+    const [selectedEvents, setSelectedEvents] = useState([]);
+    const [availabilityTime, setAvailabilityTime] = useState([]);
 
     useEffect(() => {
         const fetchAvailability = async () => {
-            const userId = localStorage.getItem("userId");
+            if (!user.userId) return;
+
+            try {
+                const response = await axios.get(`${apiUrl}/api/allusers/${user.userId}`);
+                const userData = response.data;
+                alert(`Ausgewählte Zeitfenster: ${userData.availabilityTime.length}`);
+                if (userData.availabilityTime) {
+                    const convertedEvents = userData.availabilityTime.map((iso) => {
+                        const start = new DayPilot.Date(iso);
+                        const end = start.addMinutes(30);
+                        return {
+                            id: `${start.toString()}-${end.toString()}`,
+                            start,
+                            end,
+                            backColor: "#d0eaff",
+                        };
+                    });
+                    const earliest = new DayPilot.Date(userData.availabilityTime[0]);
+                    setStartDate(earliest.firstDayOfWeek());
+                    setSelectedEvents(convertedEvents);
+                    setAvailabilityTime(userData.availabilityTime.map((iso) =>
+                        new Date(iso).toLocaleString("de-DE", {
+                            day: "2-digit",
+                            month: "2-digit",
+                            year: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                        })
+                    ));
 
 
-            let response;
+                }
 
-            response = await axios.get(`${apiUrl}/api/allusers/${userId}`);
 
-            const availabilityTime = response.data.availabilityTime;
+            } catch (error) {
+                console.error("Fehler beim Abrufen der Verfügbarkeit:", error);
+            }
         };
 
+
         fetchAvailability();
-    }, [apiUrl]);
+    }, [apiUrl, user.userId]);
 
     const TutorCalendar = () => {
         const calendarRef = useRef();
-        const [startDate, setStartDate] = useState(DayPilot.Date.today());
-        const [selectedEvents, setSelectedEvents] = useState([]);
-        const [availabilityTime, setAvailabilityTime] = useState([]);
+
 
         useEffect(() => {
             const calendar = calendarRef.current.control;
@@ -48,43 +81,99 @@ function TutorSeite() {
             setStartDate(startDate.addDays(7));
         };
 
+        const handleEventClick = (args) => {
+            const eventId = args.e.data.id;
+            const eventStart = args.e.data.start.value;
+
+            setSelectedEvents((prevEvents) =>
+                prevEvents.filter((e) => e.id !== eventId)
+            );
+
+            setAvailabilityTime((prevTimes) =>
+                prevTimes.filter(
+                    (t) =>
+                        t !==
+                        new Date(eventStart).toLocaleString("de-DE", {
+                            day: "2-digit",
+                            month: "2-digit",
+                            year: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                        })
+                )
+            );
+        };
+
         const handleTimeRangeSelected = (args) => {
-            // Add each 30-minute slot between start and end time
-            const addSlots = (start, end) => {
-                const slots = [];
-                let currentTime = start;
+            const newSelectedEvents = [...selectedEvents];
+            const newAvailabilityTime = [...availabilityTime];
 
-                while (currentTime < end) {
-                    slots.push({
-                       id: DayPilot.guid(),
-                        start: currentTime,
-                        end: currentTime.addMinutes(30), // Assuming 30-minute slots
-                        backColor: "#d0eaff", // Only set color, no text
-                    });
-                    currentTime = currentTime.addMinutes(30); // Increment by 30 minutes
-                }
-                return slots;
-            };
-
-            const newEvents = addSlots(args.start, args.end);
-            setSelectedEvents((prev) => [...prev, ...newEvents]);
-
-            // Add the individual times to availabilityTime
-            const newTimes = [];
             let currentTime = args.start;
+            const slotsToAdd = [];
+            const slotsToRemoveIds = [];
+            const timesToRemove = [];
+            const timesToAdd = [];
+
             while (currentTime < args.end) {
-                newTimes.push(new Date(currentTime));
+                const start = currentTime;
+                const end = currentTime.addMinutes(30);
+                const id = `${start.toString()}-${end.toString()}`;
+
+                const existing = newSelectedEvents.find((event) => event.id === id);
+
+                if (existing) {
+                    slotsToRemoveIds.push(id);
+                    const formatted = new Date(start).toLocaleString("de-DE", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                    });
+                    timesToRemove.push(formatted);
+                } else {
+                    slotsToAdd.push({
+                        id,
+                        start,
+                        end,
+                        backColor: "#d0eaff",
+                    });
+
+                    const formatted = new Date(start).toLocaleString("de-DE", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                    });
+                    timesToAdd.push(formatted);
+                }
+
                 currentTime = currentTime.addMinutes(30);
             }
 
-            setAvailabilityTime((prev) => [...prev, ...newTimes]);
+            const updatedEvents = newSelectedEvents
+                .filter((event) => !slotsToRemoveIds.includes(event.id))
+                .concat(slotsToAdd);
+
+            const updatedTimes = newAvailabilityTime
+                .filter((t) => !timesToRemove.includes(t))
+                .concat(timesToAdd);
+
+            setSelectedEvents(updatedEvents);
+            setAvailabilityTime(updatedTimes);
         };
 
-        const handleSave = () => {
+        const handleSave = async () => {
             if (availabilityTime.length > 0) {
-                const slots = availabilityTime.join(", "); // Kombiniert alle Slots in einem String
-                alert(`Anzahl ausgewählter Slots: ${availabilityTime.length}\nAusgewählte Slots: ${slots}`);
-                // Hier könnten die Daten an das Backend gesendet werden
+                const slots = availabilityTime.join(", ");
+                const response = await axios.get(`${apiUrl}/api/allusers/${user.userId}`);
+                const userData = response.data;
+                const availabilityDates = availabilityTime.map((time) => new Date(time).toISOString());
+                userData.availabilityTime = availabilityDates;
+                await axios.put(`${apiUrl}/api/allusers/${user.userId}`, userData);
+
+                alert(`Ausgewählte Zeitfenster: ${slots}`);
             } else {
                 alert("Bitte wählen Sie mindestens einen Termin aus.");
             }
@@ -116,6 +205,7 @@ function TutorSeite() {
                         durationBarVisible={false}
                         timeRangeSelectedHandling="JavaScript"
                         onTimeRangeSelected={handleTimeRangeSelected}
+                        onEventClick={handleEventClick}
                         eventDeleteHandling="Disabled"
                         eventMoveHandling="Disabled"
                         eventResizeHandling="Disabled"
@@ -141,7 +231,7 @@ function TutorSeite() {
             case "Kalender":
                 return (
                     <div style={{ height: "80vh" }}>
-                        <h3>kalender</h3>
+                        <h3>Kalender</h3>
                         <TutorCalendar />
                     </div>
                 );
@@ -165,7 +255,6 @@ function TutorSeite() {
                 return (
                     <div>
                         <h3>Liste der Termine</h3>
-                        {/* Hier könntest du die gespeicherten Termine anzeigen */}
                     </div>
                 );
             case "Meine Schüler":
@@ -177,7 +266,7 @@ function TutorSeite() {
             case "Mein Gehalt":
                 return (
                     <div>
-                        <h3>gesamt Verdienst</h3>
+                        <h3>Gesamtverdienst</h3>
                     </div>
                 );
             case "Support":
@@ -188,28 +277,26 @@ function TutorSeite() {
     };
 
     return (
-        <>
-            <div className="user-container">
-                <button
-                    className="sidebar-toggle"
-                    onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-                >
-                    ☰
-                </button>
-                <div className={`user-sidebar ${isSidebarCollapsed ? 'collapsed' : ''}`}>
-                    <button onClick={() => setActiveContent("Kalender")}>📅 Kalender</button>
-                    <button onClick={() => setActiveContent("Vertrag")}>📝 Vertrag</button>
-                    <button onClick={() => setActiveContent("Meine Termine")}>⏰ Meine Termine</button>
-                    <button onClick={() => setActiveContent("Meine Schüler")}>👨‍🏫 Meine Schüler</button>
-                    <button onClick={() => setActiveContent("Mein Gehalt")}>⏳ Mein Gehalt</button>
-                    <button onClick={() => setActiveContent("Support")}>🛟 Support</button>
-                </div>
-
-                <div className="user-content">
-                    {renderContent()}
-                </div>
+        <div className="user-container">
+            <button
+                className="sidebar-toggle"
+                onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+            >
+                ☰
+            </button>
+            <div className={`user-sidebar ${isSidebarCollapsed ? 'collapsed' : ''}`}>
+                <button onClick={() => setActiveContent("Kalender")}>📅 Kalender</button>
+                <button onClick={() => setActiveContent("Vertrag")}>📝 Vertrag</button>
+                <button onClick={() => setActiveContent("Meine Termine")}>⏰ Meine Termine</button>
+                <button onClick={() => setActiveContent("Meine Schüler")}>👨‍🏫 Meine Schüler</button>
+                <button onClick={() => setActiveContent("Mein Gehalt")}>⏳ Mein Gehalt</button>
+                <button onClick={() => setActiveContent("Support")}>🛟 Support</button>
             </div>
-        </>
+
+            <div className="user-content">
+                {renderContent()}
+            </div>
+        </div>
     );
 }
 
