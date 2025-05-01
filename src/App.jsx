@@ -3,6 +3,8 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "./App.css";
 import { UserProvider, useUser } from "./context/UserContext";
+import ChatSupport from "./components/ChatSupport.jsx";
+
 
 // Seitenkomponenten importieren
 const Homepage = lazy(() => import("./pages/Homepage.jsx"));
@@ -104,6 +106,7 @@ function AppContent() {
             <Route path="*" element={<Notfound />} />
           </Routes>
           <Footer />
+          <ChatSupport/>
         </Suspense>
       </BrowserRouter>
   );
