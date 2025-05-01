@@ -43,7 +43,7 @@ function Login() {
     const handleLogin = async () => {
         setErrorMessage("");
         try {
-            const UserResponse = await axios.post(`${apiUrl}/api/allusers/login`, {
+            const UserResponse = await axios.post(`${apiUrl}/api/auth/login`, {
                 emailOrPhoneNumber: username,
                 password: password,
             });

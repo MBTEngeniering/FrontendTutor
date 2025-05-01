@@ -37,7 +37,8 @@ const LoadingScreen = lazy(() => import("./components/LoadingScreen.jsx"));
 const WhoWeAre = lazy(() => import("./pages/WhoWeAre.jsx"));
 const Kontakt = lazy(() => import("./pages/Kontakt.jsx"));
 const CorporateIdentity = lazy(() => import("./pages/CorporateIdentity.jsx"));
-const Header = lazy(() => import(":comp/Header.jsx"));
+const Header = lazy(() => import("./components/Header.jsx"));
+const Authenticate = lazy(() => import("./pages/Authenticate.jsx"));
 
 function AppContent() {
   const { user, setUser } = useUser();
@@ -96,6 +97,8 @@ function AppContent() {
             <Route path="/blog" element={<Blog />} />
             <Route path="/wer-sind-wir" element={<WhoWeAre />} />
             <Route path="/kontakt" element={<Kontakt />} />
+
+            <Route path="/authenticate" element={<Authenticate />} />
             <Route path="/ci" element={<CorporateIdentity />} />
             {/* Immer zuletzt */}
             <Route path="*" element={<Notfound />} />
