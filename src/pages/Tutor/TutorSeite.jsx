@@ -167,11 +167,6 @@ function TutorSeite() {
         const handleSave = async () => {
             if (availabilityTime.length > 0) {
                 const slots = availabilityTime.join(", ");
-                const response = await axios.get(`${apiUrl}/api/allusers/${user.userId}`);
-                const userData = response.data;
-                const availabilityDates = availabilityTime.map((time) => new Date(time).toISOString());
-                userData.availabilityTime = availabilityDates;
-                await axios.put(`${apiUrl}/api/allusers/${user.userId}`, userData);
 
                 alert(`Ausgewählte Zeitfenster: ${slots}`);
             } else {
