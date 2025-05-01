@@ -22,7 +22,6 @@ function TutorSeite() {
             try {
                 const response = await axios.get(`${apiUrl}/api/allusers/${user.userId}`);
                 const userData = response.data;
-                alert(`Ausgewählte Zeitfenster: ${userData.availabilityTime.length}`);
                 if (userData.availabilityTime) {
                     const convertedEvents = userData.availabilityTime.map((iso) => {
                         const start = new DayPilot.Date(iso);
