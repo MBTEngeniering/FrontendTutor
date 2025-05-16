@@ -4,6 +4,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import "./App.css";
 import { UserProvider, useUser } from "./context/UserContext";
 import ChatSupport from "./components/ChatSupport.jsx";
+import Restricted from "./pages/Restricted.jsx";
 
 
 // Seitenkomponenten importieren
@@ -102,6 +103,7 @@ function AppContent() {
 
             <Route path="/authenticate" element={<Authenticate />} />
             <Route path="/ci" element={<CorporateIdentity />} />
+            <Route path="/rest" element={<Restricted />} />
             {/* Immer zuletzt */}
             <Route path="*" element={<Notfound />} />
           </Routes>

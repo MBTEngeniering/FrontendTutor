@@ -91,7 +91,7 @@ const Authenticate = () => {
               boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
             }}
         >
-          <h2>Anmelden</h2>
+          <h2>Anmelden über COOKIE</h2>
           <Input
               className="mb-2 form-control-lg"
               type="text"

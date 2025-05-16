@@ -6,7 +6,7 @@ export default function LoadingScreen() {
     <div className="loading-screen">
       <div className="loading-content">
         <Spinner
-          color="primary"
+          color="success"
           style={{
             height: '4rem',
             width: '4rem'
