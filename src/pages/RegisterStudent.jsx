@@ -37,7 +37,7 @@ function RegisterStudent() {
 
     // Fächer aus dem Backend laden
     useEffect(() => {
-        axios.get(apiUrl+"/api/fach")
+        axios.get(apiUrl+"/api/fach", { withCredentials: true })
             .then(response => setAvailableSubjects(response.data))
             .catch(error => console.error("Fehler beim Laden der Fächer:", error));
         // Länder aus der API laden

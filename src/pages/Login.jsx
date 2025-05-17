@@ -12,6 +12,12 @@ import {
 } from "reactstrap";
 import { useUser } from "../context/UserContext";
 
+/**
+ *
+ * @returns {JSX.Element}
+ * @constructor
+ * @deprecated
+ */
 function Login() {
     const apiUrl = import.meta.env.VITE_API_URL;
     const [username, setUsername] = useState("");

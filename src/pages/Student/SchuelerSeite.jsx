@@ -4,6 +4,8 @@ import "../../styles/UserPage.css";
 import axios from "axios";
 import { DateTime } from 'luxon';
 import {Button} from "reactstrap";
+import ApiService from "../../api/ApiService.js";
+import { useAuth } from "../../context/UseAuth.jsx";
 
 function SchuelerSeite() {
     const apiUrl = import.meta.env.VITE_API_URL;
@@ -27,7 +29,7 @@ function SchuelerSeite() {
     const [meineTutoren, setMeineTutoren] = useState([]);
     const [loggedInUser, setLoggedInUser] = useState(null);
     const [originalUser, setOriginalUser] = useState(null);
-
+    const {user} = useAuth();
 
 
     // Student-specific data
@@ -42,20 +44,20 @@ function SchuelerSeite() {
     useEffect(() => {
         // @TTODO: Use language from settings
         const lang = navigator.languages[1].substring(0, 2);
-        axios.get(`${apiUrl}/api/fach/trans/${lang}`)
+        ApiService.get(`/api/fach/trans/${lang}`)
             .then(response => setAvailableSubjects(response.data))
             .catch(function (error) {
                 console.error("Fehler beim Laden der Fächer:", error.message);
-                axios.get(`${apiUrl}/api/fach`)
+                ApiService.get(`/api/fach`)
                     .then(response => setAvailableSubjects(response.data))
                     .catch(error => console.error("Fehler beim Laden der Fächer:", error))
             })
 
             .catch(error => console.error("Fehler beim Laden der Fächer:", error));
 
-        axios.get(`${apiUrl}/api/allusers`)
+        ApiService.get(`/api/allusers`)
             .then(response => {
-                console.log(response.data);  // Überprüfe, ob die Tutor-Daten ankommen
+                // console.log(response.data);  // Überprüfe, ob die Tutor-Daten ankommen
                 setTutors(response.data);
             })
             .catch(error => console.error("Fehler beim Laden der Tutoren:", error));
@@ -87,12 +89,7 @@ function SchuelerSeite() {
         const userRole = localStorage.getItem("userRole");
 
         try {
-            let response;
-            if (userRole === "STUDENT") {
-                response = await axios.get(`${apiUrl}/api/students/${userId}`);
-            } else {
-                response = await axios.get(`${apiUrl}/api/tutors/${userId}`);
-            }
+            const response = await ApiService.get(`/api/allusers/${userId}`);
 
             const user = response.data;
             return user;
@@ -121,30 +118,25 @@ function SchuelerSeite() {
 
     const MeineTutor = async () => {
         try {
-            const loggedInUser = JSON.parse(localStorage.getItem('isLoggedIn'));
+            console.log(user);
+            const loggedInUser = user.isLoggedIn;
             if (!loggedInUser) {
                 alert("Bitte melden Sie sich an, um einen Tutor auszuwählen.");
                 return [];
             }
 
-            const userId = localStorage.getItem("userId");
-            const userRole = localStorage.getItem("userRole");
+            const userId = user.id;
+            const userRole = user.userRole;
 
             if (!userId || !userRole) {
                 console.warn("Benutzer nicht eingeloggt oder keine Rolle gesetzt.");
                 return [];
             }
 
-            let response;
+            let response = await ApiService.get(`/api/allusers/${userId}`);
 
-            if (userRole === "STUDENT") {
-                response = await axios.get(`${apiUrl}/api/students/${userId}`);
-            } else {
-                response = await axios.get(`${apiUrl}/api/tutors/${userId}`);
-            }
-
-            const user = response.data;
-            const tutorsIds = user.tutorsIds || [];
+            const userData = response.data;
+            const tutorsIds = userData.tutorsIds || [];
             const tutorsList = [];
             for (const tutorId of tutorsIds) {
                 try {

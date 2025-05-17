@@ -1,74 +1,45 @@
 import { useState } from "react";
-import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { Button, Container, Input, Modal, ModalBody, ModalFooter, ModalHeader, } from "reactstrap";
-import { useUser } from "../context/UserContext";
+import { useAuth } from "../context/UseAuth.jsx";
+import { userRoleIdToName, userRoleIdToPage } from "../util/mapping.js";
 
 const Authenticate = () => {
-  const apiUrl = import.meta.env.VITE_API_URL;
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  const [userRoleIds, setUserRoleIds] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
   const navigate = useNavigate();
-  const {setUser} = useUser(); // Zugriff auf den Context
+  const {login, user, updateUser} = useAuth();
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
 
-  const userRoleIdToName = {
-    1: "STUDENT",
-    2: "TUTOR",
-    3: "ENTERPRISE",
-    4: "FINANCE",
-    5: "ADMIN",
-    6: "SUPPORT",
-  };
-
-  const userRoleIdToPage = {
-    1: "/schueler",
-    2: "/tutor",
-    3: "/enterprise",
-    4: "/finance",
-    5: "/admin",
-    6: "/support",
-  };
-
-  const handleLogin = async () => {
-    setErrorMessage("");
+  const handleLogin = () => {
     try {
-      const UserResponse = await axios.post(`${apiUrl}/api/auth/authenticate`, {
-            emailOrPhoneNumber: username,
-            password: password,
-          },
-          {
-            withCredentials: true, // Required for cookies to be sent/received
-            headers: {
-              'Content-Type': 'application/json'
-            }
-          });
+      setErrorMessage("");
+      login({username, password});
 
-      if (UserResponse.status === 200) {
-        console.log(UserResponse);
-        console.log(UserResponse.data);
-        console.log("Login erfolgreich:", UserResponse);
-        // const allUser = UserResponse.data;
-        // const roleIds = allUser.userRoleIds || [];
-        // setUserRoleIds(roleIds);
+      if (user && user.userRoleIds.length === 1) {
+        updateUser({
+          userRole: userRoleIdToName[user.userRoleIds[0]],
+          selectedUserRoleId: user.userRoleIds[0],
+          isLoggedIn: true
+        })
+        navigate(userRoleIdToPage[user.userRoleIds[0]]);
+      } else if (user && user.userRoleIds.length > 1) {
+        setModalOpen(true);
       }
     } catch (error) {
       setErrorMessage("Email/Telefonnummer und Passwort stimmen nicht.");
-      console.log(error);
+      console.error("Login error:", error);
     }
   };
 
-
   const handleRoleSelection = (roleId) => {
-    setUser((prevUser) => ({
-      ...prevUser,
-      isLoggedIn: true,
+    updateUser({
       userRole: userRoleIdToName[roleId],
       selectedUserRoleId: roleId,
-      userPage: userRoleIdToPage[roleId],
-    }));
+      userPage: userRoleIdToPage[roleId], // 🔥 Speichert die zugehörige Seite
+      isLoggedIn: true
+    })
 
     setModalOpen(false); // Modal wird nach Auswahl der Rolle geschlossen
     navigate(userRoleIdToPage[roleId]);
@@ -92,28 +63,33 @@ const Authenticate = () => {
             }}
         >
           <h2>Anmelden über COOKIE</h2>
-          <Input
-              className="mb-2 form-control-lg"
-              type="text"
-              placeholder="Benutzername"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-          />
-          <Input
-              className="form-control-lg"
-              type="password"
-              placeholder="Passwort"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-          />
-          <button
-              className="mb-2 btn btn-primary form-control"
-              onClick={handleLogin}
-              style={{padding: "10px", marginTop: "10px"}}
-          >
-            Login
-          </button>
-
+          {/*<Form onSubmit={e => {handleLogin(e)}} >*/}
+          <form>
+            <Input
+                className="mb-2 form-control-lg"
+                type="text"
+                placeholder="Benutzername"
+                value={username}
+                autoComplete="username"
+                onChange={(e) => setUsername(e.target.value)}
+            />
+            <Input
+                className="form-control-lg"
+                type="password"
+                placeholder="Passwort"
+                value={password}
+                autoComplete="current-password"
+                onChange={(e) => setPassword(e.target.value)}
+            />
+            <Button
+                className="mb-2 btn btn-success form-control"
+                style={{padding: "10px", marginTop: "10px"}}
+                onClick={handleLogin}
+            >
+              Login
+            </Button>
+          </form>
+          {/*</Form>*/}
           {errorMessage && <p className="text-danger">{errorMessage}</p>}
 
           <p className="mt-2 mb-0">
@@ -127,7 +103,7 @@ const Authenticate = () => {
         <Modal isOpen={modalOpen} toggle={() => setModalOpen(!modalOpen)}>
           <ModalHeader toggle={() => setModalOpen(!modalOpen)}>Rolle auswählen</ModalHeader>
           <ModalBody>
-            {userRoleIds.map((roleId, index) => (
+            {user && user.userRoleIds.map((roleId, index) => (
                 <Button
                     key={index}
                     color="secondary"

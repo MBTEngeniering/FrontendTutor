@@ -35,7 +35,7 @@ const RegisterTutor = () => {
     useEffect(() => {
         // @TTODO: Use language from settings
         const lang = navigator.languages[1].substring(0, 2);
-        axios.get(`${apiUrl}/api/fach/trans/${lang}`)
+        axios.get(`${apiUrl}/api/fach/trans/${lang}`, {withCredentials: true})
             .then(response => setAvailableSubjects(response.data))
             .catch(function (error) {
                 console.error("Fehler beim Laden der Fächer:", error.message);

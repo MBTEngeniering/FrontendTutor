@@ -1,11 +1,11 @@
-import { lazy, Suspense, useEffect } from "react";
+import { lazy, Suspense } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "./App.css";
-import { UserProvider, useUser } from "./context/UserContext";
 import ChatSupport from "./components/ChatSupport.jsx";
 import Restricted from "./pages/Restricted.jsx";
-
+import ProtectedRoute from "./components/ProtectedRoute.jsx";
+import { AuthProvider } from "./context/AuthProvider.jsx";
 
 // Seitenkomponenten importieren
 const Homepage = lazy(() => import("./pages/Homepage.jsx"));
@@ -43,81 +43,56 @@ const CorporateIdentity = lazy(() => import("./pages/CorporateIdentity.jsx"));
 const Header = lazy(() => import("./components/Header.jsx"));
 const Authenticate = lazy(() => import("./pages/Authenticate.jsx"));
 
-function AppContent() {
-  const { user, setUser } = useUser();
-
-  useEffect(() => {
-    // Falls der Benutzer bereits eingeloggt war, Daten wiederherstellen
-    const storedUser = JSON.parse(localStorage.getItem("user"));
-    if (storedUser?.isLoggedIn) {
-      setUser(storedUser);
-    }
-  }, [setUser]);
-
-  const handleLogout = () => {
-    // Benutzer abmelden
-    localStorage.removeItem("user");
-    setUser({
-      userId: null,
-      firstName: "",
-      lastName: "",
-      isLoggedIn: false,
-      userRole: "",
-      selectedUserRoleId: null,
-    });
-  };
-
+const App = () => {
   return (
-      <BrowserRouter>
-        <Suspense fallback={<LoadingScreen/>}>
-          <Header logoutFunc={handleLogout} isLoggedIn={user.isLoggedIn} />
-          <Routes>
-            <Route path="/" element={<Homepage />} />
-            <Route path="/registrierung" element={<Register />} />
-            <Route path="/abikurs" element={<Abikurs />} />
-            <Route path="/beratung" element={<Beratung />} />
-            <Route path="/ueberuns" element={<AboutUs />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/preise" element={<Prices />} />
-            <Route path="/elternschueler" element={<RegisterStudent />} />
-            <Route path="/lehrer" element={<RegisterTutor />} />
-            <Route path="/konzept" element={<Konzept />} />
-            <Route path="/schueler" element={<Schueler />} />
-            <Route path="/tutor" element={<Tutor />} />
-            <Route path="/vortraege" element={<Vortraege />} />
-            <Route path="/tutors" element={<Tutors />} />
-            <Route path="/enterprise" element={<Enterprise />} />
-            <Route path="/manage" element={<Manage />} />
-            <Route path="/support" element={<Support />} />
-            <Route path="/admin" element={<Admin />} />
-            <Route path="/finance" element={<Finance />} />
-            <Route path="/passwort-vergessen" element={<PasswordReset />} />
-            <Route path="/impressum" element={<Impressum />} />
-            <Route path="/datenschutz" element={<Datenschutz />} />
-            <Route path="/agb" element={<Agb />} />
-            <Route path="/faq" element={<Faq />} />
-            <Route path="/hilfe" element={<Hilfe />} />
-            <Route path="/blog" element={<Blog />} />
-            <Route path="/wer-sind-wir" element={<WhoWeAre />} />
-            <Route path="/kontakt" element={<Kontakt />} />
+      <AuthProvider>
+        <BrowserRouter>
+          <Suspense fallback={<LoadingScreen/>}>
+            <Header/>
+            <Routes>
+              <Route path="/" element={<Homepage/>}/>
+              <Route path="/registrierung" element={<Register/>}/>
+              <Route path="/abikurs" element={<Abikurs/>}/>
+              <Route path="/beratung" element={<Beratung/>}/>
+              <Route path="/ueberuns" element={<AboutUs/>}/>
+              <Route path="/login" element={<Login/>}/>
+              <Route path="/preise" element={<Prices/>}/>
+              <Route path="/elternschueler" element={<RegisterStudent/>}/>
+              <Route path="/lehrer" element={<RegisterTutor/>}/>
+              <Route path="/konzept" element={<Konzept/>}/>
+              <Route path="/schueler" element={<Schueler/>}/>
+              <Route path="/tutor" element={<Tutor/>}/>
+              <Route path="/vortraege" element={<Vortraege/>}/>
+              <Route path="/tutors" element={<Tutors/>}/>
+              <Route path="/enterprise" element={<Enterprise/>}/>
+              <Route path="/manage" element={<Manage/>}/>
+              <Route path="/support" element={<Support/>}/>
+              <Route path="/admin" element={<ProtectedRoute roles={[5]} element={<Admin/>}/>}/>
 
-            <Route path="/authenticate" element={<Authenticate />} />
-            <Route path="/ci" element={<CorporateIdentity />} />
-            <Route path="/rest" element={<Restricted />} />
-            {/* Immer zuletzt */}
-            <Route path="*" element={<Notfound />} />
-          </Routes>
-          <Footer />
-          <ChatSupport/>
-        </Suspense>
-      </BrowserRouter>
+              <Route path="/finance" element={<ProtectedRoute roles={[4]} element={<Finance/>}/>}/>
+              <Route path="/passwort-vergessen" element={<PasswordReset/>}/>
+              <Route path="/impressum" element={<Impressum/>}/>
+              <Route path="/datenschutz" element={<Datenschutz/>}/>
+              <Route path="/agb" element={<Agb/>}/>
+              <Route path="/faq" element={<Faq/>}/>
+              <Route path="/hilfe" element={<Hilfe/>}/>
+              <Route path="/blog" element={<Blog/>}/>
+              <Route path="/wer-sind-wir" element={<WhoWeAre/>}/>
+              <Route path="/kontakt" element={<Kontakt/>}/>
+
+
+              <Route path="/authenticate" element={<Authenticate/>}/>
+              <Route path="/ci" element={<CorporateIdentity/>}/>
+              <Route path="/rest" element={<Restricted/>}/>
+              {/* Immer zuletzt */}
+              <Route path="*" element={<Notfound/>}/>
+            </Routes>
+            <Footer/>
+            <ChatSupport/>
+          </Suspense>
+        </BrowserRouter>
+      </AuthProvider>
   );
 }
 
-export default function App() {
-  return (
-      <UserProvider>
-        <AppContent />
-      </UserProvider>
-  );
-}
+export default App;

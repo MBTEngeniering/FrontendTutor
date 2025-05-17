@@ -16,27 +16,16 @@ import { Link } from "react-router-dom";
 import lettering from "/img/fs-logo-trans.png";
 import lupe from "bootstrap-icons/icons/search.svg";
 import logo from "/img/android-chrome-512x512.png";
-import {useUser} from "../context/UserContext.jsx";
+import { useAuth } from "../context/UseAuth.jsx";
 
-const Linker = lazy(() => import(":comp/Linker.jsx"));
+const Linker = lazy(() => import("./Linker.jsx"));
 
-export default function Header({ isLoggedIn, logoutFunc }) {
+export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const toggle = () => setIsOpen(!isOpen);
   const navigate = useNavigate();
-  const { user } = useUser();
-  // Benutzername aus localStorage abrufen
-  const [userName, setUserName] = useState("");
+    const { user, logout } = useAuth();
 
-  useEffect(() => {
-    if (isLoggedIn) {
-      const firstName = localStorage.getItem("firstName") || "";
-      const lastName = localStorage.getItem("lastName") || "";
-      setUserName(firstName && lastName ? `Willkommen, ${firstName} ${lastName}` : "");
-    } else {
-      setUserName(""); // Falls abgemeldet, Name zurücksetzen
-    }
-  }, [user.isLoggedIn, user.firstName, user.lastName]);
   return (
       <Navbar container="fluid" className="mb-0" expand="lg">
         <NavbarBrand style={{ cursor: 'pointer' }}>
@@ -100,8 +89,8 @@ export default function Header({ isLoggedIn, logoutFunc }) {
             </NavItem>
             <NavItem className="d-flex align-items-center">
 
-              {!isLoggedIn ? (
-                  <Link className="nav-link" to="/login">
+              {!user || !user.isLoggedIn ? (
+                  <Link className="nav-link" to="/authenticate">
                     <button style={{
                       padding: '6px 20px',
                       backgroundColor: 'black',
@@ -115,11 +104,11 @@ export default function Header({ isLoggedIn, logoutFunc }) {
               ) : (
                   <>
                 <span className="nav-link">
-                  {userName}
+                  {user.firstName} {user.lastName}
                 </span>
                     <Link
                         className="nav-link me-lg-3"
-                        onClick={logoutFunc}
+                        onClick={logout}
                         style={{
                           marginLeft: "20px",
                           padding: '10px 10px',
@@ -142,7 +131,8 @@ export default function Header({ isLoggedIn, logoutFunc }) {
                                 style={{ marginRight: "10px" }}
                                 onClick={() => navigate(user.userPage)}
                             >
-                              Meine Seite
+                              Meine Seite<br/>
+                              {user.userRole}
                             </button>
                           </NavItem>
                       )}
