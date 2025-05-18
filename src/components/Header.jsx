@@ -1,5 +1,5 @@
-import { lazy, useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom"
+import { lazy, useState } from "react";
+import { Link, useNavigate } from "react-router-dom"
 import {
   Collapse,
   DropdownItem,
@@ -12,7 +12,6 @@ import {
   NavItem,
   UncontrolledDropdown
 } from "reactstrap";
-import { Link } from "react-router-dom";
 import lettering from "/img/fs-logo-trans.png";
 import lupe from "bootstrap-icons/icons/search.svg";
 import logo from "/img/android-chrome-512x512.png";
@@ -24,19 +23,19 @@ export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const toggle = () => setIsOpen(!isOpen);
   const navigate = useNavigate();
-    const { user, logout } = useAuth();
+  const {user, logout} = useAuth();
 
   return (
       <Navbar container="fluid" className="mb-0" expand="lg">
-        <NavbarBrand style={{ cursor: 'pointer' }}>
+        <NavbarBrand style={{cursor: 'pointer'}}>
           <Linker link="/" title="Home">
             <div className="logo-title">
-              <img src={logo} alt="Logo" className="logo" />
-              <span><img src={lettering} alt="fairstudy" /></span>
+              <img src={logo} alt="Logo" className="logo"/>
+              <span><img src={lettering} alt="fairstudy"/></span>
             </div>
           </Linker>
         </NavbarBrand>
-        <NavbarToggler onClick={toggle} />
+        <NavbarToggler onClick={toggle}/>
         <Collapse isOpen={isOpen} navbar className="justify-content-end">
           <form>
             <input
@@ -44,7 +43,7 @@ export default function Header() {
                 type="text"
                 placeholder="Schnellsuche..."
                 className="form-control-sm bg-body-secondary"
-                style={{ borderRadius: '14px 0 0 14px' }}
+                style={{borderRadius: '14px 0 0 14px'}}
             />
             <button type="submit" className="btn btn-primary btn-sm"
                     style={{
@@ -56,7 +55,7 @@ export default function Header() {
                       border: 'none',
                       borderRadius: '0 14px 14px 0'
                     }}>
-              <img src={lupe} alt="Search" />
+              <img src={lupe} alt="Search"/>
             </button>
           </form>
           <Nav navbar>
@@ -77,7 +76,7 @@ export default function Header() {
               <DropdownMenu right>
                 <DropdownItem><Linker link="/preise">Preise</Linker></DropdownItem>
                 <DropdownItem><Linker link="/elternschueler">Eltern/Schüler-Portal</Linker></DropdownItem>
-                <DropdownItem divider />
+                <DropdownItem divider/>
                 <DropdownItem><Linker link="/lehrer">Lehrer werden</Linker></DropdownItem>
                 <DropdownItem><Linker link="/konzept">Konzept</Linker></DropdownItem>
                 <DropdownItem><Linker link="/vortraege">Vorträge</Linker></DropdownItem>
@@ -87,9 +86,8 @@ export default function Header() {
             <NavItem>
               <Link to="/registrierung" className="nav-link">Registrierung</Link>
             </NavItem>
-            <NavItem className="d-flex align-items-center">
-
-              {!user || !user.isLoggedIn ? (
+            {!user || !user.isLoggedIn ? (
+                <NavItem>
                   <Link className="nav-link" to="/authenticate">
                     <button style={{
                       padding: '6px 20px',
@@ -101,45 +99,43 @@ export default function Header() {
                       Anmelden
                     </button>
                   </Link>
-              ) : (
-                  <>
-                <span className="nav-link">
-                  {user.firstName} {user.lastName}
-                </span>
+                </NavItem>
+            ) : (
+                <>
+                  <NavItem className="nav-link">
+                    {user.firstName} {user.lastName}
+                  </NavItem>
+                  {user.isLoggedIn && user.userPage && (
+                      <NavItem className="nav-link">
+                        <button
+                            className="btn btn-info"
+                            onClick={() => navigate(user.userPage)}
+                            title={user.userRole}
+                        >
+                          Meine Seite
+                        </button>
+                      </NavItem>
+                  )}
+                  <NavItem className="nav-link">
                     <Link
-                        className="nav-link me-lg-3"
                         onClick={logout}
                         style={{
-                          marginLeft: "20px",
-                          padding: '10px 10px',
+                          // marginLeft: "20px",
+                          padding: '8px 10px',
                           backgroundColor: 'rgb(1,1,16)',
                           color: 'white',
                           border: 'none',
                           borderRadius: '5px',
-                          textAlign: 'center'
+                          textAlign: 'center',
+                          textDecoration: 'none',
                         }}
                         to="/"
                     >
                       Abmelden
                     </Link>
-                    <Nav navbar>
-                      {/* 🔥 Neuer Button: "Meine Seite" */}
-                      {user.isLoggedIn && user.userPage && (
-                          <NavItem>
-                            <button
-                                className="btn btn-info"
-                                style={{ marginRight: "10px" }}
-                                onClick={() => navigate(user.userPage)}
-                            >
-                              Meine Seite<br/>
-                              {user.userRole}
-                            </button>
-                          </NavItem>
-                      )}
-                    </Nav>
-                  </>
-              )}
-            </NavItem>
+                  </NavItem>
+                </>
+            )}
           </Nav>
         </Collapse>
       </Navbar>

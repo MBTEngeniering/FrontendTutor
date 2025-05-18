@@ -164,7 +164,7 @@ const Homepage = () => {
                 </svg>
               </div>
 
-              fairschule ist eine tolle Plattform für Nachhilfe. Ich habe hier viele neue Dinge gelernt und meine Noten
+              fairstudy ist eine tolle Plattform für Nachhilfe. Ich habe hier viele neue Dinge gelernt und meine Noten
               haben sich
               <h2 className="fw-bold">Max Mustermann</h2>
             </Col>
@@ -182,7 +182,7 @@ const Homepage = () => {
                 </svg>
               </div>
 
-              fairschule ist ein tolles Unternehmen, das sich für faire Bildungschancen einsetzt. Ich bin sehr dankbar
+              fairstudy ist ein tolles Unternehmen, das sich für faire Bildungschancen einsetzt. Ich bin sehr dankbar
               für die Unterstützung, die ich hier bekommen habe.
               <h2 className="fw-bold">Max Mustermann</h2>
             </Col>

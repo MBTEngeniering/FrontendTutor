@@ -25,9 +25,9 @@ export default function Footer() {
         <div className="footer-section">
           <h3>Kontakt</h3>
           <ul>
-            <li>Email: info@frontendtutor.de</li>
-            <li>Telefon: +49 123 456789</li>
-            <li>Adresse: Musterstraße 1, 12345 Berlin</li>
+            <li>Email: info@fairstudy.de</li>
+            <li>Telefon: (in Bearbeitung)</li>
+            <li>Adresse: Wulf-Isebrand Str. 54, 25764 Wesselburen</li>
           </ul>
         </div>
         <div className="footer-section">

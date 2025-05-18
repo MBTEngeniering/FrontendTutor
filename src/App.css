@@ -2,9 +2,17 @@ html {
   scroll-behavior: smooth;
 }
 
+:root {
+  --primary-color: #086972;
+  --secondary-color: #00847F;
+  --text-color: #333;
+  --white-bg: #f8f9fa;
+  --black: #000;
+}
+
 body {
   font-family: Calibri, Roboto, system-ui, -apple-system, "Segoe UI", "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-  background-color: #f8f9fa;
+  background-color: var(--white-bg);
   font-size: 20px;
 }
 

@@ -3,24 +3,24 @@ import { jsPDF } from "jspdf";
 import "../../styles/UserPage.css";
 import { DayPilotCalendar } from "@daypilot/daypilot-lite-react";
 import { DayPilot } from "@daypilot/daypilot-lite-react";
-import axios from "axios";
-import { useUser } from "../../context/UserContext";
+import { useAuth } from "../../context/UseAuth.jsx";
+import ApiService from "../../api/ApiService.js";
 
 function TutorSeite() {
     const apiUrl = import.meta.env.VITE_API_URL;
     const [activeContent, setActiveContent] = useState(null);
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-    const { user } = useUser();
     const [startDate, setStartDate] = useState(DayPilot.Date.today());
     const [selectedEvents, setSelectedEvents] = useState([]);
     const [availabilityTime, setAvailabilityTime] = useState([]);
+    const { user } = useAuth(); // Assuming you have a custom hook for authentication
 
     useEffect(() => {
         const fetchAvailability = async () => {
-            if (!user.userId) return;
+            if (!user) return;
 
             try {
-                const response = await axios.get(`${apiUrl}/api/allusers/${user.userId}`);
+                const response = await ApiService.get(`/api/allusers/${user.id}`);
                 const userData = response.data;
                 if (userData.availabilityTime) {
                     const convertedEvents = userData.availabilityTime.map((iso) => {
@@ -57,7 +57,7 @@ function TutorSeite() {
 
 
         fetchAvailability();
-    }, [apiUrl, user.userId]);
+    }, [user]);
 
     const TutorCalendar = () => {
         const calendarRef = useRef();
