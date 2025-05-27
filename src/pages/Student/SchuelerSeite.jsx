@@ -1,14 +1,11 @@
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 import { jsPDF } from "jspdf";
 import "../../styles/UserPage.css";
-import axios from "axios";
 import { DateTime } from 'luxon';
-import {Button} from "reactstrap";
 import ApiService from "../../api/ApiService.js";
 import { useAuth } from "../../context/UseAuth.jsx";
 
 function SchuelerSeite() {
-    const apiUrl = import.meta.env.VITE_API_URL;
     const [activeContent, setActiveContent] = useState("Kalender");
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
     const [selectedDate, setSelectedDate] = useState(new Date());
@@ -41,6 +38,7 @@ function SchuelerSeite() {
     const stunden = [
 
     ];
+
     useEffect(() => {
         // @TTODO: Use language from settings
         const lang = navigator.languages[1].substring(0, 2);
@@ -76,17 +74,17 @@ function SchuelerSeite() {
 
         fetchMeineTutoren();
         fetchLoggedInUser();
-    }, [apiUrl]);
+    }, [user]);
 
     const getLoggedInUser = async () => {
-        const loggedInUser = JSON.parse(localStorage.getItem('isLoggedIn'));
-        if (!loggedInUser) {
-            alert("Bitte melden Sie sich an.");
+        if (!user) {
             return null;
         }
 
-        const userId = localStorage.getItem("userId");
-        const userRole = localStorage.getItem("userRole");
+        // const userId = localStorage.getItem("userId");
+        // const userRole = localStorage.getItem("userRole");
+        const userId = user.id;
+        const userRole = user.userRole;
 
         try {
             const response = await ApiService.get(`/api/allusers/${userId}`);
@@ -118,8 +116,7 @@ function SchuelerSeite() {
 
     const MeineTutor = async () => {
         try {
-            console.log(user);
-            const loggedInUser = user.isLoggedIn;
+            const loggedInUser = user.id;
             if (!loggedInUser) {
                 alert("Bitte melden Sie sich an, um einen Tutor auszuwählen.");
                 return [];
@@ -140,7 +137,7 @@ function SchuelerSeite() {
             const tutorsList = [];
             for (const tutorId of tutorsIds) {
                 try {
-                    const tutorResponse = await axios.get(`${apiUrl}/api/tutors/${tutorId}`);
+                    const tutorResponse = ApiService.get(`/api/tutors/${tutorId}`);
                     tutorsList.push(tutorResponse.data);
                 } catch (tutorError) {
                     console.warn(`Tutor mit ID ${tutorId} konnte nicht geladen werden:`, tutorError);
@@ -160,7 +157,7 @@ function SchuelerSeite() {
             setSelectedTutor(tutor);
             const loggedInUser = JSON.parse(localStorage.getItem('isLoggedIn'));
             if (!loggedInUser) {
-                alert("Bitte melden Sie sich an, um einen Tutor auszuwählen.");
+                alert("2Bitte melden Sie sich an, um einen Tutor auszuwählen.");
                 return;
             }
             const userId = localStorage.getItem("userId");
@@ -168,9 +165,9 @@ function SchuelerSeite() {
 
             let response;
             if (userRole === "STUDENT") {
-                response = await axios.get(`${apiUrl}/api/students/${userId}`);
+                response = await ApiService.get(`/api/students/${userId}`);
             } else {
-                response = await axios.get(`${apiUrl}/api/tutors/${userId}`);
+                response = await ApiService.get(`/api/tutors/${userId}`);
             }
 
 
@@ -182,17 +179,17 @@ function SchuelerSeite() {
             }
             else{
                 tutorsIds.push(tutor.id)
-                const tutorResponse = await axios.get(`${apiUrl}/api/tutors/${tutor.id}`);
+                const tutorResponse = ApiService.get(`/api/tutors/${tutor.id}`);
                 const tutorData = tutorResponse.data;
                 const schoolTutorsIds = tutorData.schoolTutorsIds || [];
                 schoolTutorsIds.push(userId);
                 tutorData.schoolTutorsIds = schoolTutorsIds;
-                await axios.put(`${apiUrl}/api/tutors/${tutor.id}`, tutorData);
+                await ApiService.put(`/api/tutors/${tutor.id}`, tutorData);
 
                 if (userRole === "STUDENT") {
-                    await axios.put(`${apiUrl}/api/students/${userId}`, user);
+                    await ApiService.put(`/api/students/${userId}`, user);
                 } else {
-                    await axios.put(`${apiUrl}/api/tutors/${userId}`, user);
+                    await ApiService.put(`/api/tutors/${userId}`, user);
                 }
                 alert("Du hast den Tutor "+ tutor.lastName +" "+ tutor.firstName +" erfolgreich ausgewählen und  kannst schon Studen buchen")
 
@@ -269,7 +266,7 @@ function SchuelerSeite() {
     };
     const getFachId = async (fachName) => {
         try {
-            const response = await fetch(`${apiUrl}/api/fach/search?fach=${encodeURIComponent(fachName)}`);
+            const response = ApiService.get(`/api/fach/search?fach=${encodeURIComponent(fachName)}`);
             if (!response.ok) {
                 throw new Error("Fehler beim Abrufen des Fachs");
             }
@@ -290,11 +287,11 @@ function SchuelerSeite() {
             const userRole = loggedInUser.role;
             let endpoint = "";
             if (userRole === "STUDENT") {
-                endpoint = `${apiUrl}/api/students/${userId}`;
+                endpoint = `/api/students/${userId}`;
             } else {
-                endpoint = `${apiUrl}/api/tutors/${userId}`;
+                endpoint = `/api/tutors/${userId}`;
             }
-            const response = await axios.put(endpoint, loggedInUser);
+            const response = await ApiService.put(endpoint, loggedInUser);
             // Bei erfolgreichem Update werden beide Zustände aktualisiert
             setLoggedInUser(response.data);
             setOriginalUser(response.data);

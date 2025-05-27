@@ -12,19 +12,20 @@ const Authenticate = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleLogin = () => {
+  const handleLogin = async () => { // Make the function async
     try {
       setErrorMessage("");
-      login({username, password});
+      const userData = await login({ username, password });
 
-      if (user && user.userRoleIds.length === 1) {
+      if (userData && userData.userRoleIds.length === 1) {
         updateUser({
-          userRole: userRoleIdToName[user.userRoleIds[0]],
-          selectedUserRoleId: user.userRoleIds[0],
+          userRole: userRoleIdToName[userData.userRoleIds[0]],
+          selectedUserRoleId: userData.userRoleIds[0],
+          userPage: userRoleIdToPage[userData.userRoleIds[0]],
           isLoggedIn: true
         })
-        navigate(userRoleIdToPage[user.userRoleIds[0]]);
-      } else if (user && user.userRoleIds.length > 1) {
+        navigate(userRoleIdToPage[userData.userRoleIds[0]]);
+      } else if (userData && user.userRoleIds.length > 1) {
         setModalOpen(true);
       }
     } catch (error) {

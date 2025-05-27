@@ -10,7 +10,7 @@ import {
     ModalFooter,
     Button,
 } from "reactstrap";
-import { useUser } from "../context/UserContext";
+import { useAuth } from "../context/UseAuth.jsx";
 
 /**
  *
@@ -26,7 +26,7 @@ function Login() {
     const [userRoleIds, setUserRoleIds] = useState([]);
     const [modalOpen, setModalOpen] = useState(false);
     const navigate = useNavigate();
-    const { setUser } = useUser(); // Zugriff auf den Context
+    const { setUser } = useAuth(); // Zugriff auf den Context
 
     const userRoleIdToName = {
         1: "STUDENT",
