@@ -1,18 +1,15 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { jsPDF } from "jspdf";
 import "../../styles/UserPage.css";
-import { DayPilotCalendar } from "@daypilot/daypilot-lite-react";
-import { DayPilot } from "@daypilot/daypilot-lite-react";
+import TutorCalendar from "../../components/TutorCalendar";
 import { useAuth } from "../../context/UseAuth.jsx";
-import ApiService from "../../api/ApiService.js";
+import ApiService from "../../api/ApiService";
+import "react-big-calendar/lib/css/react-big-calendar.css";
 
 function TutorSeite() {
     const apiUrl = import.meta.env.VITE_API_URL;
     const [activeContent, setActiveContent] = useState(null);
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-    const [startDate, setStartDate] = useState(DayPilot.Date.today());
-    const [selectedEvents, setSelectedEvents] = useState([]);
-    const [availabilityTime, setAvailabilityTime] = useState([]);
     const { user } = useAuth(); // Assuming you have a custom hook for authentication
 
     useEffect(() => {
@@ -22,32 +19,6 @@ function TutorSeite() {
             try {
                 const response = await ApiService.get(`/api/allusers/${user.id}`);
                 const userData = response.data;
-                if (userData.availabilityTime) {
-                    const convertedEvents = userData.availabilityTime.map((iso) => {
-                        const start = new DayPilot.Date(iso);
-                        const end = start.addMinutes(30);
-                        return {
-                            id: `${start.toString()}-${end.toString()}`,
-                            start,
-                            end,
-                            backColor: "#d0eaff",
-                        };
-                    });
-                    const earliest = new DayPilot.Date(userData.availabilityTime[0]);
-                    setStartDate(earliest.firstDayOfWeek());
-                    setSelectedEvents(convertedEvents);
-                    setAvailabilityTime(userData.availabilityTime.map((iso) =>
-                        new Date(iso).toLocaleString("de-DE", {
-                            day: "2-digit",
-                            month: "2-digit",
-                            year: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                        })
-                    ));
-
-
-                }
 
 
             } catch (error) {
@@ -59,155 +30,7 @@ function TutorSeite() {
         fetchAvailability();
     }, [user]);
 
-    const TutorCalendar = () => {
-        const calendarRef = useRef();
 
-
-        useEffect(() => {
-            const calendar = calendarRef.current.control;
-            calendar.update({
-                cellDuration: 30,
-                events: selectedEvents,
-                startDate,
-            });
-        }, [startDate, selectedEvents]);
-
-        const handlePreviousWeek = () => {
-            setStartDate(startDate.addDays(-7));
-        };
-
-        const handleNextWeek = () => {
-            setStartDate(startDate.addDays(7));
-        };
-
-        const handleEventClick = (args) => {
-            const eventId = args.e.data.id;
-            const eventStart = args.e.data.start.value;
-
-            setSelectedEvents((prevEvents) =>
-                prevEvents.filter((e) => e.id !== eventId)
-            );
-
-            setAvailabilityTime((prevTimes) =>
-                prevTimes.filter(
-                    (t) =>
-                        t !==
-                        new Date(eventStart).toLocaleString("de-DE", {
-                            day: "2-digit",
-                            month: "2-digit",
-                            year: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                        })
-                )
-            );
-        };
-
-        const handleTimeRangeSelected = (args) => {
-            const newSelectedEvents = [...selectedEvents];
-            const newAvailabilityTime = [...availabilityTime];
-
-            let currentTime = args.start;
-            const slotsToAdd = [];
-            const slotsToRemoveIds = [];
-            const timesToRemove = [];
-            const timesToAdd = [];
-
-            while (currentTime < args.end) {
-                const start = currentTime;
-                const end = currentTime.addMinutes(30);
-                const id = `${start.toString()}-${end.toString()}`;
-
-                const existing = newSelectedEvents.find((event) => event.id === id);
-
-                if (existing) {
-                    slotsToRemoveIds.push(id);
-                    const formatted = new Date(start).toLocaleString("de-DE", {
-                        day: "2-digit",
-                        month: "2-digit",
-                        year: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                    });
-                    timesToRemove.push(formatted);
-                } else {
-                    slotsToAdd.push({
-                        id,
-                        start,
-                        end,
-                        backColor: "#d0eaff",
-                    });
-
-                    const formatted = new Date(start).toLocaleString("de-DE", {
-                        day: "2-digit",
-                        month: "2-digit",
-                        year: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                    });
-                    timesToAdd.push(formatted);
-                }
-
-                currentTime = currentTime.addMinutes(30);
-            }
-
-            const updatedEvents = newSelectedEvents
-                .filter((event) => !slotsToRemoveIds.includes(event.id))
-                .concat(slotsToAdd);
-
-            const updatedTimes = newAvailabilityTime
-                .filter((t) => !timesToRemove.includes(t))
-                .concat(timesToAdd);
-
-            setSelectedEvents(updatedEvents);
-            setAvailabilityTime(updatedTimes);
-        };
-
-        const handleSave = async () => {
-            if (availabilityTime.length > 0) {
-                const slots = availabilityTime.join(", ");
-
-                alert(`Ausgewählte Zeitfenster: ${slots}`);
-            } else {
-                alert("Bitte wählen Sie mindestens einen Termin aus.");
-            }
-        };
-
-        return (
-            <div>
-                <div style={{ marginBottom: "10px", display: "flex", gap: "10px" }}>
-                    <button onClick={handlePreviousWeek}>← Vorherige Woche</button>
-                    <button onClick={handleNextWeek}>Nächste Woche →</button>
-                    <button
-                        onClick={handleSave}
-                        style={{
-                            marginLeft: "auto",
-                            backgroundColor: "#4CAF50",
-                            color: "white",
-                            padding: "5px 10px",
-                            borderRadius: "5px",
-                        }}
-                    >
-                        Speichern
-                    </button>
-                </div>
-                <div style={{ height: "500px" }}>
-                    <DayPilotCalendar
-                        ref={calendarRef}
-                        startDate={startDate}
-                        viewType="Week"
-                        durationBarVisible={false}
-                        timeRangeSelectedHandling="JavaScript"
-                        onTimeRangeSelected={handleTimeRangeSelected}
-                        onEventClick={handleEventClick}
-                        eventDeleteHandling="Disabled"
-                        eventMoveHandling="Disabled"
-                        eventResizeHandling="Disabled"
-                    />
-                </div>
-            </div>
-        );
-    };
 
     const downloadPDF = () => {
         const doc = new jsPDF();
@@ -224,15 +47,15 @@ function TutorSeite() {
         switch (activeContent) {
             case "Kalender":
                 return (
-                    <div style={{ height: "80vh" }}>
+                    <div>
                         <h3>Kalender</h3>
-                        <TutorCalendar />
+                        <TutorCalendar tutorId={user?.id}/>
                     </div>
                 );
             case "Vertrag":
                 return (
                     <div>
-                        <h3>Vertrag</h3>
+                    <h3>Vertrag</h3>
                         <p>
                             Dieser Vertrag regelt die Zusammenarbeit zwischen dem Anbieter und den Schülern.
                             Es gelten folgende AGB:

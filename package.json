@@ -21,7 +21,7 @@
     "jspdf": "^3.0.1",
     "luxon": "^3.6.1",
     "react": "^19.1.0",
-    "react-big-calendar": "^1.18.0",
+    "react-big-calendar": "^1.19.2",
     "react-dom": "^19.1.0",
     "react-router-dom": "^7.5.0",
     "reactstrap": "^9.2.3",
