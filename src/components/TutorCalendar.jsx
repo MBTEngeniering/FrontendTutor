@@ -75,12 +75,29 @@ const TutorCalendar = () => {
         handleSelectSlot({ start: event.start, end: event.end });
     };
 
-  /*  const wandleDatumZuSlot = (tag, monat, jahr, uhrzeit) => {
+    const wandleDatumZuSlot = (tag, monat, jahr, uhrzeit) => {
         const [stunden, minuten] = uhrzeit.split(":").map(Number);
         const start = new Date(`${jahr}-${monat}-${tag}T${stunden.toString().padStart(2, '0')}:${minuten.toString().padStart(2, '0')}:00`);
         const end = new Date(start.getTime() + 30 * 60 * 1000);
         return { start, end };
-    };*/
+    };
+    const handleWandleSlot = () => {
+        // Beispiel-Slots erstellen
+        const beispielSlots = [
+            wandleDatumZuSlot("06", "06", "2025", "10:00"),
+            wandleDatumZuSlot("06", "06", "2025", "10:30"),
+            wandleDatumZuSlot("06", "06", "2025", "11:00"),
+        ];
+
+        // Neue Slots, die noch nicht gespeichert sind
+        const neueGespeicherte = beispielSlots.filter(
+            (slot) => !isSlotInArray(slot, savedSlots)
+        );
+
+        setSavedSlots((prev) => [...prev, ...neueGespeicherte]);
+        setSelectedSlots((prev) => [...prev, ...neueGespeicherte]);
+    };
+
     const handleSave = () => {
         // Slots, die aktuell ausgewählt und noch nicht gespeichert sind → speichern
         const newSaved = selectedSlots.filter(
@@ -137,7 +154,7 @@ const TutorCalendar = () => {
         0 && toBeDeletedSlots.length === 0;
 
     return (
-        <div style={{ height: "90vh", padding: "10px" }}>
+        <div style={{height: "90vh", padding: "10px"}}>
             <Calendar
                 localizer={localizer}
                 events={[...selectedSlots, ...toBeDeletedSlots]}
@@ -180,6 +197,22 @@ const TutorCalendar = () => {
             >
                 Speichern
             </button>
+            <button
+                onClick={handleWandleSlot}
+                style={{
+                    marginTop: "10px",
+                    marginLeft: "10px",
+                    padding: "10px 20px",
+                    backgroundColor: "#28a745",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "5px",
+                    cursor: "pointer",
+                }}
+            >
+                WandleSlot
+            </button>
+
         </div>
     );
 };
