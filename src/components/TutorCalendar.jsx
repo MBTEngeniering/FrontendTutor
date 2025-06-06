@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Calendar, dateFnsLocalizer, Views } from "react-big-calendar";
 import format from "date-fns/format";
 import parse from "date-fns/parse";
@@ -6,6 +6,8 @@ import startOfWeek from "date-fns/startOfWeek";
 import getDay from "date-fns/getDay";
 import de from "date-fns/locale/de";
 import "react-big-calendar/lib/css/react-big-calendar.css";
+import { useAuth } from "../context/UseAuth.jsx";
+import ApiService from "../api/ApiService.js";
 
 const locales = { de };
 const localizer = dateFnsLocalizer({
@@ -22,6 +24,21 @@ const TutorCalendar = () => {
     const [selectedSlots, setSelectedSlots] = useState([]);
     const [savedSlots, setSavedSlots] = useState([]);
     const [toBeDeletedSlots, setToBeDeletedSlots] = useState([]);
+    const { user } = useAuth();
+
+    useEffect(() => {
+        const fetchAvailability = async () => {
+            if (!user) return;
+            try {
+                const response = await ApiService.get(`/api/allusers/${user.id}`);
+                const userData = response.data;
+            } catch (error) {
+                console.error("Fehler beim Abrufen der Verfügbarkeit:", error);
+            }
+            await handleWandleSlot();
+        };
+        fetchAvailability();
+    }, [user]);
 
     const isSameSlot = (a, b) =>
         a.start.getTime() === b.start.getTime() &&
@@ -42,32 +59,35 @@ const TutorCalendar = () => {
             slotStart = slotEnd;
         }
 
-        setSelectedSlots((prev) => {
-            const newSelection = [...prev];
+        setSelectedSlots((prevSelected) => {
+            let updatedSelected = [...prevSelected];
 
             slots.forEach((slot) => {
-                if (isSlotInArray(slot, prev)) {
-                    // Abwählen
-                    const updated = newSelection.filter((s) => !isSameSlot(s, slot));
+                const saved = isSlotInArray(slot, savedSlots);
+                const markedForDelete = isSlotInArray(slot, toBeDeletedSlots);
+                const alreadySelected = isSlotInArray(slot, prevSelected);
 
-                    // Prüfen, ob der Slot gespeichert war
-                    if (isSlotInArray(slot, savedSlots)) {
-                        // Slot zur Löschung vormerken
-                        setToBeDeletedSlots((prevDel) => {
-                            if (!isSlotInArray(slot, prevDel)) {
-                                return [...prevDel, slot];
-                            }
-                            return prevDel;
-                        });
+                if (alreadySelected) {
+                    updatedSelected = updatedSelected.filter((s) => !isSameSlot(s, slot));
+                    if (saved && !markedForDelete) {
+                        setToBeDeletedSlots((prevDel) => [...prevDel, slot]);
+                    } else if (saved && markedForDelete) {
+                        setToBeDeletedSlots((prevDel) =>
+                            prevDel.filter((s) => !isSameSlot(s, slot))
+                        );
+                        updatedSelected.push(slot);
                     }
-
-                    return updated;
                 } else {
-                    newSelection.push(slot);
+                    if (saved && markedForDelete) {
+                        setToBeDeletedSlots((prevDel) =>
+                            prevDel.filter((s) => !isSameSlot(s, slot))
+                        );
+                    }
+                    updatedSelected.push(slot);
                 }
             });
 
-            return newSelection;
+            return updatedSelected;
         });
     };
 
@@ -81,48 +101,85 @@ const TutorCalendar = () => {
         const end = new Date(start.getTime() + 30 * 60 * 1000);
         return { start, end };
     };
-    const handleWandleSlot = () => {
-        // Beispiel-Slots erstellen
-        const beispielSlots = [
-            wandleDatumZuSlot("06", "06", "2025", "10:00"),
-            wandleDatumZuSlot("06", "06", "2025", "10:30"),
-            wandleDatumZuSlot("06", "06", "2025", "11:00"),
-        ];
 
-        // Neue Slots, die noch nicht gespeichert sind
-        const neueGespeicherte = beispielSlots.filter(
-            (slot) => !isSlotInArray(slot, savedSlots)
-        );
+    const handleWandleSlot = async () => {
+        try {
+            const response = await fetch(`http://localhost:8080/api/public/availability/user/${user.id}`);
+            if (!response.ok) {
+                throw new Error("Fehler beim Laden der Verfügbarkeiten");
+            }
 
-        setSavedSlots((prev) => [...prev, ...neueGespeicherte]);
-        setSelectedSlots((prev) => [...prev, ...neueGespeicherte]);
+            const daten = await response.json();
+
+            const neueSlots = daten.map((eintrag) =>
+                wandleDatumZuSlot(eintrag.tag, eintrag.monat, eintrag.jahr, eintrag.uhrzeit)
+
+            );
+
+            const neueGespeicherte = neueSlots.filter(
+                (slot) => !isSlotInArray(slot, savedSlots)
+            );
+
+            setSavedSlots((prev) => [...prev, ...neueGespeicherte]);
+            setSelectedSlots((prev) => [...prev, ...neueGespeicherte]);
+
+        } catch (error) {
+            console.error("Fehler beim Abrufen der Availability:", error);
+            alert("Fehler beim Laden der Availability-Daten.");
+        }
     };
 
-    const handleSave = () => {
-        // Slots, die aktuell ausgewählt und noch nicht gespeichert sind → speichern
+    const handleSave = async () => {
         const newSaved = selectedSlots.filter(
             (slot) => !isSlotInArray(slot, savedSlots)
         );
-        setSavedSlots((prev) => [...prev, ...newSaved]);
 
-        // Rote Slots (vormals gespeichert und abgewählt) → endgültig löschen
-        setSavedSlots((prev) =>
-            prev.filter((slot) => !isSlotInArray(slot, toBeDeletedSlots))
-        );
-        setSelectedSlots((prev) =>
-            prev.filter((slot) => !isSlotInArray(slot, toBeDeletedSlots))
-        );
-        setToBeDeletedSlots([]);
+        // Verfügbarkeits-Daten für Backend aufbereiten
+        const availabilityDtos = newSaved.map((slot) => {
+            const tag = slot.start.getDate().toString().padStart(2, "0");
+            const monat = (slot.start.getMonth() + 1).toString().padStart(2, "0");
+            const jahr = slot.start.getFullYear().toString();
+            const stunden = slot.start.getHours().toString().padStart(2, "0");
+            const minuten = slot.start.getMinutes().toString().padStart(2, "0");
+            return {
+                userId: user.id,
+                tag: tag,
+                monat: monat,
+                jahr: jahr,
+                uhrzeit: `${stunden}:${minuten}`,
+            };
+        });
 
-        // Zeige alle gespeicherten (blauen) Slots im Alert
-        const gespeicherte = [...savedSlots, ...newSaved].filter(
-            (slot) => !isSlotInArray(slot, toBeDeletedSlots)
-        );
-        if (gespeicherte.length > 0) {
-            const message = gespeicherte
-                .map((slot) => wandleSlotZuDatum(slot))
-                .join("\n");
-            alert("Gespeicherte Termine:\n" + message);
+        try {
+            // Neue Slots speichern
+            for (const dto of availabilityDtos) {
+                await ApiService.post("/api/public/availability/save", dto);
+            }
+
+            // States aktualisieren
+            setSavedSlots((prev) =>
+                prev
+                    .filter((slot) => !isSlotInArray(slot, toBeDeletedSlots))
+                    .concat(newSaved)
+            );
+            setSelectedSlots((prev) =>
+                prev.filter((slot) => !isSlotInArray(slot, toBeDeletedSlots))
+            );
+            setToBeDeletedSlots([]);
+
+            // Alert mit den gespeicherten Slots
+            const gespeicherte = [...savedSlots, ...newSaved].filter(
+                (slot) => !isSlotInArray(slot, toBeDeletedSlots)
+            );
+            if (gespeicherte.length > 0) {
+                const message = gespeicherte
+                    .map((slot) => wandleSlotZuDatum(slot))
+                    .join("\n");
+                alert("Gespeicherte Termine:\n" + message);
+            }
+        } catch (error) {
+            console.error("Fehler beim Speichern der Verfügbarkeit:", error);
+            alert("Fehler beim Speichern der Verfügbarkeit.");
         }
     };
 
@@ -131,11 +188,12 @@ const TutorCalendar = () => {
         const isSelected = isSlotInArray(event, selectedSlots);
         const isMarkedForDelete = isSlotInArray(event, toBeDeletedSlots);
 
-        let backgroundColor = "green"; // default: ausgewählt, nicht gespeichert
+        let backgroundColor = "green";
 
         if (isSaved && isSelected) backgroundColor = "blue";
         if (isSaved && isMarkedForDelete) backgroundColor = "red";
-        if (!isSelected && isMarkedForDelete) backgroundColor = "white";
+        if (!isSelected && isMarkedForDelete) backgroundColor = "red";
+        if (!isSaved && !isSelected) backgroundColor = "white";
 
         return {
             style: {
@@ -150,11 +208,11 @@ const TutorCalendar = () => {
     };
 
     const isSaveDisabled =
-        selectedSlots.filter((slot) => !isSlotInArray(slot, savedSlots)).length ===
-        0 && toBeDeletedSlots.length === 0;
+        selectedSlots.filter((slot) => !isSlotInArray(slot, savedSlots)).length === 0 &&
+        toBeDeletedSlots.length === 0;
 
     return (
-        <div style={{height: "90vh", padding: "10px"}}>
+        <div style={{ height: "90vh", padding: "10px" }}>
             <Calendar
                 localizer={localizer}
                 events={[...selectedSlots, ...toBeDeletedSlots]}
@@ -169,8 +227,8 @@ const TutorCalendar = () => {
                 selectable={true}
                 onSelectSlot={handleSelectSlot}
                 onSelectEvent={handleSelectEvent}
-                min={new Date(0, 0, 0, 6, 0)}
-                max={new Date(0, 0, 0, 22, 0)}
+                min={new Date(0, 0, 0, 0, 0)}
+                max={new Date(0, 0, 0, 23, 59)}
                 views={[Views.WEEK, Views.DAY, Views.AGENDA]}
                 messages={{
                     week: "Woche",
@@ -179,6 +237,12 @@ const TutorCalendar = () => {
                     today: "Heute",
                     previous: "Zurück",
                     next: "Weiter",
+                }}
+                formats={{
+                    timeGutterFormat: (date, culture, localizer) =>
+                        localizer.format(date, "HH:mm", culture),
+                    eventTimeRangeFormat: ({ start, end }, culture, localizer) =>
+                        `${localizer.format(start, "HH:mm", culture)} – ${localizer.format(end, "HH:mm", culture)}`,
                 }}
                 eventPropGetter={getSlotStyle}
             />
@@ -197,22 +261,6 @@ const TutorCalendar = () => {
             >
                 Speichern
             </button>
-            <button
-                onClick={handleWandleSlot}
-                style={{
-                    marginTop: "10px",
-                    marginLeft: "10px",
-                    padding: "10px 20px",
-                    backgroundColor: "#28a745",
-                    color: "white",
-                    border: "none",
-                    borderRadius: "5px",
-                    cursor: "pointer",
-                }}
-            >
-                WandleSlot
-            </button>
-
         </div>
     );
 };
