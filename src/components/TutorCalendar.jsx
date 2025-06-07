@@ -25,18 +25,21 @@ const TutorCalendar = () => {
     const [savedSlots, setSavedSlots] = useState([]);
     const [toBeDeletedSlots, setToBeDeletedSlots] = useState([]);
     const { user } = useAuth();
+    const [allAvailabilitySlots, setAllAvailabilitySlots] = useState([]);
+
 
     useEffect(() => {
         const fetchAvailability = async () => {
             if (!user) return;
             try {
                 const response = await ApiService.get(`/api/allusers/${user.id}`);
-                const userData = response.data;
             } catch (error) {
                 console.error("Fehler beim Abrufen der Verfügbarkeit:", error);
             }
+
             await handleWandleSlot();
         };
+        fetchAvailabilityAndShowIds();
         fetchAvailability();
     }, [user]);
 
@@ -47,10 +50,11 @@ const TutorCalendar = () => {
     const isSlotInArray = (slot, array) =>
         array.some((s) => isSameSlot(s, slot));
 
-    const wandleSlotZuDatum = (slot) =>
-        format(slot.start, "dd/MM/yyyy HH:mm", { locale: de });
-
     const handleSelectSlot = ({ start, end }) => {
+        const now = new Date();
+        if (start < now) {
+            return;
+        }
         const slots = [];
         let slotStart = new Date(start);
         while (slotStart < end) {
@@ -90,7 +94,6 @@ const TutorCalendar = () => {
             return updatedSelected;
         });
     };
-
     const handleSelectEvent = (event) => {
         handleSelectSlot({ start: event.start, end: event.end });
     };
@@ -167,21 +170,83 @@ const TutorCalendar = () => {
             );
             setToBeDeletedSlots([]);
 
-            // Alert mit den gespeicherten Slots
-            const gespeicherte = [...savedSlots, ...newSaved].filter(
-                (slot) => !isSlotInArray(slot, toBeDeletedSlots)
+            const uniqueToBeDeletedSlots = toBeDeletedSlots.filter(
+                (slot, index, self) =>
+                    index === self.findIndex((s) => isSameSlot(s, slot))
             );
-            if (gespeicherte.length > 0) {
-                const message = gespeicherte
-                    .map((slot) => wandleSlotZuDatum(slot))
-                    .join("\n");
-                alert("Gespeicherte Termine:\n" + message);
+            const availabilitytodelete = uniqueToBeDeletedSlots.map((slot) => {
+                const tag = slot.start.getDate().toString().padStart(2, "0");
+                const monat = (slot.start.getMonth() + 1).toString().padStart(2, "0");
+                const jahr = slot.start.getFullYear().toString();
+                const stunden = slot.start.getHours().toString().padStart(2, "0");
+                const minuten = slot.start.getMinutes().toString().padStart(2, "0");
+                return {
+                    userId: user.id,
+                    tag: tag,
+                    monat: monat,
+                    jahr: jahr,
+                    uhrzeit: `${stunden}:${minuten}`,
+                };
+            });
+            const matchingIds = [];
+
+            availabilitytodelete.forEach(deleteSlot => {
+                const match = allAvailabilitySlots.find(slot =>
+                    slot.tag === deleteSlot.tag &&
+                    slot.monat === deleteSlot.monat &&
+                    slot.jahr === deleteSlot.jahr &&
+                    slot.uhrzeit === deleteSlot.uhrzeit
+                );
+
+                if (match) {
+                    matchingIds.push(match.id);
+                }
+            });
+
+if(matchingIds.length!=0) {
+    try {
+        for (const id of matchingIds) {
+            const response = await fetch(`http://localhost:8080/api/public/availability/${id}`, {
+                method: "DELETE",
+            });
+
+            if (!response.ok) {
+                throw new Error(`Fehler beim Löschen der Availability mit ID: ${id}`);
             }
+        }
+
+        alert("Alle passenden -Einträge wurden gelöscht.");
+
+        setAllAvailabilitySlots(prevSlots =>
+            prevSlots.filter(slot => !matchingIds.includes(slot.id))
+        );
+
+    } catch (error) {
+        console.error("Fehler beim Löschen der -Einträge:", error);
+        alert("Fehler beim Löschen der Einträge.");
+    }
+}
+
         } catch (error) {
             console.error("Fehler beim Speichern der Verfügbarkeit:", error);
             alert("Fehler beim Speichern der Verfügbarkeit.");
         }
     };
+    const fetchAvailabilityAndShowIds = async () => {
+        try {
+            const response = await fetch(`http://localhost:8080/api/public/availability/user/${user.id}`);
+            if (!response.ok) {
+                throw new Error("Fehler beim Laden der Availability-Daten");
+            }
+
+            const data = await response.json();
+            setAllAvailabilitySlots(data);
+
+        } catch (error) {
+            console.error("Fehler beim Abrufen der Availability:", error);
+        }
+    };
+
 
     const getSlotStyle = (event) => {
         const isSaved = isSlotInArray(event, savedSlots);
@@ -212,7 +277,7 @@ const TutorCalendar = () => {
         toBeDeletedSlots.length === 0;
 
     return (
-        <div style={{ height: "90vh", padding: "10px" }}>
+        <div style={{height: "90vh", padding: "10px"}}>
             <Calendar
                 localizer={localizer}
                 events={[...selectedSlots, ...toBeDeletedSlots]}
@@ -241,7 +306,7 @@ const TutorCalendar = () => {
                 formats={{
                     timeGutterFormat: (date, culture, localizer) =>
                         localizer.format(date, "HH:mm", culture),
-                    eventTimeRangeFormat: ({ start, end }, culture, localizer) =>
+                    eventTimeRangeFormat: ({start, end}, culture, localizer) =>
                         `${localizer.format(start, "HH:mm", culture)} – ${localizer.format(end, "HH:mm", culture)}`,
                 }}
                 eventPropGetter={getSlotStyle}
@@ -261,6 +326,7 @@ const TutorCalendar = () => {
             >
                 Speichern
             </button>
+
         </div>
     );
 };
