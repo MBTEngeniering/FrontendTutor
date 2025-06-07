@@ -4,6 +4,8 @@ import "../../styles/UserPage.css";
 import { DateTime } from 'luxon';
 import ApiService from "../../api/ApiService.js";
 import { useAuth } from "../../context/UseAuth.jsx";
+import TutorCalendar from "../../components/TutorCalendar.jsx";
+import StudentCalender from "../../components/StudentCalender.jsx";
 
 function SchuelerSeite() {
     const [activeContent, setActiveContent] = useState("Kalender");
@@ -307,70 +309,6 @@ function SchuelerSeite() {
         setLoggedInUser(originalUser);
     };
 
-    const renderWeeklyCalendar = () => {
-
-        const startOfWeek = new Date(selectedDate);
-        startOfWeek.setDate(selectedDate.getDate() - selectedDate.getDay());
-
-        const weekDays = Array.from({ length: 7 }, (_, index) => {
-            const day = new Date(startOfWeek);
-            day.setDate(day.getDate() + index);
-            return day;
-        });
-
-        return (
-            <div>
-                <h3>Mein Stundenplan</h3>
-                <table className="calendar-table">
-                     <thead>
-                     <tr>
-                         <th>Uhrzeit</th>
-                         {weekDays.map((day, index) => (
-                             <th key={index}>
-                                 {day.toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long' })}
-                             </th>
-                         ))}
-                     </tr>
-                     </thead>
-                     <tbody>
-                     {Array.from({ length: 48 }, (_, index) => {
-                         const hour = Math.floor(index / 2);
-                         const minute = index % 2 === 0 ? 0 : 30;
-                         return (
-                             <tr key={index}>
-                                 <td className="calendar-time-cell">{`${hour}:${minute === 0 ? "00" : minute}`}</td>
-                                 {weekDays.map((day, index) => {
-                                     const termin = termine.find((t) =>
-                                         t.datum.getDay() === day.getDay() &&
-                                         t.datum.getHours() === hour &&
-                                         t.datum.getMinutes() === minute
-                                     );
-                                     const isMarked = markedDates.some((md) =>
-                                         md.getDay() === day.getDay() &&
-                                         md.getHours() === hour &&
-                                         md.getMinutes() === minute
-                                     );
-                                     return (
-                                         <td
-                                             key={index}
-                                             className={`calendar-event-cell ${isMarked ? 'marked' : ''}`}
-                                             onClick={() => handleMarkCell(day, hour, minute)}
-                                         >
-                                             {termin ? `${termin.tutor} (${termin.fach})` : ""}
-                                         </td>
-                                     );
-                                 })}
-                             </tr>
-                         );
-                     })}
-                     </tbody>
-                 </table>
-                <button className="action-button" onClick={saveChanges}>
-                    Terminwünsche speichern
-                </button>
-            </div>
-        );
-    };
 
     const handleStundeBuchen = (tutor) => {
         alert(
@@ -410,7 +348,12 @@ function SchuelerSeite() {
                     </div>
                 );
             case "Kalender":
-                return renderWeeklyCalendar();
+                return (
+                    <div>
+                        <h3>Mein Stundenplan</h3>
+                        <StudentCalender tutorId={user?.id}/>
+                    </div>
+                );
             case "Vertrag":
                 return (
                     <div>
