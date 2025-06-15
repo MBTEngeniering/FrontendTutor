@@ -28,7 +28,9 @@ function SchuelerSeite() {
     const [meineTutoren, setMeineTutoren] = useState([]);
     const [loggedInUser, setLoggedInUser] = useState(null);
     const [originalUser, setOriginalUser] = useState(null);
+    const [selectedSubjectId, setSelectedSubjectId] = useState(null);
     const {user} = useAuth();
+
 
 
     // Student-specific data
@@ -208,9 +210,6 @@ function SchuelerSeite() {
         setShowModal(false);
         setSelectedTutor(null);
     };
-    const handleMarkCell = (day, hour, minute) => {
-
-    };
 
     const calculateAge = (birthdate) => {
         if (!birthdate) { // Prüfen, ob birthdate null oder leer ist
@@ -237,7 +236,7 @@ function SchuelerSeite() {
     const filteredTutors = tutors.filter((tutor) => {
         const matchesSubject =
             selectedSubject === "" ||
-            (selectedFachId && tutor.fachIds?.includes(selectedFachId));
+            (selectedSubjectId && tutor.fachIds?.includes(selectedSubjectId));
 
         const matchesSalutation =
             selectedSalutation === "" || tutor.salutation?.toLowerCase().includes(selectedSalutation.toLowerCase());
@@ -263,26 +262,8 @@ function SchuelerSeite() {
         );
     });
 
-    const saveChanges = () => {
 
-    };
-    const getFachId = async (fachName) => {
-        try {
-            const response = ApiService.get(`/api/fach/search?fach=${encodeURIComponent(fachName)}`);
-            if (!response.ok) {
-                throw new Error("Fehler beim Abrufen des Fachs");
-            }
-            const data = await response.json();
-            if (data && data.id) {
-                return data.id;
-            } else {
-                throw new Error("Fach nicht gefunden");
-            }
-        } catch (error) {
-            console.error("Fehler in getFachId:", error);
-            return null;
-        }
-    };
+
     const updateUser = async () => {
         try {
             const userId = loggedInUser.id;
@@ -396,24 +377,39 @@ function SchuelerSeite() {
                 );
             case "Meine Lehrer":
                 return (
-                    <div>
-                        <h3>Meine Lehrer</h3>
+                    <div style={{ padding: "20px" }}>
+                        <h3 style={{ borderBottom: "2px solid #ddd", paddingBottom: "10px" }}>Meine Lehrer</h3>
                         {meineTutoren.length === 0 ? (
-                            <p>Keine Lehrer vorhanden. Bitte wählen Sie Lehrer aus.</p>
+                            <p style={{ fontStyle: "italic", color: "#777" }}>
+                                Keine Lehrer vorhanden. Bitte wählen Sie Lehrer aus.
+                            </p>
                         ) : (
-                            <ul>
+                            <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "10px" }}>
+                                <thead>
+                                <tr style={{ backgroundColor: "#f4f4f4", textAlign: "left" }}>
+                                    <th style={{ padding: "10px", borderBottom: "2px solid #ddd" }}>Vorname</th>
+                                    <th style={{ padding: "10px", borderBottom: "2px solid #ddd" }}>Nachname</th>
+                                    <th style={{ padding: "10px", borderBottom: "2px solid #ddd" }}>Aktionen</th>
+                                </tr>
+                                </thead>
+                                <tbody>
                                 {meineTutoren.map((tutor, index) => (
-                                    <li key={index} style={{ marginBottom: "10px" }}>
-                                        {tutor.firstName} {tutor.lastName}
-                                        <button
-                                            className="btn btn-primary btn-sm"
-                                            onClick={() => handleStundeBuchen(tutor)}
-                                        >
-                                            Stunde buchen
-                                        </button>
-                                    </li>
+                                    <tr key={index} style={{ borderBottom: "1px solid #ddd" }}>
+                                        <td style={{ padding: "10px" }}>{tutor.firstName}</td>
+                                        <td style={{ padding: "10px" }}>{tutor.lastName}</td>
+                                        <td style={{ padding: "10px" }}>
+                                            <button
+                                                className="btn btn-primary btn-sm"
+                                                style={{ padding: "5px 10px" }}
+                                                onClick={() => handleStundeBuchen(tutor)}
+                                            >
+                                                Stunde buchen
+                                            </button>
+                                        </td>
+                                    </tr>
                                 ))}
-                            </ul>
+                                </tbody>
+                            </table>
                         )}
                     </div>
                 );
@@ -670,7 +666,8 @@ function SchuelerSeite() {
 
             case "Lehrer suchen":
                 return (
-                    <div className="form-group full-width">
+                    <div style={{ padding: "20px" }}>
+                        <h3 style={{ borderBottom: "2px solid #ddd", paddingBottom: "10px" }}>Lehrer suchen</h3>
                         <label className="form-label">Fächer</label>
                         <div className="subjects-container">
                             <select
@@ -679,13 +676,11 @@ function SchuelerSeite() {
                                 onChange={async (e) => {
                                     const selectedFach = e.target.value;
                                     setSelectedSubject(selectedFach);
-
-                                    // Aufrufen der Funktion getFachId mit dem ausgewählten Fachnamen
-                                    const fachId = await getFachId(selectedFach);
-
-                                    if (fachId) {
-                                        setSelectedFachId(fachId);
-                                    }
+                                    const matchedSubject = availableSubjects.find(
+                                        (subject) => subject.fach === selectedFach
+                                    );
+                                    const selectedId = matchedSubject ? matchedSubject.id : null;
+                                    setSelectedSubjectId(selectedId);
                                 }}
                             >
                                 <option value="">Bitte wählen</option>
@@ -695,120 +690,118 @@ function SchuelerSeite() {
                                     </option>
                                 ))}
                             </select>
-
-                            <div className="subjects-list">
-                                {subjects.map((subject, index) => (
-                                    <div key={index} className="subject-tag">
-                                        <span>{subject}</span>
-                                    </div>
-                                ))}
-                            </div>
-
-                            {/* Tutor List Table */}
-                            <h3>Verfügbare Lehrer</h3>
-                            {/* Filterfelder */}
-                            <div className="filter-grid">
-                                <input
-                                    type="text"
-                                    className="form-input"
-                                    placeholder="Anrede"
-                                    value={selectedSalutation}
-                                    onChange={(e) => setSelectedSalutation(e.target.value)}
-                                />
-                                <input
-                                    type="text"
-                                    className="form-input"
-                                    placeholder="Titel"
-                                    value={selectedTitle}
-                                    onChange={(e) => setSelectedTitle(e.target.value)}
-                                />
-                                <input
-                                    type="text"
-                                    className="form-input"
-                                    placeholder="Land"
-                                    value={selectedCountry}
-                                    onChange={(e) => setSelectedCountry(e.target.value)}
-                                />
-                                <input
-                                    type="text"
-                                    className="form-input"
-                                    placeholder="Postleitzahl"
-                                    value={selectedPostalCode}
-                                    onChange={(e) => setSelectedPostalCode(e.target.value)}
-                                />
-                                <input
-                                    type="text"
-                                    className="form-input"
-                                    placeholder="Stadt"
-                                    value={selectedCity}
-                                    onChange={(e) => setSelectedCity(e.target.value)}
-                                />
-                                <input
-                                    type="number"
-                                    className="form-input"
-                                    placeholder="Alter"
-                                    value={selectedAge}
-                                    onChange={(e) => setSelectedAge(e.target.value)}
-                                />
-                            </div>
-
-                            {/* Tutorentabelle */}
-                            <table className="tutor-table">
-                                <thead>
-                                <tr>
-                                    <th>Anrede</th>
-                                    <th>Titel</th>
-                                    <th>Nachname</th>
-                                    <th>Vorname</th>
-                                    <th>Land</th>
-                                    <th>Postleitzahl</th>
-                                    <th>Stadt</th>
-                                    <th>Alter</th>
-                                    <th>Aktionen</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                {filteredTutors.length > 0 ? (
-                                    filteredTutors.map((tutor, index) => (
-                                        <tr key={index}>
-                                            <td>{tutor.salutation}</td>
-                                            <td>{tutor.title}</td>
-                                            <td>{tutor.lastName}</td>
-                                            <td>{tutor.firstName}</td>
-                                            <td>{tutor.country}</td>
-                                            <td>{tutor.postalCode}</td>
-                                            <td>{tutor.city}</td>
-                                            <td>{calculateAge(tutor.dateOfBirth)}</td>
-                                            <td>
-                                                <button className="action-button" onClick={() => showDetails(tutor)}>
-                                                    Details
-                                                </button>
-                                                <button className="action-button" onClick={() => chooseTutor(tutor)}>
-                                                    Auswählen
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    ))
-                                ) : (
-                                    <tr>
-                                        <td colSpan="9">Keine passenden Tutoren gefunden.</td>
-                                    </tr>
-                                )}
-                                </tbody>
-                            </table>
-                            {showModal && selectedTutor && (
-                                <div className="modal-overlay">
-                                    <div className="modal-content">
-                                        <h2>{selectedTutor.firstName} {selectedTutor.lastName}</h2>
-                                        <p><strong>Beschreibung:</strong></p>
-                                        <p>{selectedTutor.description}</p>
-                                        <button onClick={closeModal}>Schließen</button>
-                                    </div>
-                                </div>
-                            )}
                         </div>
+
+                        <h3>Verfügbare Lehrer</h3>
+
+                        {/* Filterfelder wieder eingefügt */}
+                        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))", gap: "10px", marginBottom: "20px" }}>
+                            <input
+                                type="text"
+                                className="form-input"
+                                placeholder="Anrede"
+                                value={selectedSalutation}
+                                onChange={(e) => setSelectedSalutation(e.target.value)}
+                            />
+                            <input
+                                type="text"
+                                className="form-input"
+                                placeholder="Titel"
+                                value={selectedTitle}
+                                onChange={(e) => setSelectedTitle(e.target.value)}
+                            />
+                            <input
+                                type="text"
+                                className="form-input"
+                                placeholder="Land"
+                                value={selectedCountry}
+                                onChange={(e) => setSelectedCountry(e.target.value)}
+                            />
+                            <input
+                                type="text"
+                                className="form-input"
+                                placeholder="Postleitzahl"
+                                value={selectedPostalCode}
+                                onChange={(e) => setSelectedPostalCode(e.target.value)}
+                            />
+                            <input
+                                type="text"
+                                className="form-input"
+                                placeholder="Stadt"
+                                value={selectedCity}
+                                onChange={(e) => setSelectedCity(e.target.value)}
+                            />
+                            <input
+                                type="number"
+                                className="form-input"
+                                placeholder="Alter"
+                                value={selectedAge}
+                                onChange={(e) => setSelectedAge(e.target.value)}
+                            />
+                        </div>
+
+                        {/* Tutorentabelle mit sichtbaren Rahmen */}
+                        <table
+                            style={{
+                                width: "100%",
+                                borderCollapse: "collapse",
+                                marginTop: "10px",
+                                border: "2px solid black",
+                            }}
+                        >
+                            <thead>
+                            <tr style={{ backgroundColor: "#f4f4f4", textAlign: "left" }}>
+                                <th style={{ padding: "10px", border: "2px solid black" }}>Anrede</th>
+                                <th style={{ padding: "10px", border: "2px solid black" }}>Titel</th>
+                                <th style={{ padding: "10px", border: "2px solid black" }}>Nachname</th>
+                                <th style={{ padding: "10px", border: "2px solid black" }}>Vorname</th>
+                                <th style={{ padding: "10px", border: "2px solid black" }}>Land</th>
+                                <th style={{ padding: "10px", border: "2px solid black" }}>Postleitzahl</th>
+                                <th style={{ padding: "10px", border: "2px solid black" }}>Stadt</th>
+                                <th style={{ padding: "10px", border: "2px solid black" }}>Alter</th>
+                                <th style={{ padding: "10px", border: "2px solid black" }}>Aktionen</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {filteredTutors.length > 0 ? (
+                                filteredTutors.map((tutor, index) => (
+                                    <tr key={index} style={{ borderBottom: "2px solid black" }}>
+                                        <td style={{ padding: "10px", border: "2px solid black" }}>{tutor.salutation}</td>
+                                        <td style={{ padding: "10px", border: "2px solid black" }}>{tutor.title}</td>
+                                        <td style={{ padding: "10px", border: "2px solid black" }}>{tutor.lastName}</td>
+                                        <td style={{ padding: "10px", border: "2px solid black" }}>{tutor.firstName}</td>
+                                        <td style={{ padding: "10px", border: "2px solid black" }}>{tutor.country}</td>
+                                        <td style={{ padding: "10px", border: "2px solid black" }}>{tutor.postalCode}</td>
+                                        <td style={{ padding: "10px", border: "2px solid black" }}>{tutor.city}</td>
+                                        <td style={{ padding: "10px", border: "2px solid black" }}>{calculateAge(tutor.dateOfBirth)}</td>
+                                        <td style={{ padding: "10px", border: "2px solid black" }}>
+                                            <button
+                                                className="action-button"
+                                                onClick={() => showDetails(tutor)}
+                                            >
+                                                Details
+                                            </button>
+                                            <button
+                                                className="action-button"
+                                                onClick={() => chooseTutor(tutor)}
+                                            >
+                                                Auswählen
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan="9" style={{ padding: "10px", border: "2px solid black", textAlign: "center" }}>
+                                        Keine passenden Tutoren gefunden.
+                                    </td>
+                                </tr>
+                            )}
+                            </tbody>
+                        </table>
                     </div>
                 );
+
 
             default:
                 return <p>Bitte wählen Sie eine Option aus der linken Spalte aus.</p>;

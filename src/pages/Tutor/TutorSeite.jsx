@@ -5,12 +5,15 @@ import TutorCalendar from "../../components/TutorCalendar";
 import { useAuth } from "../../context/UseAuth.jsx";
 import ApiService from "../../api/ApiService";
 import "react-big-calendar/lib/css/react-big-calendar.css";
+import MyPost from "../../components/MyPost.jsx";
 
 function TutorSeite() {
     const apiUrl = import.meta.env.VITE_API_URL;
     const [activeContent, setActiveContent] = useState(null);
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
     const { user } = useAuth(); // Assuming you have a custom hook for authentication
+    const [loggedInUser, setLoggedInUser] = useState(null);
+    const [originalUser, setOriginalUser] = useState(null);
 
     useEffect(() => {
         const fetchAvailability = async () => {
@@ -25,12 +28,66 @@ function TutorSeite() {
                 console.error("Fehler beim Abrufen der Verfügbarkeit:", error);
             }
         };
+        const fetchLoggedInUser = async () => {
+            const loggedInUser = await getLoggedInUser();
+            if (loggedInUser) {
+                setLoggedInUser(loggedInUser); // Zustand aktualisieren
+                setOriginalUser(loggedInUser)// Originalwerte speichern, damit "Abbrechen" funktioniert
+            }
+        };
 
 
+
+        fetchLoggedInUser();
         fetchAvailability();
     }, [user]);
 
+    const updateUser = async () => {
+        try {
+            const userId = loggedInUser.id;
+            const userRole = loggedInUser.role;
+            let endpoint = "";
+            if (userRole === "STUDENT") {
+                endpoint = `/api/students/${userId}`;
+            } else {
+                endpoint = `/api/tutors/${userId}`;
+            }
+            const response = await ApiService.put(endpoint, loggedInUser);
+            // Bei erfolgreichem Update werden beide Zustände aktualisiert
+            setLoggedInUser(response.data);
+            setOriginalUser(response.data);
+            alert("Änderungen wurden gespeichert");
+        } catch (error) {
+            console.error("Fehler beim Aktualisieren des Benutzers:", error);
+            alert("Fehler beim Aktualisieren des Benutzers!");
+        }
+    };
 
+    // Funktion, um alle Änderungen abzubrechen, d.h. den Zustand zurückzusetzen
+    const cancelChanges = () => {
+        setLoggedInUser(originalUser);
+    };
+
+    const getLoggedInUser = async () => {
+        if (!user) {
+            return null;
+        }
+
+        // const userId = localStorage.getItem("userId");
+        // const userRole = localStorage.getItem("userRole");
+        const userId = user.id;
+        const userRole = user.userRole;
+
+        try {
+            const response = await ApiService.get(`/api/allusers/${userId}`);
+
+            const user = response.data;
+            return user;
+        } catch (error) {
+            console.error("Fehler beim Laden des Benutzers:", error);
+            return null;
+        }
+    };
 
     const downloadPDF = () => {
         const doc = new jsPDF();
@@ -50,6 +107,13 @@ function TutorSeite() {
                     <div>
                         <h3>Kalender</h3>
                         <TutorCalendar tutorId={user?.id}/>
+                    </div>
+                );
+            case "Postfach":
+                return (
+                    <div>
+                        <h3>Meine Nachrichten</h3>
+                        <MyPost tutorId={user?.id}/>
                     </div>
                 );
             case "Vertrag":
@@ -80,6 +144,229 @@ function TutorSeite() {
                         <h3>Schülerliste</h3>
                     </div>
                 );
+            case "Mein Profil":
+                return (
+                    <div>
+                        <h3>Mein Profil</h3>
+                        <p>Hier können Sie Ihre persönlichen Daten bearbeiten:</p>
+                        {loggedInUser ? (
+                            <div className="user-details">
+                                <div>
+                                    <label htmlFor="salutation"><strong>Anrede:</strong></label>
+                                    <input
+                                        type="text"
+                                        id="salutation"
+                                        value={loggedInUser.salutation || ""}
+                                        onChange={(e) =>
+                                            setLoggedInUser({...loggedInUser, salutation: e.target.value})
+                                        }
+                                    />
+                                </div>
+                                <div>
+                                    <label htmlFor="title"><strong>Titel:</strong></label>
+                                    <input
+                                        type="text"
+                                        id="title"
+                                        value={loggedInUser.title || ""}
+                                        onChange={(e) =>
+                                            setLoggedInUser({...loggedInUser, title: e.target.value})
+                                        }
+                                    />
+                                </div>
+                                <div>
+                                    <label htmlFor="lastName"><strong>Nachname:</strong></label>
+                                    <input
+                                        type="text"
+                                        id="lastName"
+                                        value={loggedInUser.lastName || ""}
+                                        onChange={(e) =>
+                                            setLoggedInUser({...loggedInUser, lastName: e.target.value})
+                                        }
+                                    />
+                                </div>
+                                <div>
+                                    <label htmlFor="firstName"><strong>Vorname:</strong></label>
+                                    <input
+                                        type="text"
+                                        id="firstName"
+                                        value={loggedInUser.firstName || ""}
+                                        onChange={(e) =>
+                                            setLoggedInUser({...loggedInUser, firstName: e.target.value})
+                                        }
+                                    />
+                                </div>
+                                <div>
+                                    <label htmlFor="emailAddress"><strong>Email:</strong></label>
+                                    <input
+                                        type="email"
+                                        id="emailAddress"
+                                        value={loggedInUser.emailAddress || ""}
+                                        onChange={(e) =>
+                                            setLoggedInUser({...loggedInUser, emailAddress: e.target.value})
+                                        }
+                                    />
+                                </div>
+                                <div>
+                                    <label htmlFor="password"><strong>Passwort:</strong></label>
+                                    <input
+                                        type="password"
+                                        id="password"
+                                        value={loggedInUser.password || ""}
+                                        onChange={(e) =>
+                                            setLoggedInUser({...loggedInUser, password: e.target.value})
+                                        }
+                                    />
+                                </div>
+                                <div>
+                                    <label htmlFor="street"><strong>Straße:</strong></label>
+                                    <input
+                                        type="text"
+                                        id="street"
+                                        value={loggedInUser.street || ""}
+                                        onChange={(e) =>
+                                            setLoggedInUser({...loggedInUser, street: e.target.value})
+                                        }
+                                    />
+                                </div>
+                                <div>
+                                    <label htmlFor="houseNumber"><strong>Hausnummer:</strong></label>
+                                    <input
+                                        type="text"
+                                        id="houseNumber"
+                                        value={loggedInUser.houseNumber || ""}
+                                        onChange={(e) =>
+                                            setLoggedInUser({...loggedInUser, houseNumber: e.target.value})
+                                        }
+                                    />
+                                </div>
+                                <div>
+                                    <label htmlFor="postalCode"><strong>Postleitzahl:</strong></label>
+                                    <input
+                                        type="text"
+                                        id="postalCode"
+                                        value={loggedInUser.postalCode || ""}
+                                        onChange={(e) =>
+                                            setLoggedInUser({...loggedInUser, postalCode: e.target.value})
+                                        }
+                                    />
+                                </div>
+                                <div>
+                                    <label htmlFor="phoneNumber"><strong>Telefonnummer:</strong></label>
+                                    <input
+                                        type="text"
+                                        id="phoneNumber"
+                                        value={loggedInUser.phoneNumber || ""}
+                                        onChange={(e) =>
+                                            setLoggedInUser({...loggedInUser, phoneNumber: e.target.value})
+                                        }
+                                    />
+                                </div>
+                                <div>
+                                    <label htmlFor="city"><strong>Stadt:</strong></label>
+                                    <input
+                                        type="text"
+                                        id="city"
+                                        value={loggedInUser.city || ""}
+                                        onChange={(e) =>
+                                            setLoggedInUser({...loggedInUser, city: e.target.value})
+                                        }
+                                    />
+                                </div>
+                                <div>
+                                    <label htmlFor="country"><strong>Land:</strong></label>
+                                    <input
+                                        type="text"
+                                        id="country"
+                                        value={loggedInUser.country || ""}
+                                        onChange={(e) =>
+                                            setLoggedInUser({...loggedInUser, country: e.target.value})
+                                        }
+                                    />
+                                </div>
+                                <div>
+                                    <label htmlFor="dateOfBirth"><strong>Geburtsdatum:</strong></label>
+                                    <input
+                                        type="date"
+                                        id="dateOfBirth"
+                                        value={
+                                            loggedInUser.dateOfBirth
+                                                ? loggedInUser.dateOfBirth.substring(0, 10)
+                                                : ""
+                                        }
+                                        onChange={(e) =>
+                                            setLoggedInUser({...loggedInUser, dateOfBirth: e.target.value})
+                                        }
+                                    />
+                                </div>
+                                <div>
+                                    <label htmlFor="placeOfBirth"><strong>Geburtsort:</strong></label>
+                                    <input
+                                        type="text"
+                                        id="placeOfBirth"
+                                        value={loggedInUser.placeOfBirth || ""}
+                                        onChange={(e) =>
+                                            setLoggedInUser({...loggedInUser, placeOfBirth: e.target.value})
+                                        }
+                                    />
+                                </div>
+                                <div>
+                                    <label htmlFor="countryOfBirth"><strong>Geburtsland:</strong></label>
+                                    <input
+                                        type="text"
+                                        id="countryOfBirth"
+                                        value={loggedInUser.countryOfBirth || ""}
+                                        onChange={(e) =>
+                                            setLoggedInUser({...loggedInUser, countryOfBirth: e.target.value})
+                                        }
+                                    />
+                                </div>
+                                <div>
+                                    <label htmlFor="bankCode"><strong>Bankleitzahl:</strong></label>
+                                    <input
+                                        type="text"
+                                        id="bankCode"
+                                        value={loggedInUser.bankCode || ""}
+                                        onChange={(e) =>
+                                            setLoggedInUser({...loggedInUser, bankCode: e.target.value})
+                                        }
+                                    />
+                                </div>
+                                <div>
+                                    <label htmlFor="iban"><strong>IBAN:</strong></label>
+                                    <input
+                                        type="text"
+                                        id="iban"
+                                        value={loggedInUser.iban || ""}
+                                        onChange={(e) =>
+                                            setLoggedInUser({...loggedInUser, iban: e.target.value})
+                                        }
+                                    />
+                                </div>
+                                <div>
+                                    <label htmlFor="description"><strong>Beschreibung:</strong></label>
+                                    <textarea
+                                        id="description"
+                                        value={loggedInUser.description || ""}
+                                        onChange={(e) =>
+                                            setLoggedInUser({...loggedInUser, description: e.target.value})
+                                        }
+                                    />
+                                </div>
+                                <div style={{marginTop: "20px"}}>
+                                    <button className="action-button" onClick={updateUser}>
+                                        Änderung speichern
+                                    </button>
+                                    <button className="action-button" onClick={cancelChanges}
+                                            style={{marginLeft: "10px"}}>
+                                        Abbrechen
+                                    </button>
+                                </div>
+                            </div>
+                        ) : (
+                            <p>Benutzerdaten konnten nicht geladen werden.</p>
+                        )}
+                    </div>
+                );
             case "Mein Gehalt":
                 return (
                     <div>
@@ -108,6 +395,13 @@ function TutorSeite() {
                 <button onClick={() => setActiveContent("Meine Schüler")}>👨‍🏫 Meine Schüler</button>
                 <button onClick={() => setActiveContent("Mein Gehalt")}>⏳ Mein Gehalt</button>
                 <button onClick={() => setActiveContent("Support")}>🛟 Support</button>
+                <button onClick={() => setActiveContent("Postfach")}>📬 Postfach</button>
+                <button
+                    className={activeContent === "Mein Profil" ? "active" : ""}
+                    onClick={() => setActiveContent("Mein Profil")}
+                >
+                    👤 Mein Profil
+                </button>
             </div>
 
             <div className="user-content">
