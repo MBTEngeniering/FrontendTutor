@@ -10,11 +10,11 @@ import SendeMessage from "../../components/SendeMessage.jsx";
 function SchuelerSeite() {
     const [activeContent, setActiveContent] = useState("Kalender");
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-    const [selectedDate, setSelectedDate] = useState(new Date());
-    const [markedDates, setMarkedDates] = useState([]);
+    //const [selectedDate, setSelectedDate] = useState(new Date());
+   // const [markedDates, setMarkedDates] = useState([]);
     const [selectedSubject, setSelectedSubject] = useState("");
     const [availableSubjects, setAvailableSubjects] = useState([]);
-    const [subjects, setSubjects] = useState([]);
+   // const [subjects, setSubjects] = useState([]);
     const [tutors, setTutors] = useState([]);
     const [selectedTutor, setSelectedTutor] = useState(null); // Zustand für den ausgewählten Tutor
     const [showModal, setShowModal] = useState(false);
@@ -24,12 +24,13 @@ function SchuelerSeite() {
     const [selectedCity, setSelectedCity] = useState("");
     const [selectedCountry, setSelectedCountry] = useState("");
     const [selectedAge, setSelectedAge] = useState("");
-    const [selectedFachId, setSelectedFachId] = useState(null);
+   // const [selectedFachId, setSelectedFachId] = useState(null);
     const [meineTutoren, setMeineTutoren] = useState([]);
     const [loggedInUser, setLoggedInUser] = useState(null);
     const [originalUser, setOriginalUser] = useState(null);
     const [selectedSubjectId, setSelectedSubjectId] = useState(null);
     const {user} = useAuth();
+     const [post, setPost] = useState(null);
 
 
 
@@ -67,6 +68,10 @@ function SchuelerSeite() {
             const result = await MeineTutor();
             setMeineTutoren(result);
         };
+        const fetchMeinePost = async () => {
+            const result = await MeinePost();
+            setPost(result);
+        };
         const fetchLoggedInUser = async () => {
             const loggedInUser = await getLoggedInUser();
             if (loggedInUser) {
@@ -77,6 +82,7 @@ function SchuelerSeite() {
 
 
         fetchMeineTutoren();
+        fetchMeinePost();
         fetchLoggedInUser();
     }, [user]);
 
@@ -88,7 +94,7 @@ function SchuelerSeite() {
         // const userId = localStorage.getItem("userId");
         // const userRole = localStorage.getItem("userRole");
         const userId = user.id;
-        const userRole = user.userRole;
+       // const userRole = user.userRole;
 
         try {
             const response = await ApiService.get(`/api/allusers/${userId}`);
@@ -120,49 +126,64 @@ function SchuelerSeite() {
     };
 
     const MeineTutor = async () => {
+        const userId = user.id;
         try {
-            const loggedInUser = user.id;
-            if (!loggedInUser) {
-                alert("Bitte melden Sie sich an, um einen Tutor auszuwählen.");
+            const responseUser = await ApiService.get(`/api/allusers/${userId}`);
+            const showUser = responseUser.data;
+
+            if (!showUser.tutorsIds || showUser.tutorsIds.length === 0) {
+                alert("Du hast noch keine Lehrer.");
                 return [];
             }
 
-            const userId = user.id;
-            const userRole = user.userRole;
+            const tutorPromises = showUser.tutorsIds.map(tutorId =>
+                ApiService.get(`/api/allusers/${tutorId}`)
+            );
 
-            if (!userId || !userRole) {
-                console.warn("Benutzer nicht eingeloggt oder keine Rolle gesetzt.");
-                return [];
-            }
+            const tutorsResponses = await Promise.all(tutorPromises);
+            const tutors = tutorsResponses.map(response => response.data);
 
-            let response = await ApiService.get(`/api/allusers/${userId}`);
-
-            const userData = response.data;
-            const tutorsIds = userData.tutorsIds || [];
-            const tutorsList = [];
-            for (const tutorId of tutorsIds) {
-                try {
-                    const tutorResponse = ApiService.get(`/api/tutors/${tutorId}`);
-                    tutorsList.push(tutorResponse.data);
-                } catch (tutorError) {
-                    console.warn(`Tutor mit ID ${tutorId} konnte nicht geladen werden:`, tutorError);
-                }
-            }
-
-            return tutorsList;
+            return tutors;
 
         } catch (error) {
-            console.error("Fehler beim Laden der Tutoren:", error);
+            alert("Fehler beim Laden der Lehrer:", error);
             return [];
         }
     };
+    const MeinePost = async () => {
+        const userId = user.id;
+        try {
+            const responseUser = await ApiService.get(`/api/allusers/${userId}`);
+            const showUser = responseUser.data;
+            alert(showUser.message.length)
+
+            if (!showUser.message || showUser.message.length === 0) {
+                alert("Du hast noch keine Nachrichte.");
+                return [];
+            }
+
+            const postPromises = showUser.message.map(postId =>
+                ApiService.get(`/api/public/post/${postId}`)
+            );
+
+            const postsResponses = await Promise.all(postPromises);
+            const posts = postsResponses.map(response => response.data);
+
+            return posts;
+
+        } catch (error) {
+            alert("Fehler beim Laden der Nachrichten:", error);
+            return [];
+        }
+    };
+
 
     const chooseTutor = async (tutor) => {
 
         const tutorId = tutor.id;
         const userId = user.id;
         try {
-            alert(tutorId);
+
             const responseTutor = await ApiService.get(`/api/allusers/${tutorId}`);
             const responseUser = await ApiService.get(`/api/allusers/${userId}`);
             const schowTutor = responseTutor.data;
@@ -187,7 +208,6 @@ function SchuelerSeite() {
                     ]
                 };
                 await ApiService.post("/api/public/post/save", newPost);
-                alert("Post erfolgreich erstellt!");
             }
 
         } catch (error) {
@@ -309,9 +329,19 @@ function SchuelerSeite() {
         switch (activeContent) {
             case "Postfach":
                 return (
-                    <div>
-                        <h3>Mein Postfach</h3>
-                        <p>Hier finden Sie alle Nachrichten und Benachrichtigungen.</p>
+                    <div style={{ padding: "20px" }}>
+                        <h2>Meine Nachrichten</h2>
+                        {post.length > 0 ? (
+                            <ul>
+                                {post.map(post => (
+                                    <li key={post.id}>
+                                        {post.sender}
+                                    </li>
+                                ))}
+                            </ul>
+                        ) : (
+                            <p>Keine Nachricht noch.</p>
+                        )}
                     </div>
                 );
             case "Studienübersicht":
@@ -369,40 +399,20 @@ function SchuelerSeite() {
                     </div>
                 );
             case "Meine Lehrer":
+
                 return (
                     <div style={{ padding: "20px" }}>
-                        <h3 style={{ borderBottom: "2px solid #ddd", paddingBottom: "10px" }}>Meine Lehrer</h3>
-                        {meineTutoren.length === 0 ? (
-                            <p style={{ fontStyle: "italic", color: "#777" }}>
-                                Keine Lehrer vorhanden. Bitte wählen Sie Lehrer aus.
-                            </p>
-                        ) : (
-                            <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "10px" }}>
-                                <thead>
-                                <tr style={{ backgroundColor: "#f4f4f4", textAlign: "left" }}>
-                                    <th style={{ padding: "10px", borderBottom: "2px solid #ddd" }}>Vorname</th>
-                                    <th style={{ padding: "10px", borderBottom: "2px solid #ddd" }}>Nachname</th>
-                                    <th style={{ padding: "10px", borderBottom: "2px solid #ddd" }}>Aktionen</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                {meineTutoren.map((tutor, index) => (
-                                    <tr key={index} style={{ borderBottom: "1px solid #ddd" }}>
-                                        <td style={{ padding: "10px" }}>{tutor.firstName}</td>
-                                        <td style={{ padding: "10px" }}>{tutor.lastName}</td>
-                                        <td style={{ padding: "10px" }}>
-                                            <button
-                                                className="btn btn-primary btn-sm"
-                                                style={{ padding: "5px 10px" }}
-                                                onClick={() => handleStundeBuchen(tutor)}
-                                            >
-                                                Stunde buchen
-                                            </button>
-                                        </td>
-                                    </tr>
+                        <h2>Meine Lehrer</h2>
+                        {meineTutoren.length > 0 ? (
+                            <ul>
+                                {meineTutoren.map(meineTutoren => (
+                                    <li key={meineTutoren.id}>
+                                        {meineTutoren.firstName} {meineTutoren.lastName}
+                                    </li>
                                 ))}
-                                </tbody>
-                            </table>
+                            </ul>
+                        ) : (
+                            <p>Keine Lehrer gefunden.</p>
                         )}
                     </div>
                 );
@@ -656,7 +666,6 @@ function SchuelerSeite() {
                         )}
                     </div>
                 );
-
             case "Lehrer suchen":
                 return (
                     <div style={{ padding: "20px" }}>
