@@ -4,8 +4,8 @@ import "../../styles/UserPage.css";
 import { DateTime } from 'luxon';
 import ApiService from "../../api/ApiService.js";
 import { useAuth } from "../../context/UseAuth.jsx";
-import TutorCalendar from "../../components/TutorCalendar.jsx";
 import StudentCalender from "../../components/StudentCalender.jsx";
+import SendeMessage from "../../components/SendeMessage.jsx";
 
 function SchuelerSeite() {
     const [activeContent, setActiveContent] = useState("Kalender");
@@ -107,6 +107,7 @@ function SchuelerSeite() {
         //setShowModal(true); // Modal anzeigen
         const tutorInfo = `
         Name: ${tutor.firstName} ${tutor.lastName}
+        Id:  ${tutor.id}
         Titel: ${tutor.title}
         Anrede: ${tutor.salutation}
         Land: ${tutor.country}
@@ -157,54 +158,46 @@ function SchuelerSeite() {
     };
 
     const chooseTutor = async (tutor) => {
+
+        const tutorId = tutor.id;
+        const userId = user.id;
         try {
-            setSelectedTutor(tutor);
-            const loggedInUser = JSON.parse(localStorage.getItem('isLoggedIn'));
-            if (!loggedInUser) {
-                alert("2Bitte melden Sie sich an, um einen Tutor auszuwählen.");
-                return;
-            }
-            const userId = localStorage.getItem("userId");
-            const userRole = localStorage.getItem("userRole");
-
-            let response;
-            if (userRole === "STUDENT") {
-                response = await ApiService.get(`/api/students/${userId}`);
+            alert(tutorId);
+            const responseTutor = await ApiService.get(`/api/allusers/${tutorId}`);
+            const responseUser = await ApiService.get(`/api/allusers/${userId}`);
+            const schowTutor = responseTutor.data;
+            const showUser = responseUser.data;
+            if (showUser.tutorsIds && showUser.tutorsIds.includes(tutorId)) {
+                alert(`Der Tutor ${schowTutor.firstName} ${schowTutor.lastName} ist  bereits  dein TuTor.`);
             } else {
-                response = await ApiService.get(`/api/tutors/${userId}`);
+
+                showUser.tutorsIds = [...(showUser.tutorsIds || []), tutorId];
+                schowTutor.schoolTutorsIds = [...(schowTutor.schoolTutorsIds || []), userId];
+                await ApiService.put(`/api/allusers/${userId}`, showUser);
+                await ApiService.put(`/api/allusers/${tutorId}`, schowTutor);
+                alert(`du bist mit dem  Tutor ${schowTutor.firstName} ${schowTutor.lastName}  in verbindung und kannst die erste Stunde buchen`);
+                const newPost = {
+                    sender: userId,
+                    empfaenger: tutorId,
+                    nachrichten: [
+                        {
+                            text: `${showUser.salutation} ${showUser.firstName} ${showUser.lastName} hat sich mit dem Tutor ${schowTutor.firstName} ${schowTutor.lastName} verbunden.`,
+                            timestamp: new Date().toISOString()
+                        }
+                    ]
+                };
+                await ApiService.post("/api/public/post/save", newPost);
+                alert("Post erfolgreich erstellt!");
             }
-
-
-            const user = response.data;
-            const tutorsIds = user.tutorsIds || [];
-            if (tutorsIds.includes(tutor.id)) {
-                alert("Dieser Tutor wurde bereits als dein Tutor .");
-                return;
-            }
-            else{
-                tutorsIds.push(tutor.id)
-                const tutorResponse = ApiService.get(`/api/tutors/${tutor.id}`);
-                const tutorData = tutorResponse.data;
-                const schoolTutorsIds = tutorData.schoolTutorsIds || [];
-                schoolTutorsIds.push(userId);
-                tutorData.schoolTutorsIds = schoolTutorsIds;
-                await ApiService.put(`/api/tutors/${tutor.id}`, tutorData);
-
-                if (userRole === "STUDENT") {
-                    await ApiService.put(`/api/students/${userId}`, user);
-                } else {
-                    await ApiService.put(`/api/tutors/${userId}`, user);
-                }
-                alert("Du hast den Tutor "+ tutor.lastName +" "+ tutor.firstName +" erfolgreich ausgewählen und  kannst schon Studen buchen")
-
-            }
-
 
         } catch (error) {
-            console.error("Fehler:", error);
-            alert("Es gab ein Problem beim Wählen des Tutors.");
+          alert("Fehler beim Laden des Benutzers:", error);
+
         }
+
     };
+
+
 
     const closeModal = () => {
         setShowModal(false);
