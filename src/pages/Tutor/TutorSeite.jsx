@@ -14,6 +14,8 @@ function TutorSeite() {
     const { user } = useAuth(); // Assuming you have a custom hook for authentication
     const [loggedInUser, setLoggedInUser] = useState(null);
     const [originalUser, setOriginalUser] = useState(null);
+    const [post, setPost] = useState(null);
+    const [meineStudent, setMeineStudent] = useState([]);
 
     useEffect(() => {
         const fetchAvailability = async () => {
@@ -35,9 +37,17 @@ function TutorSeite() {
                 setOriginalUser(loggedInUser)// Originalwerte speichern, damit "Abbrechen" funktioniert
             }
         };
+        const fetchMeinePost = async () => {
+            const result = await MeinePost();
+            setPost(result);
+        };
+        const fetchMeineStudents = async () => {
+            const result = await MeineStudent();
+            setMeineStudent(result);
+        };
 
-
-
+        fetchMeineStudents();
+        fetchMeinePost();
         fetchLoggedInUser();
         fetchAvailability();
     }, [user]);
@@ -60,6 +70,50 @@ function TutorSeite() {
         } catch (error) {
             console.error("Fehler beim Aktualisieren des Benutzers:", error);
             alert("Fehler beim Aktualisieren des Benutzers!");
+        }
+    };
+    const MeinePost = async () => {
+        const userId = user.id;
+        try {
+            const gesendetMessage = await ApiService.get(`/api/public/post/sender/${userId}`);
+            const empfangMessage = await ApiService.get(`/api/public/post/empfaenger/${userId}`);
+
+            const schowSendet= gesendetMessage.data;
+            const schowRecieved= empfangMessage.data;
+            const posts = [...schowSendet, ...schowRecieved];
+            const nachrichtentexte = posts.flatMap(post => post.nachrichten.map(nachricht => nachricht.text));
+
+            alert(`Gesendete Nachrichten:\n${nachrichtentexte.join("\n")}`);
+            return posts;
+
+        } catch (error) {
+            alert("Fehler beim Laden der Nachrichten:", error);
+            return [];
+        }
+    };
+    const MeineStudent = async () => {
+        const userId = user.id;
+        try {
+            const responseUser = await ApiService.get(`/api/allusers/${userId}`);
+            const showUser = responseUser.data;
+
+            if (!showUser.schoolTutorsIds || showUser.schoolTutorsIds.length === 0) {
+                alert("Du hast noch keine Shüler.");
+                return [];
+            }
+
+            const studentPromises = showUser.schoolTutorsIds.map(studentId =>
+                ApiService.get(`/api/allusers/${studentId}`)
+            );
+
+            const studentsResponses = await Promise.all(studentPromises);
+            const students = studentsResponses.map(response => response.data);
+
+            return students;
+
+        } catch (error) {
+            alert("Fehler beim Laden der Lehrer:", error);
+            return [];
         }
     };
 
@@ -111,9 +165,21 @@ function TutorSeite() {
                 );
             case "Postfach":
                 return (
-                    <div>
-                        <h3>Meine Nachrichten</h3>
-                        <MyPost tutorId={user?.id}/>
+                    <div style={{ padding: "20px" }}>
+                        <h2>Meine Nachrichten</h2>
+                        {post.length > 0 ? (
+                            <ul>
+                                {post.map(post => (
+                                    <li key={post.id}>
+                                        <strong>ID:</strong> {post.id} <br/>
+                                        <strong>Sender:</strong> {post.sender} <br/>
+                                        <strong>Nachricht:</strong> {post.nachrichten.map(nachricht => nachricht.text).join(", ")}
+                                    </li>
+                                ))}
+                            </ul>
+                        ) : (
+                            <p>Keine Nachricht noch.</p>
+                        )}
                     </div>
                 );
             case "Vertrag":
@@ -140,8 +206,19 @@ function TutorSeite() {
                 );
             case "Meine Schüler":
                 return (
-                    <div>
-                        <h3>Schülerliste</h3>
+                    <div style={{ padding: "20px" }}>
+                        <h2>Meine Student</h2>
+                        {meineStudent.length > 0 ? (
+                            <ul>
+                                {meineStudent.map(meineStudent => (
+                                    <li key={meineStudent.id}>
+                                        {meineStudent.firstName} {meineStudent.lastName}
+                                    </li>
+                                ))}
+                            </ul>
+                        ) : (
+                            <p>Keine Student gefunden.</p>
+                        )}
                     </div>
                 );
             case "Mein Profil":

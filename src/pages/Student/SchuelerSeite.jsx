@@ -153,22 +153,15 @@ function SchuelerSeite() {
     const MeinePost = async () => {
         const userId = user.id;
         try {
-            const responseUser = await ApiService.get(`/api/allusers/${userId}`);
-            const showUser = responseUser.data;
-            alert(showUser.message.length)
+            const gesendetMessage = await ApiService.get(`/api/public/post/sender/${userId}`);
+            const empfangMessage = await ApiService.get(`/api/public/post/empfaenger/${userId}`);
 
-            if (!showUser.message || showUser.message.length === 0) {
-                alert("Du hast noch keine Nachrichte.");
-                return [];
-            }
+            const schowSendet= gesendetMessage.data;
+            const schowRecieved= empfangMessage.data;
+            const posts = [...schowSendet, ...schowRecieved];
+            const nachrichtentexte = posts.flatMap(post => post.nachrichten.map(nachricht => nachricht.text));
 
-            const postPromises = showUser.message.map(postId =>
-                ApiService.get(`/api/public/post/${postId}`)
-            );
-
-            const postsResponses = await Promise.all(postPromises);
-            const posts = postsResponses.map(response => response.data);
-
+            alert(`Gesendete Nachrichten:\n${nachrichtentexte.join("\n")}`);
             return posts;
 
         } catch (error) {
@@ -193,6 +186,7 @@ function SchuelerSeite() {
             } else {
 
                 showUser.tutorsIds = [...(showUser.tutorsIds || []), tutorId];
+
                 schowTutor.schoolTutorsIds = [...(schowTutor.schoolTutorsIds || []), userId];
                 await ApiService.put(`/api/allusers/${userId}`, showUser);
                 await ApiService.put(`/api/allusers/${tutorId}`, schowTutor);
@@ -207,7 +201,13 @@ function SchuelerSeite() {
                         }
                     ]
                 };
-                await ApiService.post("/api/public/post/save", newPost);
+                const postResponse = await ApiService.post("/api/public/post/save", newPost);
+                showUser.message = [...(showUser.message || []), postResponse.data.id];
+
+                schowTutor.message = [...(schowTutor.message || []), postResponse.data.id];
+
+                await ApiService.put(`/api/allusers/${userId}`, showUser);
+                await ApiService.put(`/api/allusers/${tutorId}`, schowTutor);
             }
 
         } catch (error) {
@@ -216,8 +216,6 @@ function SchuelerSeite() {
         }
 
     };
-
-
 
     const closeModal = () => {
         setShowModal(false);
@@ -335,7 +333,9 @@ function SchuelerSeite() {
                             <ul>
                                 {post.map(post => (
                                     <li key={post.id}>
-                                        {post.sender}
+                                        <strong>ID:</strong> {post.id} <br/>
+                                        <strong>Sender:</strong> {post.sender} <br/>
+                                        <strong>Nachricht:</strong> {post.nachrichten.map(nachricht => nachricht.text).join(", ")}
                                     </li>
                                 ))}
                             </ul>
@@ -347,7 +347,7 @@ function SchuelerSeite() {
             case "Studienübersicht":
                 return (
                     <div>
-                        <h3>Meine Studienübersicht</h3>
+                    <h3>Meine Studienübersicht</h3>
                         <p>Hier sehen Sie Ihren Lernfortschritt in allen Fächern.</p>
                     </div>
                 );
