@@ -16,6 +16,7 @@ function TutorSeite() {
     const [originalUser, setOriginalUser] = useState(null);
     const [post, setPost] = useState(null);
     const [meineStudent, setMeineStudent] = useState([]);
+    const [selectedId, setSelectedId] = React.useState(null);
 
     useEffect(() => {
         const fetchAvailability = async () => {
@@ -82,8 +83,6 @@ function TutorSeite() {
             const schowRecieved= empfangMessage.data;
             const posts = [...schowSendet, ...schowRecieved];
             const nachrichtentexte = posts.flatMap(post => post.nachrichten.map(nachricht => nachricht.text));
-
-            alert(`Gesendete Nachrichten:\n${nachrichtentexte.join("\n")}`);
             return posts;
 
         } catch (error) {
@@ -91,6 +90,7 @@ function TutorSeite() {
             return [];
         }
     };
+
     const MeineStudent = async () => {
         const userId = user.id;
         try {
@@ -98,7 +98,7 @@ function TutorSeite() {
             const showUser = responseUser.data;
 
             if (!showUser.schoolTutorsIds || showUser.schoolTutorsIds.length === 0) {
-                alert("Du hast noch keine Shüler.");
+              //  alert("Du hast noch keine Shüler.");
                 return [];
             }
 
@@ -112,7 +112,7 @@ function TutorSeite() {
             return students;
 
         } catch (error) {
-            alert("Fehler beim Laden der Lehrer:", error);
+            //alert("Fehler beim Laden der Lehrer:", error);
             return [];
         }
     };
@@ -165,21 +165,46 @@ function TutorSeite() {
                 );
             case "Postfach":
                 return (
-                    <div style={{ padding: "20px" }}>
-                        <h2>Meine Nachrichten</h2>
-                        {post.length > 0 ? (
-                            <ul>
-                                {post.map(post => (
-                                    <li key={post.id}>
-                                        <strong>ID:</strong> {post.id} <br/>
-                                        <strong>Sender:</strong> {post.sender} <br/>
-                                        <strong>Nachricht:</strong> {post.nachrichten.map(nachricht => nachricht.text).join(", ")}
-                                    </li>
-                                ))}
-                            </ul>
-                        ) : (
-                            <p>Keine Nachricht noch.</p>
-                        )}
+                    <div style={{ padding: "20px", display: "flex", height: "300px" }}>
+                        {/* Linke Box mit ID-Liste */}
+                        <div style={{ flex: 1, borderRight: "2px solid black", paddingRight: "10px", overflowY: "auto" }}>
+                            <h2>Meine Nachrichten</h2>
+                            {post.length > 0 ? (
+                                <ul style={{ listStyle: "none", padding: 0 }}>
+                                    {post.map(p => (
+                                        <li
+                                            key={p.id}
+                                            onClick={() => setSelectedId(p.id)}
+                                            style={{
+                                                cursor: "pointer",
+                                                padding: "5px",
+                                                backgroundColor: p.id === selectedId ? "#ddd" : "transparent",
+                                            }}
+                                        >
+                                            {p.id}
+                                        </li>
+                                    ))}
+                                </ul>
+                            ) : (
+                                <p>Keine Nachricht noch.</p>
+                            )}
+                        </div>
+
+                        {/* Rechte Box mit Nachrichten der ausgewählten ID */}
+                        <div style={{ flex: 2, paddingLeft: "10px", overflowY: "auto" }}>
+                            {post.find(p => p.id === selectedId) ? (
+                                <>
+                                    <p><strong>Nachricht:</strong></p>
+                                    <ul>
+                                        {post.find(p => p.id === selectedId).nachrichten.map((nachricht, index) => (
+                                            <li key={index}>{nachricht.text}</li>
+                                        ))}
+                                    </ul>
+                                </>
+                            ) : (
+                                <p>Bitte wähle eine ID aus der linken Liste.</p>
+                            )}
+                        </div>
                     </div>
                 );
             case "Vertrag":

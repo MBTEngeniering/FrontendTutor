@@ -31,6 +31,7 @@ function SchuelerSeite() {
     const [selectedSubjectId, setSelectedSubjectId] = useState(null);
     const {user} = useAuth();
      const [post, setPost] = useState(null);
+    const [selectedId, setSelectedId] = React.useState(null);
 
 
 
@@ -132,7 +133,6 @@ function SchuelerSeite() {
             const showUser = responseUser.data;
 
             if (!showUser.tutorsIds || showUser.tutorsIds.length === 0) {
-                alert("Du hast noch keine Lehrer.");
                 return [];
             }
 
@@ -146,7 +146,7 @@ function SchuelerSeite() {
             return tutors;
 
         } catch (error) {
-            alert("Fehler beim Laden der Lehrer:", error);
+           // alert("Fehler beim Laden der Lehrer:", error);
             return [];
         }
     };
@@ -160,8 +160,6 @@ function SchuelerSeite() {
             const schowRecieved= empfangMessage.data;
             const posts = [...schowSendet, ...schowRecieved];
             const nachrichtentexte = posts.flatMap(post => post.nachrichten.map(nachricht => nachricht.text));
-
-            alert(`Gesendete Nachrichten:\n${nachrichtentexte.join("\n")}`);
             return posts;
 
         } catch (error) {
@@ -188,9 +186,6 @@ function SchuelerSeite() {
                 showUser.tutorsIds = [...(showUser.tutorsIds || []), tutorId];
 
                 schowTutor.schoolTutorsIds = [...(schowTutor.schoolTutorsIds || []), userId];
-                await ApiService.put(`/api/allusers/${userId}`, showUser);
-                await ApiService.put(`/api/allusers/${tutorId}`, schowTutor);
-                alert(`du bist mit dem  Tutor ${schowTutor.firstName} ${schowTutor.lastName}  in verbindung und kannst die erste Stunde buchen`);
                 const newPost = {
                     sender: userId,
                     empfaenger: tutorId,
@@ -201,13 +196,11 @@ function SchuelerSeite() {
                         }
                     ]
                 };
-                const postResponse = await ApiService.post("/api/public/post/save", newPost);
-                showUser.message = [...(showUser.message || []), postResponse.data.id];
-
-                schowTutor.message = [...(schowTutor.message || []), postResponse.data.id];
+                 await ApiService.post("/api/public/post/save", newPost);
 
                 await ApiService.put(`/api/allusers/${userId}`, showUser);
                 await ApiService.put(`/api/allusers/${tutorId}`, schowTutor);
+                alert(`du bist mit dem  Tutor ${schowTutor.firstName} ${schowTutor.lastName}  in verbindung und kannst die erste Stunde buchen`);
             }
 
         } catch (error) {
@@ -327,27 +320,68 @@ function SchuelerSeite() {
         switch (activeContent) {
             case "Postfach":
                 return (
-                    <div style={{ padding: "20px" }}>
-                        <h2>Meine Nachrichten</h2>
-                        {post.length > 0 ? (
-                            <ul>
-                                {post.map(post => (
-                                    <li key={post.id}>
-                                        <strong>ID:</strong> {post.id} <br/>
-                                        <strong>Sender:</strong> {post.sender} <br/>
-                                        <strong>Nachricht:</strong> {post.nachrichten.map(nachricht => nachricht.text).join(", ")}
-                                    </li>
-                                ))}
-                            </ul>
-                        ) : (
-                            <p>Keine Nachricht noch.</p>
-                        )}
+                    <div style={{padding: "20px", display: "flex", height: "300px"}}>
+                        {/* Linke Box mit ID-Liste */}
+                        <div style={{flex: 1, borderRight: "2px solid black", paddingRight: "10px", overflowY: "auto"}}>
+                            <h2>Meine Nachrichten</h2>
+                            {post.length > 0 ? (
+                                <ul style={{listStyle: "none", padding: 0}}>
+                                    {post.map(p => (
+                                        <li
+                                            key={p.id}
+                                            onClick={() => setSelectedId(p.id)}
+                                            style={{
+                                                cursor: "pointer",
+                                                padding: "5px",
+                                                backgroundColor: p.id === selectedId ? "#ddd" : "transparent",
+                                            }}
+                                        >
+                                            {p.id}
+                                        </li>
+                                    ))}
+                                </ul>
+
+                            ) : (
+                                <p>Keine Nachricht noch.</p>
+                            )}
+                        </div>
+
+
+                        <div style={{flex: 3, paddingLeft: "10px", height: "300px",overflowY: "auto", display: "flex",
+                            flexDirection: "column",}}>
+                            {post.find(p => p.id === selectedId) ? (
+                                <>
+                                    <p><strong>Nachricht:</strong></p>
+                                    <ul>
+                                        {post.find(p => p.id === selectedId).nachrichten.map((nachricht, index) => (
+                                            <li key={index}>{nachricht.text}</li>
+                                        ))}
+                                    </ul>
+
+                                    <textarea
+                                        placeholder="Neue Nachricht schreiben..."
+                                        style={{
+                                            resize: "horizontal",
+                                            height: "150px",
+                                            marginTop: "200px",
+                                            width: "100%",
+                                            overflowY: "auto",
+                                            flexShrink: 0,
+                                        }}
+                                    />
+                                </>
+                            ) : (
+                                <p>Bitte wähle eine ID aus der linken Liste.</p>
+                            )}
+                        </div>
+
+
                     </div>
                 );
             case "Studienübersicht":
                 return (
                     <div>
-                    <h3>Meine Studienübersicht</h3>
+                        <h3>Meine Studienübersicht</h3>
                         <p>Hier sehen Sie Ihren Lernfortschritt in allen Fächern.</p>
                     </div>
                 );
