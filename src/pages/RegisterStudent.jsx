@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import '../styles/RegisterForm.css';
 import '../styles/Register.css';
 
+
 function RegisterStudent() {
     const apiUrl = import.meta.env.VITE_API_URL;
     const [selectedSubject, setSelectedSubject] = useState("");
@@ -37,7 +38,8 @@ function RegisterStudent() {
 
     // Fächer aus dem Backend laden
     useEffect(() => {
-        axios.get(apiUrl+"/api/fach", { withCredentials: true })
+        const lang = navigator.languages[1].substring(0, 2);
+        axios.get(`${apiUrl}/api/fach/trans/${lang}`, { withCredentials: true })
             .then(response => setAvailableSubjects(response.data))
             .catch(error => console.error("Fehler beim Laden der Fächer:", error));
         // Länder aus der API laden

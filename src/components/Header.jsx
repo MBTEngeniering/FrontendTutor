@@ -75,7 +75,7 @@ export default function Header() {
               <DropdownToggle nav caret>Nachhilfe</DropdownToggle>
               <DropdownMenu right>
                 <DropdownItem><Linker link="/preise">Preise</Linker></DropdownItem>
-                <DropdownItem><Linker link="/elternschueler">Eltern/Schüler-Portal</Linker></DropdownItem>
+              {/*  <DropdownItem><Linker link="/elternschueler">Eltern/Schüler-Portal</Linker></DropdownItem>*/}
                 <DropdownItem divider/>
                 <DropdownItem><Linker link="/lehrer">Lehrer werden</Linker></DropdownItem>
                 <DropdownItem><Linker link="/konzept">Konzept</Linker></DropdownItem>

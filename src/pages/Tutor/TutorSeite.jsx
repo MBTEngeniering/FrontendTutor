@@ -112,7 +112,7 @@ function TutorSeite() {
             return students;
 
         } catch (error) {
-            //alert("Fehler beim Laden der Lehrer:", error);
+            console.log("Fehler beim Laden der Lehrer:", error);
             return [];
         }
     };
