@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import '../styles/RegisterForm.css';
+import '../../styles/RegisterForm.css';
 
 const RegisterTutor = () => {
     const apiUrl = import.meta.env.VITE_API_URL;
@@ -44,24 +44,7 @@ const RegisterTutor = () => {
                     .catch(error => console.error("Fehler beim Laden der Fächer:", error))
             });
 
-        // Länder aus der API laden
-        axios.get("https://restcountries.com/v3.1/all")
-            .then(response => {
-                // Länder alphabetisch sortieren
-                const sortedCountries = response.data.sort((a, b) => {
-                    const nameA = a.name.common.toLowerCase();
-                    const nameB = b.name.common.toLowerCase();
-                    if (nameA < nameB) {
-                        return -1;
-                    }
-                    if (nameA > nameB) {
-                        return 1;
-                    }
-                    return 0;
-                });
-                setCountries(sortedCountries);
-            })
-            .catch(error => console.error("Fehler beim Laden der Länder:", error));
+
     }, [apiUrl]);
 
     const handleAddSubject = () => {
