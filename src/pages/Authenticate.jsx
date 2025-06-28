@@ -17,6 +17,10 @@ const Authenticate = () => {
       setErrorMessage("");
       const userData = await login({ username, password });
 
+      if(userData&&!userData.accountActive){
+          setErrorMessage("Ihr Konto ist noch nicht Aktiv. wenden Sie an Ihrem Adminastrator");
+          return;
+      }
       if (userData && userData.userRoleIds.length === 1) {
         updateUser({
           userRole: userRoleIdToName[userData.userRoleIds[0]],
