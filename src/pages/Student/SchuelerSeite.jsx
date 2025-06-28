@@ -335,7 +335,7 @@ function SchuelerSeite() {
 
                 return (
                     <div style={{ padding: "20px" }}>
-                         <MeineTutoren userId={user.id} />;
+                         <MeineTutoren userId={user.id} />
                     </div>
                 );
             case "Meine Stunden":
