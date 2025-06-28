@@ -5,7 +5,9 @@ import { DateTime } from 'luxon';
 import ApiService from "../../api/ApiService.js";
 import { useAuth } from "../../context/UseAuth.jsx";
 import StudentCalender from "../../components/StudentCalender.jsx";
+import MeineTutoren  from "./MeineTutoren.jsx";
 import SendeMessage from "../../components/SendeMessage.jsx";
+import MyPost from "../../components/MyPost.jsx";
 
 function SchuelerSeite() {
     const [activeContent, setActiveContent] = useState("Kalender");
@@ -61,18 +63,18 @@ function SchuelerSeite() {
 
         ApiService.get(`/api/allusers`)
             .then(response => {
-                // console.log(response.data);  // Überprüfe, ob die Tutor-Daten ankommen
-                setTutors(response.data);
+                const allUsers = response.data;
+
+                // 👉 Filter: nur Tutoren mit aktivem Account
+                const tutors = allUsers.filter(user =>
+                    user.accountActive === true &&
+                    user.userRoleIds &&
+                    user.userRoleIds.includes(2)
+                );
+
+                setTutors(tutors);
             })
             .catch(error => console.error("Fehler beim Laden der Tutoren:", error));
-        const fetchMeineTutoren = async () => {
-            const result = await MeineTutor();
-            setMeineTutoren(result);
-        };
-        const fetchMeinePost = async () => {
-            const result = await MeinePost();
-            setPost(result);
-        };
         const fetchLoggedInUser = async () => {
             const loggedInUser = await getLoggedInUser();
             if (loggedInUser) {
@@ -81,9 +83,6 @@ function SchuelerSeite() {
             }
         };
 
-
-        fetchMeineTutoren();
-        fetchMeinePost();
         fetchLoggedInUser();
     }, [user]);
 
@@ -124,48 +123,6 @@ function SchuelerSeite() {
         Beschreibung: ${tutor.description || 'Keine Beschreibung verfügbar'}
     `;
         alert(tutorInfo);
-    };
-
-    const MeineTutor = async () => {
-        const userId = user.id;
-        try {
-            const responseUser = await ApiService.get(`/api/allusers/${userId}`);
-            const showUser = responseUser.data;
-
-            if (!showUser.tutorsIds || showUser.tutorsIds.length === 0) {
-                return [];
-            }
-
-            const tutorPromises = showUser.tutorsIds.map(tutorId =>
-                ApiService.get(`/api/allusers/${tutorId}`)
-            );
-
-            const tutorsResponses = await Promise.all(tutorPromises);
-            const tutors = tutorsResponses.map(response => response.data);
-
-            return tutors;
-
-        } catch (error) {
-           // alert("Fehler beim Laden der Lehrer:", error);
-            return [];
-        }
-    };
-    const MeinePost = async () => {
-        const userId = user.id;
-        try {
-            const gesendetMessage = await ApiService.get(`/api/public/post/sender/${userId}`);
-            const empfangMessage = await ApiService.get(`/api/public/post/empfaenger/${userId}`);
-
-            const schowSendet= gesendetMessage.data;
-            const schowRecieved= empfangMessage.data;
-            const posts = [...schowSendet, ...schowRecieved];
-            const nachrichtentexte = posts.flatMap(post => post.nachrichten.map(nachricht => nachricht.text));
-            return posts;
-
-        } catch (error) {
-            alert("Fehler beim Laden der Nachrichten:", error);
-            return [];
-        }
     };
 
 
@@ -319,65 +276,7 @@ function SchuelerSeite() {
     const renderContent = () => {
         switch (activeContent) {
             case "Postfach":
-                return (
-                    <div style={{padding: "20px", display: "flex", height: "300px"}}>
-                        {/* Linke Box mit ID-Liste */}
-                        <div style={{flex: 1, borderRight: "2px solid black", paddingRight: "10px", overflowY: "auto"}}>
-                            <h2>Meine Nachrichten</h2>
-                            {post.length > 0 ? (
-                                <ul style={{listStyle: "none", padding: 0}}>
-                                    {post.map(p => (
-                                        <li
-                                            key={p.id}
-                                            onClick={() => setSelectedId(p.id)}
-                                            style={{
-                                                cursor: "pointer",
-                                                padding: "5px",
-                                                backgroundColor: p.id === selectedId ? "#ddd" : "transparent",
-                                            }}
-                                        >
-                                            {p.id}
-                                        </li>
-                                    ))}
-                                </ul>
-
-                            ) : (
-                                <p>Keine Nachricht noch.</p>
-                            )}
-                        </div>
-
-
-                        <div style={{flex: 3, paddingLeft: "10px", height: "300px",overflowY: "auto", display: "flex",
-                            flexDirection: "column",}}>
-                            {post.find(p => p.id === selectedId) ? (
-                                <>
-                                    <p><strong>Nachricht:</strong></p>
-                                    <ul>
-                                        {post.find(p => p.id === selectedId).nachrichten.map((nachricht, index) => (
-                                            <li key={index}>{nachricht.text}</li>
-                                        ))}
-                                    </ul>
-
-                                    <textarea
-                                        placeholder="Neue Nachricht schreiben..."
-                                        style={{
-                                            resize: "horizontal",
-                                            height: "150px",
-                                            marginTop: "200px",
-                                            width: "100%",
-                                            overflowY: "auto",
-                                            flexShrink: 0,
-                                        }}
-                                    />
-                                </>
-                            ) : (
-                                <p>Bitte wähle eine ID aus der linken Liste.</p>
-                            )}
-                        </div>
-
-
-                    </div>
-                );
+                return <MyPost userId={user.id} />;
             case "Studienübersicht":
                 return (
                     <div>
@@ -436,18 +335,7 @@ function SchuelerSeite() {
 
                 return (
                     <div style={{ padding: "20px" }}>
-                        <h2>Meine Lehrer</h2>
-                        {meineTutoren.length > 0 ? (
-                            <ul>
-                                {meineTutoren.map(meineTutoren => (
-                                    <li key={meineTutoren.id}>
-                                        {meineTutoren.firstName} {meineTutoren.lastName}
-                                    </li>
-                                ))}
-                            </ul>
-                        ) : (
-                            <p>Keine Lehrer gefunden.</p>
-                        )}
+                         <MeineTutoren userId={user.id} />;
                     </div>
                 );
             case "Meine Stunden":
