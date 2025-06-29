@@ -4,7 +4,7 @@ import "../../styles/UserPage.css";
 import { DateTime } from 'luxon';
 import ApiService from "../../api/ApiService.js";
 import { useAuth } from "../../context/UseAuth.jsx";
-import StudentCalender from "../../components/StudentCalender.jsx";
+import StudentCalender from "./StudentCalender.jsx";
 import MeineTutoren  from "./MeineTutoren.jsx";
 import SendeMessage from "../../components/SendeMessage.jsx";
 import MyPost from "../../components/MyPost.jsx";
@@ -144,7 +144,7 @@ function SchuelerSeite() {
 
                 schowTutor.schoolTutorsIds = [...(schowTutor.schoolTutorsIds || []), userId];
                 const newPost = {
-                    sender: userId,
+                    sender: "4f0226e1-1fe8-495a-84e7-26c46769de2d",
                     empfaenger: tutorId,
                     nachrichten: [
                         {

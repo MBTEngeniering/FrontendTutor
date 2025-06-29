@@ -6,8 +6,8 @@ import startOfWeek from "date-fns/startOfWeek";
 import getDay from "date-fns/getDay";
 import de from "date-fns/locale/de";
 import "react-big-calendar/lib/css/react-big-calendar.css";
-import { useAuth } from "../context/UseAuth.jsx";
-import ApiService from "../api/ApiService.js";
+import { useAuth } from "../../context/UseAuth.jsx";
+import ApiService from "../../api/ApiService.js";
 
 const locales = { de };
 const localizer = dateFnsLocalizer({

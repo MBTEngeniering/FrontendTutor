@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { jsPDF } from "jspdf";
 import "../../styles/UserPage.css";
-import TutorCalendar from "../../components/TutorCalendar";
+import TutorCalendar from "./TutorCalendar.jsx";
 import { useAuth } from "../../context/UseAuth.jsx";
 import ApiService from "../../api/ApiService";
 import "react-big-calendar/lib/css/react-big-calendar.css";
