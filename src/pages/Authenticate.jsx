@@ -1,55 +1,33 @@
-import React, { useState} from "react";
-import { Link } from "react-router-dom";
-import { Button, Container, Input, Modal, ModalBody, ModalFooter, ModalHeader } from "reactstrap";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Button, Container, Input, Modal, ModalBody, ModalFooter, ModalHeader, } from "reactstrap";
 import { useAuth } from "../context/UseAuth.jsx";
 import { userRoleIdToName, userRoleIdToPage } from "../util/mapping.js";
-import SchuelerVertrag from "./Student/SchulerVertrag.jsx";
-import TutorVertrag from "./Tutor/TutorVertrag.jsx";
 
 const Authenticate = () => {
     const [errorMessage, setErrorMessage] = useState("");
     const [modalOpen, setModalOpen] = useState(false);
-    const { login, user, updateUser } = useAuth();
+    const navigate = useNavigate();
+    const {login, user, updateUser} = useAuth();
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
 
-    const [userData, setUserData] = useState(null);
-    const [showVertrag, setShowVertrag] = useState(null); // null | "schueler" | "tutor"
-
-    const handleLogin = async () => {
+    const handleLogin = async () => { // Make the function async
         try {
             setErrorMessage("");
-            const loggedInUser = await login({ username, password });
+            const userData = await login({ username, password });
 
-            if (loggedInUser) {
-                setUserData(loggedInUser);
 
-                if (!loggedInUser.accountActive) {
-                    alert("Account noch nicht aktiv, bitte Vertrag bestätigen");
-
-                    if (loggedInUser.userRoleIds && loggedInUser.userRoleIds.includes(1)) {
-                        setShowVertrag("schueler");
-                    } else {
-                        setShowVertrag("tutor");
-                    }
-
-                    return;
-                }
-
-                // Konto aktiv, normales Login-Verhalten
-                if (loggedInUser.userRoleIds.length === 1) {
-                    updateUser({
-                        userRole: userRoleIdToName[loggedInUser.userRoleIds[0]],
-                        selectedUserRoleId: loggedInUser.userRoleIds[0],
-                        userPage: userRoleIdToPage[loggedInUser.userRoleIds[0]],
-                        isLoggedIn: true
-                    });
-                    // Navigation kannst du hier machen, z.B. mit navigate oder Context steuern
-                    // navigate(userRoleIdToPage[loggedInUser.userRoleIds[0]]);
-                    setShowVertrag(null);
-                } else if (loggedInUser.userRoleIds.length > 1) {
-                    setModalOpen(true);
-                }
+            if (userData && userData.userRoleIds.length === 1) {
+                updateUser({
+                    userRole: userRoleIdToName[userData.userRoleIds[0]],
+                    selectedUserRoleId: userData.userRoleIds[0],
+                    userPage: userRoleIdToPage[userData.userRoleIds[0]],
+                    isLoggedIn: true
+                })
+                navigate(userRoleIdToPage[userData.userRoleIds[0]]);
+            } else if (userData && user.userRoleIds.length > 1) {
+                setModalOpen(true);
             }
         } catch (error) {
             setErrorMessage("Email/Telefonnummer und Passwort stimmen nicht.");
@@ -61,24 +39,14 @@ const Authenticate = () => {
         updateUser({
             userRole: userRoleIdToName[roleId],
             selectedUserRoleId: roleId,
-            userPage: userRoleIdToPage[roleId],
+            userPage: userRoleIdToPage[roleId], // 🔥 Speichert die zugehörige Seite
             isLoggedIn: true
-        });
+        })
 
-        setModalOpen(false);
-        // navigate(userRoleIdToPage[roleId]);
+        setModalOpen(false); // Modal wird nach Auswahl der Rolle geschlossen
+        navigate(userRoleIdToPage[roleId]);
     };
 
-    // Vertrag-Komponente rendern, wenn benötigt
-    if (showVertrag === "schueler" && userData) {
-        return <SchuelerVertrag user={userData} />;
-    }
-
-    if (showVertrag === "tutor" && userData) {
-        return <TutorVertrag user={userData} />;
-    }
-
-    // Standard-Login-Formular
     return (
         <Container className="page m-auto mt-2">
             <div
@@ -97,7 +65,8 @@ const Authenticate = () => {
                 }}
             >
                 <h2>Anmelden über COOKIE</h2>
-                <form onSubmit={(e) => { e.preventDefault(); handleLogin(); }}>
+                {/*<Form onSubmit={e => {handleLogin(e)}} >*/}
+                <form>
                     <Input
                         className="mb-2 form-control-lg"
                         type="text"
@@ -116,12 +85,13 @@ const Authenticate = () => {
                     />
                     <Button
                         className="mb-2 btn btn-success form-control"
-                        style={{ padding: "10px", marginTop: "10px" }}
-                        type="submit"
+                        style={{padding: "10px", marginTop: "10px"}}
+                        onClick={handleLogin}
                     >
                         Login
                     </Button>
                 </form>
+                {/*</Form>*/}
                 {errorMessage && <p className="text-danger">{errorMessage}</p>}
 
                 <p className="mt-2 mb-0">
@@ -141,7 +111,7 @@ const Authenticate = () => {
                             color="secondary"
                             block
                             onClick={() => handleRoleSelection(roleId)}
-                            style={{ marginBottom: "10px" }}
+                            style={{marginBottom: "10px"}}
                         >
                             Als {userRoleIdToName[roleId]} einloggen
                         </Button>

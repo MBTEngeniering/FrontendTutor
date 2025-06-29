@@ -6,6 +6,8 @@ import { useAuth } from "../../context/UseAuth.jsx";
 import ApiService from "../../api/ApiService";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import MyPost from "../../components/MyPost.jsx";
+import SchuelerVertrag from "../Student/SchulerVertrag.jsx";
+import TutorVertrag from "./TutorVertrag.jsx";
 
 function TutorSeite() {
     const apiUrl = import.meta.env.VITE_API_URL;
@@ -143,16 +145,7 @@ function TutorSeite() {
         }
     };
 
-    const downloadPDF = () => {
-        const doc = new jsPDF();
-        doc.text("Vertrag: Zusammenarbeit für Online-Nachhilfe", 10, 10);
-        doc.text("Dieser Vertrag regelt die Zusammenarbeit zwischen dem Anbieter und den Schülern.", 10, 20);
-        doc.text("AGB:", 10, 30);
-        doc.text("- Pünktlichkeit und Einhaltung der Termine.", 10, 40);
-        doc.text("- 24 Stunden vorher absagen, um Gebühren zu vermeiden.", 10, 50);
-        doc.text("- Technische Voraussetzungen beim Schüler.", 10, 60);
-        doc.save("Vertrag.pdf");
-    };
+
 
     const renderContent = () => {
         switch (activeContent) {
@@ -208,21 +201,7 @@ function TutorSeite() {
                     </div>
                 );
             case "Vertrag":
-                return (
-                    <div>
-                    <h3>Vertrag</h3>
-                        <p>
-                            Dieser Vertrag regelt die Zusammenarbeit zwischen dem Anbieter und den Schülern.
-                            Es gelten folgende AGB:
-                        </p>
-                        <ul>
-                            <li>Pünktlichkeit und Einhaltung der vereinbarten Termine.</li>
-                            <li>Absage von Terminen mindestens 24 Stunden im Voraus.</li>
-                            <li>Technische Voraussetzungen liegen in der Verantwortung des Schülers.</li>
-                        </ul>
-                        <button onClick={downloadPDF}>Vertrag als PDF herunterladen</button>
-                    </div>
-                );
+                return <TutorVertrag user={user} />;
             case "Meine Termine":
                 return (
                     <div>

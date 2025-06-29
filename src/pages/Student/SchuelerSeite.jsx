@@ -261,16 +261,7 @@ function SchuelerSeite() {
             "ID: " + tutor.id
         );
     };
-    const downloadPDF = () => {
-        const doc = new jsPDF();
-        doc.text("Vertrag: Nachhilfevereinbarung", 10, 10);
-        doc.text("Dieser Vertrag regelt die Zusammenarbeit zwischen Ihnen und Ihrem Nachhilfelehrer.", 10, 20);
-        doc.text("AGB:", 10, 30);
-        doc.text("- Pünktlichkeit und Einhaltung der Termine.", 10, 40);
-        doc.text("- 24 Stunden vorher absagen, um Gebühren zu vermeiden.", 10, 50);
-        doc.text("- Technische Voraussetzungen müssen erfüllt sein.", 10, 60);
-        doc.save("Nachhilfevertrag.pdf");
-    };
+
 
     const renderContent = () => {
         switch (activeContent) {

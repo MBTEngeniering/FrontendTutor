@@ -15,18 +15,7 @@ const SchuelerVertrag = ({ user }) => {
 
     const handleConfirm = async () => {
         try {
-            const updatedUser = {
-                  accountActive: true,
-            };
-
-            const response = await ApiService.put(`/api/allusers/${user.id}`, updatedUser);
-
-            if (response.ok) {
-                console.log("Nutzer erfolgreich aktualisiert");
-                setIsActive(true); // Lokalen Status aktualisieren
-            } else {
-                console.error("Fehler beim Aktualisieren des Nutzers");
-            }
+            setIsActive(true);
         } catch (error) {
             console.error("Fehler:", error);
         }
