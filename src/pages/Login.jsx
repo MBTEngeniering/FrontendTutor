@@ -56,11 +56,7 @@ function Login() {
 
             if (UserResponse.status === 200) {
                 const allUser = UserResponse.data;
-                if(!allUser.accountActive){
-                    setErrorMessage("Ihr Konto ist noch nicht Aktiv. wenden Sie an Ihrem Adminastrator");
-                    return;
-                }
-                alert(allUser.id);
+
                 const roleIds = allUser.userRoleIds || [];
                 setUserRoleIds(roleIds);
 

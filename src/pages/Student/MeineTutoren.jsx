@@ -46,6 +46,13 @@ const MeineTutoren = ({ userId }) => {
     }, [userId]);
 
     const handleStundenBuchen = async (tutorId) => {
+        const responseUser = await ApiService.get(`/api/allusers/${userId}`)
+        const showUser = responseUser.data;
+
+        if(showUser.anzahlStunde===0){
+            alert("Schüler hat keine Stunde");
+            return;
+        }
         try {
             // Tutor laden
             const tutorResponse = await ApiService.get(`/api/allusers/${tutorId}`);
@@ -130,7 +137,7 @@ const MeineTutoren = ({ userId }) => {
     };
 
     const gefilterteZeiten = () => {
-        if (!filter.jahr || !filter.monat) {
+        if (!filter.jahr || !filter.monat|| !filter.tag) {
             return null;
         }
 

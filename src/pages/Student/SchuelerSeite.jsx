@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { jsPDF } from "jspdf";
 import "../../styles/UserPage.css";
 import { DateTime } from 'luxon';
 import ApiService from "../../api/ApiService.js";
@@ -13,21 +12,16 @@ import SchuelerVertrag from "./SchulerVertrag.jsx";
 function SchuelerSeite() {
     const [activeContent, setActiveContent] = useState("Kalender");
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-    //const [selectedDate, setSelectedDate] = useState(new Date());
-   // const [markedDates, setMarkedDates] = useState([]);
     const [selectedSubject, setSelectedSubject] = useState("");
     const [availableSubjects, setAvailableSubjects] = useState([]);
-   // const [subjects, setSubjects] = useState([]);
     const [tutors, setTutors] = useState([]);
     const [selectedTutor, setSelectedTutor] = useState(null); // Zustand für den ausgewählten Tutor
-    const [showModal, setShowModal] = useState(false);
     const [selectedSalutation, setSelectedSalutation] = useState("");
     const [selectedTitle, setSelectedTitle] = useState("");
     const [selectedPostalCode, setSelectedPostalCode] = useState("");
     const [selectedCity, setSelectedCity] = useState("");
     const [selectedCountry, setSelectedCountry] = useState("");
     const [selectedAge, setSelectedAge] = useState("");
-   // const [selectedFachId, setSelectedFachId] = useState(null);
     const [loggedInUser, setLoggedInUser] = useState(null);
     const [originalUser, setOriginalUser] = useState(null);
     const [selectedSubjectId, setSelectedSubjectId] = useState(null);
@@ -166,10 +160,6 @@ function SchuelerSeite() {
 
     };
 
-    const closeModal = () => {
-        setShowModal(false);
-        setSelectedTutor(null);
-    };
 
     const calculateAge = (birthdate) => {
         if (!birthdate) { // Prüfen, ob birthdate null oder leer ist
@@ -251,18 +241,9 @@ function SchuelerSeite() {
     };
 
 
-    const handleStundeBuchen = (tutor) => {
-        alert(
-            "Stunde buchen mit:\n" +
-            "Vorname: " + tutor.firstName + "\n" +
-            "Nachname: " + tutor.lastName + "\n" +
-            "E-Mail: " + tutor.emailAddress + "\n" +
-            "Land: " + tutor.country + "\n" +
-            "ID: " + tutor.id
-        );
-    };
 
 
+if(user.accountActive){
     const renderContent = () => {
         switch (activeContent) {
             case "Postfach":
@@ -310,7 +291,7 @@ function SchuelerSeite() {
 
                 return (
                     <div style={{ padding: "20px" }}>
-                         <MeineTutoren userId={user.id} />
+                        <MeineTutoren userId={user.id} />
                     </div>
                 );
             case "Meine Stunden":
@@ -791,6 +772,11 @@ function SchuelerSeite() {
             </div>
         </>
     );
+}
+else{
+    return <SchuelerVertrag user={user} />;
+}
+
 }
 
 export default SchuelerSeite;

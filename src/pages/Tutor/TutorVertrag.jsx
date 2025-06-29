@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { jsPDF } from "jspdf";
 import ApiService from "../../api/ApiService.js";
+import {useNavigate} from "react-router-dom";
 
 const TutorVertrag = ({ user }) => {
     const [signDate, setSignDate] = useState("");
     const [signName, setSignName] = useState("");
     const [isActive, setIsActive] = useState(user.accountActive); // Lokaler Status
+    const navigate = useNavigate();
 
     useEffect(() => {
         const today = new Date().toISOString().split("T")[0];
@@ -13,13 +15,33 @@ const TutorVertrag = ({ user }) => {
         setSignName(`${user.lastName} ${user.firstName}`.trim());
     }, [user]);
 
+    const updateUser = async (tutor) => {
+
+        const tutorId = tutor.id;
+        try {
+
+            const responseTutor = await ApiService.get(`/api/allusers/${tutorId}`);
+            const schowTutor = responseTutor.data;
+            schowTutor.accountActive= true;
+            await ApiService.put(`/api/allusers/${tutorId}`, schowTutor);
+            alert("User erfolgreich upgedate")
+
+        } catch (error) {
+            alert("Fehler beim Laden des Benutzers:", error);
+
+        }
+
+    };
     const handleConfirm = async () => {
         try {
             setIsActive(true);
+            updateUser(user);
+            navigate("/authenticate");
         } catch (error) {
             console.error("Fehler:", error);
         }
     };
+
 
     const downloadPDF = () => {
         const doc = new jsPDF({
