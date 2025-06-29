@@ -8,6 +8,7 @@ import StudentCalender from "./StudentCalender.jsx";
 import MeineTutoren  from "./MeineTutoren.jsx";
 import SendeMessage from "../../components/SendeMessage.jsx";
 import MyPost from "../../components/MyPost.jsx";
+import SchuelerVertrag from "./SchulerVertrag.jsx";
 
 function SchuelerSeite() {
     const [activeContent, setActiveContent] = useState("Kalender");
@@ -27,13 +28,11 @@ function SchuelerSeite() {
     const [selectedCountry, setSelectedCountry] = useState("");
     const [selectedAge, setSelectedAge] = useState("");
    // const [selectedFachId, setSelectedFachId] = useState(null);
-    const [meineTutoren, setMeineTutoren] = useState([]);
     const [loggedInUser, setLoggedInUser] = useState(null);
     const [originalUser, setOriginalUser] = useState(null);
     const [selectedSubjectId, setSelectedSubjectId] = useState(null);
     const {user} = useAuth();
-     const [post, setPost] = useState(null);
-    const [selectedId, setSelectedId] = React.useState(null);
+
 
 
 
@@ -292,22 +291,7 @@ function SchuelerSeite() {
                     </div>
                 );
             case "Vertrag":
-                return (
-                    <div>
-                        <h3>Mein Vertrag</h3>
-                        <p>
-                            Dieser Vertrag regelt die Zusammenarbeit zwischen Ihnen und Ihrem Nachhilfelehrer.
-                        </p>
-                        <ul>
-                            <li>Pünktlichkeit und Einhaltung der Termine</li>
-                            <li>Absage von Terminen mindestens 24 Stunden im Voraus</li>
-                            <li>Technische Voraussetzungen müssen erfüllt sein</li>
-                        </ul>
-                        <button className="action-button" onClick={downloadPDF}>
-                            Vertrag herunterladen
-                        </button>
-                    </div>
-                );
+                return <SchuelerVertrag user={user} />;
             case "Meine Termine":
                 return (
                     <div>

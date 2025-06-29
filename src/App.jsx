@@ -79,8 +79,6 @@ const App = () => {
               <Route path="/blog" element={<Blog/>}/>
               <Route path="/wer-sind-wir" element={<WhoWeAre/>}/>
               <Route path="/kontakt" element={<Kontakt/>}/>
-
-
               <Route path="/authenticate" element={<Authenticate/>}/>
               <Route path="/ci" element={<CorporateIdentity/>}/>
               <Route path="/rest" element={<Restricted/>}/>
