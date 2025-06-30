@@ -98,7 +98,7 @@ const RegisterTutor = () => {
         axios.post(`${apiUrl}/api/allusers`, tutorData)
             .then(() => {
                 alert("Tutor erfolgreich registriert!");
-                navigate("/login");
+                navigate("/authenticate");
             })
             .catch(error => {
                 console.error("Fehler bei der Registrierung:", error);

@@ -49,10 +49,7 @@ const MeineTutoren = ({ userId }) => {
         const responseUser = await ApiService.get(`/api/allusers/${userId}`)
         const showUser = responseUser.data;
 
-        if(showUser.anzahlStunde===0){
-            alert("Sie ahben keine Stunde nicht mehr. Bitte Laden sie ihr Konto");
-            return;
-        }
+
         try {
             // Tutor laden
             const tutorResponse = await ApiService.get(`/api/allusers/${tutorId}`);
@@ -207,10 +204,7 @@ const MeineTutoren = ({ userId }) => {
             const datumStr = datumObj.toISOString();
             const messageBody = `Student ${studentId} hat am ${datumStr} Nachhilfe im Fach ${gebuchtesFach ? gebuchtesFach.name : gewaehltesFach}.`;
             SendeNachricht(studentId,tutorId,messageBody,datumStr);
-            const responseUser = await ApiService.get(`/api/allusers/${userId}`)
-            const showUser = responseUser.data;
-            showUser.anzahlStunde= showUser.anzahlStunde-1;
-            await ApiService.put(`/api/allusers/${userId}`, showUser);
+
             alert(`Erfolgreich gebucht: ${startDate} bis ${endDate}`);
 
             setShowZeitenModal(false);
