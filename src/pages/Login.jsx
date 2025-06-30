@@ -56,6 +56,7 @@ function Login() {
 
             if (UserResponse.status === 200) {
                 const allUser = UserResponse.data;
+
                 const roleIds = allUser.userRoleIds || [];
                 setUserRoleIds(roleIds);
 
@@ -165,7 +166,7 @@ function Login() {
                             onClick={() => handleRoleSelection(roleId)}
                             style={{ marginBottom: "10px" }}
                         >
-                            Als {userRoleIdToName[roleId]} einloggen
+                            Als {userRoleIdToName[roleId]} einloggen geht nicht gs
                         </Button>
                     ))}
                 </ModalBody>

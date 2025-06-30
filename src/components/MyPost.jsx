@@ -1,141 +1,101 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import React, { useEffect, useState } from "react";
+import ApiService    from "../api/ApiService.js";
 
-const MyPost = () => {
-    const [contacts, setContacts] = useState([]);
-    const [selectedContact, setSelectedContact] = useState(null);
-    const [messages, setMessages] = useState([]);
-    const [newMessage, setNewMessage] = useState('');
-    const userId = localStorage.getItem('userId'); // angenommen: gespeichert nach Login
+const MyPost = ({ userId }) => {
+    const [post, setPost] = useState([]);
+    const [selectedId, setSelectedId] = useState(null);
 
     useEffect(() => {
-        if (userId) {
-            loadContacts();
-        }
+        const fetchPost = async () => {
+            try {
+                const gesendetMessage = await ApiService.get(`/api/public/post/sender/${userId}`);
+                const empfangMessage = await ApiService.get(`/api/public/post/empfaenger/${userId}`);
+
+                const schowSendet = gesendetMessage.data;
+                const schowRecieved = empfangMessage.data;
+                const posts = [...schowSendet, ...schowRecieved];
+
+                setPost(posts);
+            } catch (error) {
+                console.error("Fehler beim Laden der Nachrichten:", error);
+                setPost([]);
+            }
+        };
+
+        fetchPost();
     }, [userId]);
 
-    useEffect(() => {
-        if (selectedContact) {
-            loadMessages(selectedContact);
-        }
-    }, [selectedContact]);
-
-    const loadContacts = async () => {
-        try {
-            const sent = await axios.get(`/api/public/post/sender/${userId}`);
-            const received = await axios.get(`/api/public/post/empfaenger/${userId}`);
-            const uniqueContacts = {};
-
-            [...sent.data, ...received.data].forEach(post => {
-                const contact = post.senderId === userId ? post.empfaengerId : post.senderId;
-                if (contact && contact !== userId) {
-                    uniqueContacts[contact] = true;
-                }
-            });
-
-            setContacts(Object.keys(uniqueContacts));
-        } catch (error) {
-            console.error('Fehler beim Laden der Kontakte:', error);
-        }
-    };
-
-    const loadMessages = async (contactId) => {
-        try {
-            const sent = await axios.get(`/api/public/post/sender/${userId}`);
-            const received = await axios.get(`/api/public/post/empfaenger/${userId}`);
-
-            const filtered = [...sent.data, ...received.data].filter(
-                post =>
-                    (post.senderId === userId && post.empfaengerId === contactId) ||
-                    (post.empfaengerId === userId && post.senderId === contactId)
-            );
-
-            // Optional: Sortierung nach Erstellungszeitpunkt (wenn vorhanden)
-            filtered.sort((a, b) => new Date(a.timestamp || 0) - new Date(b.timestamp || 0));
-
-            setMessages(filtered);
-        } catch (error) {
-            console.error('Fehler beim Laden der Nachrichten:', error);
-        }
-    };
-
-    const handleSendMessage = async () => {
-        if (!newMessage.trim() || !selectedContact) return;
-
-        try {
-            const dto = {
-                senderId: userId,
-                empfaengerId: selectedContact,
-                text: newMessage
-            };
-            await axios.post('/api/public/post/save', dto);
-            setNewMessage('');
-            loadMessages(selectedContact);
-        } catch (error) {
-            console.error('Fehler beim Senden der Nachricht:', error);
-        }
-    };
-
     return (
-        <div className="flex h-screen bg-gray-100">
-            {/* Linke Seite - Kontakte */}
-            <div className="w-1/4 bg-white border-r overflow-y-auto">
-                <h2 className="text-xl font-bold p-4">Kontakte</h2>
-                <ul>
-                    {contacts.map(contactId => (
-                        <li
-                            key={contactId}
-                            onClick={() => setSelectedContact(contactId)}
-                            className={`p-3 cursor-pointer hover:bg-gray-200 ${
-                                selectedContact === contactId ? 'bg-gray-300 font-bold' : ''
-                            }`}
-                        >
-                            {contactId}
-                        </li>
-                    ))}
-                </ul>
+        <div style={{ padding: "20px", display: "flex", height: "300px" }}>
+            {/* Linke Box mit ID-Liste */}
+            <div
+                style={{
+                    flex: 1,
+                    borderRight: "2px solid black",
+                    paddingRight: "10px",
+                    overflowY: "auto",
+                }}
+            >
+                <h2>Meine Nachrichten</h2>
+                {post.length > 0 ? (
+                    <ul style={{ listStyle: "none", padding: 0 }}>
+                        {post.map((p) => (
+                            <li
+                                key={p.id}
+                                onClick={() => setSelectedId(p.id)}
+                                style={{
+                                    cursor: "pointer",
+                                    padding: "5px",
+                                    backgroundColor: p.id === selectedId ? "#ddd" : "transparent",
+                                }}
+                            >
+                                {p.sender !== userId ? p.sender : p.empfaenger}
+                            </li>
+                        ))}
+                    </ul>
+                ) : (
+                    <p>Keine Nachricht noch.</p>
+                )}
             </div>
 
-            {/* Rechte Seite - Nachrichten */}
-            <div className="w-3/4 flex flex-col">
-                <div className="flex-grow p-4 overflow-y-auto">
-                    <h2 className="text-xl font-semibold mb-4">
-                        Nachrichten: {selectedContact || '---'}
-                    </h2>
-                    <div className="space-y-2">
-                        {messages.map((msg, index) => (
-                            <div
-                                key={index}
-                                className={`p-3 rounded-lg max-w-xs ${
-                                    msg.senderId === userId
-                                        ? 'bg-blue-200 self-end ml-auto'
-                                        : 'bg-gray-200 self-start mr-auto'
-                                }`}
-                            >
-                                {msg.text}
-                            </div>
-                        ))}
-                    </div>
-                </div>
+            {/* Rechte Box mit Nachrichten-Details */}
+            <div
+                style={{
+                    flex: 3,
+                    paddingLeft: "10px",
+                    height: "300px",
+                    overflowY: "auto",
+                    display: "flex",
+                    flexDirection: "column",
+                }}
+            >
+                {post.find((p) => p.id === selectedId) ? (
+                    <>
+                        <p>
+                            <strong>Nachricht:</strong>
+                        </p>
+                        <ul>
+                            {post
+                                .find((p) => p.id === selectedId)
+                                .nachrichten.map((nachricht, index) => (
+                                    <li key={index}>{nachricht.text}</li>
+                                ))}
+                        </ul>
 
-                {/* Neue Nachricht */}
-                {selectedContact && (
-                    <div className="p-4 border-t bg-white flex items-center">
-                        <input
-                            type="text"
-                            className="flex-grow border rounded p-2 mr-2"
-                            placeholder="Neue Nachricht..."
-                            value={newMessage}
-                            onChange={(e) => setNewMessage(e.target.value)}
-                            onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
+                        <textarea
+                            placeholder="Neue Nachricht schreiben..."
+                            style={{
+                                resize: "horizontal",
+                                height: "150px",
+                                marginTop: "200px",
+                                width: "100%",
+                                overflowY: "auto",
+                                flexShrink: 0,
+                            }}
                         />
-                        <button
-                            onClick={handleSendMessage}
-                            className="bg-blue-500 text-white px-4 py-2 rounded"
-                        >
-                            Senden
-                        </button>
-                    </div>
+                    </>
+                ) : (
+                    <p>Bitte wähle eine ID aus der linken Liste.</p>
                 )}
             </div>
         </div>

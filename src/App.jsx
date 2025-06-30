@@ -12,9 +12,9 @@ import { ADMIN } from "./util/mapping.js";
 const Homepage = lazy(() => import("./pages/Homepage.jsx"));
 const Abikurs = lazy(() => import("./pages/Abikurs.jsx"));
 const Beratung = lazy(() => import("./pages/Beratung.jsx"));
-const RegisterStudent = lazy(() => import("./pages/RegisterStudent.jsx"));
+const RegisterStudent = lazy(() => import("./pages/Student/RegisterStudent.jsx"));
 const Konzept = lazy(() => import("./pages/Konzept.jsx"));
-const RegisterTutor = lazy(() => import("./pages/RegisterTutor.jsx"));
+const RegisterTutor = lazy(() => import("./pages/Tutor/RegisterTutor.jsx"));
 const Prices = lazy(() => import("./pages/Prices.jsx"));
 const Login = lazy(() => import("./pages/Login.jsx"));
 const AboutUs = lazy(() => import("./pages/AboutUs.jsx"));
@@ -80,8 +80,6 @@ const App = () => {
               <Route path="/blog" element={<Blog/>}/>
               <Route path="/wer-sind-wir" element={<WhoWeAre/>}/>
               <Route path="/kontakt" element={<Kontakt/>}/>
-
-
               <Route path="/authenticate" element={<Authenticate/>}/>
               <Route path="/ci" element={<CorporateIdentity/>}/>
               <Route path="/rest" element={<Restricted/>}/>

@@ -1,36 +1,32 @@
 import React, { useEffect, useState } from "react";
-import { jsPDF } from "jspdf";
 import "../../styles/UserPage.css";
 import { DateTime } from 'luxon';
 import ApiService from "../../api/ApiService.js";
 import { useAuth } from "../../context/UseAuth.jsx";
-import StudentCalender from "../../components/StudentCalender.jsx";
+import StudentCalender from "./StudentCalender.jsx";
+import MeineTutoren  from "./MeineTutoren.jsx";
 import SendeMessage from "../../components/SendeMessage.jsx";
+import MyPost from "../../components/MyPost.jsx";
+import SchuelerVertrag from "./SchulerVertrag.jsx";
 
 function SchuelerSeite() {
     const [activeContent, setActiveContent] = useState("Kalender");
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-    //const [selectedDate, setSelectedDate] = useState(new Date());
-   // const [markedDates, setMarkedDates] = useState([]);
     const [selectedSubject, setSelectedSubject] = useState("");
     const [availableSubjects, setAvailableSubjects] = useState([]);
-   // const [subjects, setSubjects] = useState([]);
     const [tutors, setTutors] = useState([]);
     const [selectedTutor, setSelectedTutor] = useState(null); // Zustand für den ausgewählten Tutor
-    const [showModal, setShowModal] = useState(false);
     const [selectedSalutation, setSelectedSalutation] = useState("");
     const [selectedTitle, setSelectedTitle] = useState("");
     const [selectedPostalCode, setSelectedPostalCode] = useState("");
     const [selectedCity, setSelectedCity] = useState("");
     const [selectedCountry, setSelectedCountry] = useState("");
     const [selectedAge, setSelectedAge] = useState("");
-   // const [selectedFachId, setSelectedFachId] = useState(null);
-    const [meineTutoren, setMeineTutoren] = useState([]);
     const [loggedInUser, setLoggedInUser] = useState(null);
     const [originalUser, setOriginalUser] = useState(null);
     const [selectedSubjectId, setSelectedSubjectId] = useState(null);
     const {user} = useAuth();
-     const [post, setPost] = useState(null);
+
 
 
 
@@ -60,18 +56,18 @@ function SchuelerSeite() {
 
         ApiService.get(`/api/allusers`)
             .then(response => {
-                // console.log(response.data);  // Überprüfe, ob die Tutor-Daten ankommen
-                setTutors(response.data);
+                const allUsers = response.data;
+
+                // 👉 Filter: nur Tutoren mit aktivem Account
+                const tutors = allUsers.filter(user =>
+                    user.accountActive === true &&
+                    user.userRoleIds &&
+                    user.userRoleIds.includes(2)
+                );
+
+                setTutors(tutors);
             })
             .catch(error => console.error("Fehler beim Laden der Tutoren:", error));
-        const fetchMeineTutoren = async () => {
-            const result = await MeineTutor();
-            setMeineTutoren(result);
-        };
-        const fetchMeinePost = async () => {
-            const result = await MeinePost();
-            setPost(result);
-        };
         const fetchLoggedInUser = async () => {
             const loggedInUser = await getLoggedInUser();
             if (loggedInUser) {
@@ -80,9 +76,6 @@ function SchuelerSeite() {
             }
         };
 
-
-        fetchMeineTutoren();
-        fetchMeinePost();
         fetchLoggedInUser();
     }, [user]);
 
@@ -125,51 +118,6 @@ function SchuelerSeite() {
         alert(tutorInfo);
     };
 
-    const MeineTutor = async () => {
-        const userId = user.id;
-        try {
-            const responseUser = await ApiService.get(`/api/allusers/${userId}`);
-            const showUser = responseUser.data;
-
-            if (!showUser.tutorsIds || showUser.tutorsIds.length === 0) {
-                alert("Du hast noch keine Lehrer.");
-                return [];
-            }
-
-            const tutorPromises = showUser.tutorsIds.map(tutorId =>
-                ApiService.get(`/api/allusers/${tutorId}`)
-            );
-
-            const tutorsResponses = await Promise.all(tutorPromises);
-            const tutors = tutorsResponses.map(response => response.data);
-
-            return tutors;
-
-        } catch (error) {
-            alert("Fehler beim Laden der Lehrer:", error);
-            return [];
-        }
-    };
-    const MeinePost = async () => {
-        const userId = user.id;
-        try {
-            const gesendetMessage = await ApiService.get(`/api/public/post/sender/${userId}`);
-            const empfangMessage = await ApiService.get(`/api/public/post/empfaenger/${userId}`);
-
-            const schowSendet= gesendetMessage.data;
-            const schowRecieved= empfangMessage.data;
-            const posts = [...schowSendet, ...schowRecieved];
-            const nachrichtentexte = posts.flatMap(post => post.nachrichten.map(nachricht => nachricht.text));
-
-            alert(`Gesendete Nachrichten:\n${nachrichtentexte.join("\n")}`);
-            return posts;
-
-        } catch (error) {
-            alert("Fehler beim Laden der Nachrichten:", error);
-            return [];
-        }
-    };
-
 
     const chooseTutor = async (tutor) => {
 
@@ -188,11 +136,8 @@ function SchuelerSeite() {
                 showUser.tutorsIds = [...(showUser.tutorsIds || []), tutorId];
 
                 schowTutor.schoolTutorsIds = [...(schowTutor.schoolTutorsIds || []), userId];
-                await ApiService.put(`/api/allusers/${userId}`, showUser);
-                await ApiService.put(`/api/allusers/${tutorId}`, schowTutor);
-                alert(`du bist mit dem  Tutor ${schowTutor.firstName} ${schowTutor.lastName}  in verbindung und kannst die erste Stunde buchen`);
                 const newPost = {
-                    sender: userId,
+                    sender: "4f0226e1-1fe8-495a-84e7-26c46769de2d",
                     empfaenger: tutorId,
                     nachrichten: [
                         {
@@ -201,13 +146,11 @@ function SchuelerSeite() {
                         }
                     ]
                 };
-                const postResponse = await ApiService.post("/api/public/post/save", newPost);
-                showUser.message = [...(showUser.message || []), postResponse.data.id];
-
-                schowTutor.message = [...(schowTutor.message || []), postResponse.data.id];
+                 await ApiService.post("/api/public/post/save", newPost);
 
                 await ApiService.put(`/api/allusers/${userId}`, showUser);
                 await ApiService.put(`/api/allusers/${tutorId}`, schowTutor);
+                alert(`du bist mit dem  Tutor ${schowTutor.firstName} ${schowTutor.lastName}  in verbindung und kannst die erste Stunde buchen`);
             }
 
         } catch (error) {
@@ -217,10 +160,6 @@ function SchuelerSeite() {
 
     };
 
-    const closeModal = () => {
-        setShowModal(false);
-        setSelectedTutor(null);
-    };
 
     const calculateAge = (birthdate) => {
         if (!birthdate) { // Prüfen, ob birthdate null oder leer ist
@@ -302,52 +241,17 @@ function SchuelerSeite() {
     };
 
 
-    const handleStundeBuchen = (tutor) => {
-        alert(
-            "Stunde buchen mit:\n" +
-            "Vorname: " + tutor.firstName + "\n" +
-            "Nachname: " + tutor.lastName + "\n" +
-            "E-Mail: " + tutor.emailAddress + "\n" +
-            "Land: " + tutor.country + "\n" +
-            "ID: " + tutor.id
-        );
-    };
-    const downloadPDF = () => {
-        const doc = new jsPDF();
-        doc.text("Vertrag: Nachhilfevereinbarung", 10, 10);
-        doc.text("Dieser Vertrag regelt die Zusammenarbeit zwischen Ihnen und Ihrem Nachhilfelehrer.", 10, 20);
-        doc.text("AGB:", 10, 30);
-        doc.text("- Pünktlichkeit und Einhaltung der Termine.", 10, 40);
-        doc.text("- 24 Stunden vorher absagen, um Gebühren zu vermeiden.", 10, 50);
-        doc.text("- Technische Voraussetzungen müssen erfüllt sein.", 10, 60);
-        doc.save("Nachhilfevertrag.pdf");
-    };
 
+
+if(user.accountActive){
     const renderContent = () => {
         switch (activeContent) {
             case "Postfach":
-                return (
-                    <div style={{ padding: "20px" }}>
-                        <h2>Meine Nachrichten</h2>
-                        {post.length > 0 ? (
-                            <ul>
-                                {post.map(post => (
-                                    <li key={post.id}>
-                                        <strong>ID:</strong> {post.id} <br/>
-                                        <strong>Sender:</strong> {post.sender} <br/>
-                                        <strong>Nachricht:</strong> {post.nachrichten.map(nachricht => nachricht.text).join(", ")}
-                                    </li>
-                                ))}
-                            </ul>
-                        ) : (
-                            <p>Keine Nachricht noch.</p>
-                        )}
-                    </div>
-                );
+                return <MyPost userId={user.id} />;
             case "Studienübersicht":
                 return (
                     <div>
-                    <h3>Meine Studienübersicht</h3>
+                        <h3>Meine Studienübersicht</h3>
                         <p>Hier sehen Sie Ihren Lernfortschritt in allen Fächern.</p>
                     </div>
                 );
@@ -359,22 +263,7 @@ function SchuelerSeite() {
                     </div>
                 );
             case "Vertrag":
-                return (
-                    <div>
-                        <h3>Mein Vertrag</h3>
-                        <p>
-                            Dieser Vertrag regelt die Zusammenarbeit zwischen Ihnen und Ihrem Nachhilfelehrer.
-                        </p>
-                        <ul>
-                            <li>Pünktlichkeit und Einhaltung der Termine</li>
-                            <li>Absage von Terminen mindestens 24 Stunden im Voraus</li>
-                            <li>Technische Voraussetzungen müssen erfüllt sein</li>
-                        </ul>
-                        <button className="action-button" onClick={downloadPDF}>
-                            Vertrag herunterladen
-                        </button>
-                    </div>
-                );
+                return <SchuelerVertrag user={user} />;
             case "Meine Termine":
                 return (
                     <div>
@@ -402,18 +291,7 @@ function SchuelerSeite() {
 
                 return (
                     <div style={{ padding: "20px" }}>
-                        <h2>Meine Lehrer</h2>
-                        {meineTutoren.length > 0 ? (
-                            <ul>
-                                {meineTutoren.map(meineTutoren => (
-                                    <li key={meineTutoren.id}>
-                                        {meineTutoren.firstName} {meineTutoren.lastName}
-                                    </li>
-                                ))}
-                            </ul>
-                        ) : (
-                            <p>Keine Lehrer gefunden.</p>
-                        )}
+                        <MeineTutoren userId={user.id} />
                     </div>
                 );
             case "Meine Stunden":
@@ -894,6 +772,11 @@ function SchuelerSeite() {
             </div>
         </>
     );
+}
+else{
+    return <SchuelerVertrag user={user} />;
+}
+
 }
 
 export default SchuelerSeite;

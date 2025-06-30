@@ -1,13 +1,14 @@
 import React from "react";
 import axios from "axios";
+import ApiService  from "../api/ApiService.js";
 
 const SendeMessage = ({ senderId, destinationId, messageBody }) => {
     const sendMessage = async () => {
         try {
             // 1. Lade Sender und Empfänger
             const [senderRes, empfaengerRes] = await Promise.all([
-                axios.get(`/api/allusers/${senderId}`),
-                axios.get(`/api/allusers/${destinationId}`),
+                ApiService.get(`/api/allusers/${senderId}`),
+                ApiService.get(`/api/allusers/${destinationId}`),
             ]);
 
             const sender = senderRes.data;
