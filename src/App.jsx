@@ -6,6 +6,7 @@ import ChatSupport from "./components/ChatSupport.jsx";
 import Restricted from "./pages/Restricted.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import { AuthProvider } from "./context/AuthProvider.jsx";
+import { ADMIN } from "./util/mapping.js";
 
 // Seitenkomponenten importieren
 const Homepage = lazy(() => import("./pages/Homepage.jsx"));
@@ -67,7 +68,7 @@ const App = () => {
               <Route path="/enterprise" element={<Enterprise/>}/>
               <Route path="/manage" element={<Manage/>}/>
               <Route path="/support" element={<Support/>}/>
-              <Route path="/admin" element={<ProtectedRoute roles={[5]} element={<Admin/>}/>}/>
+              <Route path="/admin" element={<ProtectedRoute roles={[ADMIN]} element={<Admin/>}/>}/>
 
               <Route path="/finance" element={<ProtectedRoute roles={[4]} element={<Finance/>}/>}/>
               <Route path="/passwort-vergessen" element={<PasswordReset/>}/>
