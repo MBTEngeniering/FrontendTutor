@@ -290,7 +290,7 @@ function RegisterStudent() {
 
 
                     <div className="form-group">
-                        <label className="form-label">land *</label>
+                        <label className="form-label">Land *</label>
                         <input
                             type="text"
                             className="form-input"

@@ -199,7 +199,7 @@ const TutorVertrag = ({ user }) => {
 
     return (
         <div>
-            <h3>Schülervertrag für die Nutzung der Online-Lernplattform</h3>
+            <h3>Tutorvertrag für die Nutzung der Online-Lernplattform</h3>
             <p>zwischen</p>
             <p>
                 <strong>Name der Schule / Plattform:</strong> ___Fair study__________________

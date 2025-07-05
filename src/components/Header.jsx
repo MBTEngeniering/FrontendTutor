@@ -77,7 +77,6 @@ export default function Header() {
                 <DropdownItem><Linker link="/preise">Preise</Linker></DropdownItem>
               {/*  <DropdownItem><Linker link="/elternschueler">Eltern/Schüler-Portal</Linker></DropdownItem>*/}
                 <DropdownItem divider/>
-                <DropdownItem><Linker link="/lehrer">Lehrer werden</Linker></DropdownItem>
                 <DropdownItem><Linker link="/konzept">Konzept</Linker></DropdownItem>
                 <DropdownItem><Linker link="/vortraege">Vorträge</Linker></DropdownItem>
                 <DropdownItem><Linker link="/beratung">Kostenlose Beratung</Linker></DropdownItem>

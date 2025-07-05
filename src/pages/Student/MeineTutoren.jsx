@@ -162,7 +162,33 @@ const MeineTutoren = ({ userId }) => {
         });
     };
 
+    const berechneMinusUndPlus30 = (uhrzeit) => {
+        // Uhrzeit-String aufsplitten
+        const [hour, minute] = uhrzeit.split(":").map(Number);
 
+        // Heute als Basis nehmen (Datum egal, nur Zeit relevant)
+        const now = new Date();
+        now.setHours(hour);
+        now.setMinutes(minute);
+        now.setSeconds(0);
+        now.setMilliseconds(0);
+
+        // Kopien machen
+        const minus30Date = new Date(now.getTime() - 30 * 60000);
+        const plus30Date = new Date(now.getTime() + 30 * 60000);
+
+        // Wieder in HH:mm formatieren
+        const toHHMM = (date) => {
+            const hh = date.getHours().toString().padStart(2, "0");
+            const mm = date.getMinutes().toString().padStart(2, "0");
+            return `${hh}:${mm}`;
+        };
+
+        return {
+            minus30: toHHMM(minus30Date),
+            plus30: toHHMM(plus30Date),
+        };
+    };
     const handleBuchenBestaetigen = async (zeit, studentId, tutorId) => {
         try {
             if (!gewaehltesFach) {
@@ -205,8 +231,21 @@ const MeineTutoren = ({ userId }) => {
             const messageBody = `Student ${studentId} hat am ${datumStr} Nachhilfe im Fach ${gebuchtesFach ? gebuchtesFach.name : gewaehltesFach}.`;
             SendeNachricht(studentId,tutorId,messageBody,datumStr);
 
+            // Verfügbarkeit per Uhrzeit UND userId löschen (hier als studentId)
+            const { minus30, plus30 } = berechneMinusUndPlus30(zeit.uhrzeit);
+            const deleteMinus30 = await ApiService.delete(`/api/public/availability/uhrzeit/${minus30}/user/${tutorId}`);
+            const deletePlus30 = await ApiService.delete(`/api/public/availability/uhrzeit/${plus30}/user/${tutorId}`);
+            const deleteCurrent = await ApiService.delete(`/api/public/availability/uhrzeit/${zeit.uhrzeit}/user/${tutorId}`);
+            if (deleteCurrent.status !== 204) {
+                console.warn(`Verfügbarkeit ${zeit.uhrzeit} konnte nicht gelöscht werden`);
+            }
+            if (deleteMinus30.status !== 204) {
+                console.warn(`Verfügbarkeit ${minus30} konnte nicht gelöscht werden`);
+            }
+            if (deletePlus30.status !== 204) {
+                console.warn(`Verfügbarkeit ${plus30} konnte nicht gelöscht werden`);
+            }
             alert(`Erfolgreich gebucht: ${startDate} bis ${endDate}`);
-
             setShowZeitenModal(false);
         } catch (error) {
             console.error(error);
