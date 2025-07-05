@@ -9,6 +9,8 @@ import SendeMessage from "../../components/SendeMessage.jsx";
 import MyPost from "../../components/MyPost.jsx";
 import SchuelerVertrag from "./SchulerVertrag.jsx";
 import MeineTermine from "../../components/MeineTermine.jsx";
+import MeineStunden from "../../components/MeineStunde.jsx";
+import MeineZahlungen from "../../components/MeineZahlungen.jsx";
 
 function SchuelerSeite() {
     const [activeContent, setActiveContent] = useState("Kalender");
@@ -277,16 +279,7 @@ if(user.accountActive){
                     </div>
                 );
             case "Meine Stunden":
-                return (
-                    <div>
-                        <h3>Verbleibende Stunden</h3>
-                        {stunden.map((stunde) => (
-                            <div key={stunde.id} className="appointment-card">
-                                <p><strong>{stunde.fach}:</strong> {stunde.verbleibend} Stunden verbleibend</p>
-                            </div>
-                        ))}
-                    </div>
-                );
+                return <MeineStunden user={user} />;
             case "Support":
                 return (
                     <div>
@@ -297,12 +290,8 @@ if(user.accountActive){
                     </div>
                 );
             case "Meine Zahlung":
-                return (
-                    <div>
-                        <h3>Meine Zahlungen</h3>
-                        <p>Hier können Sie Ihre Zahlungshistorie einsehen.</p>
-                    </div>
-                );
+                return <MeineZahlungen user={user} />;
+
             case "Mein Profil":
                 return (
                     <div>

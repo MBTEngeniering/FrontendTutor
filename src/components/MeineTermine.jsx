@@ -35,6 +35,27 @@ const MeineTermine = ({ student, lang = "de" }) => {
         fetchTermineUndFaecher();
     }, [student, lang]);
 
+    const einheitStarten = async (tutorId) => {
+        try {
+            // Tutor-Daten laden
+            const response = await ApiService.get(`/api/allusers/${tutorId}`);
+            const tutor = response.data;
+
+            // Zoom-Link aus Tutor-Daten holen
+            const zoomLink = tutor.zoomLink; // Beispiel: nehme an das Feld heißt so
+
+            if (zoomLink) {
+                window.open(zoomLink, "_blank"); // Link in neuem Tab öffnen
+                console.log("Zoom-Link gestartet:", zoomLink);
+            } else {
+                alert("Kein Zoom-Link für diesen Tutor gefunden.");
+            }
+        } catch (error) {
+            console.error("Fehler beim Laden des Tutors oder Starten der Einheit:", error);
+            alert("Fehler beim Starten der Einheit.");
+        }
+    };
+
     if (loading) return <div>Lade Termine...</div>;
     if (termine.length === 0) return <div>Keine Termine gefunden.</div>;
 
@@ -76,7 +97,7 @@ const MeineTermine = ({ student, lang = "de" }) => {
                         <div className="flex flex-col gap-2">
                             <button
                                 style={{
-                                    backgroundColor: "#28a745",
+                                    backgroundColor: "blue",
                                     color: "white",
                                     padding: "8px 16px",
                                     borderRadius: "6px",
@@ -84,7 +105,7 @@ const MeineTermine = ({ student, lang = "de" }) => {
                                     cursor: "pointer",
                                     marginBottom: "8px",
                                 }}
-                                onClick={() => console.log("Starte Einheit", termin.id)}
+                                onClick={() => einheitStarten(termin.tutorId)}
                             >
                                 Einheit starten
                             </button>
