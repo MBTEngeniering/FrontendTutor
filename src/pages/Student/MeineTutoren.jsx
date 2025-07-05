@@ -210,7 +210,13 @@ const MeineTutoren = ({ userId }) => {
                 alert("Kein Fach ausgewählt!");
                 return;
             }
-
+            const stundenResponse = await ApiService.get(`/api/public/meineStunde/user/${userId}`);
+            const meineStunden = stundenResponse.data;
+            let meineStunde = meineStunden[0].anzahlStunde;
+            if (meineStunde <= 0) {
+                alert("Keine Stunden mehr verfügbar!");
+                return;
+            }
             const startDate = `${zeit.jahr}-${zeit.monat.toString().padStart(2, '0')}-${zeit.tag.toString().padStart(2, '0')}T${zeit.uhrzeit}:00`;
 
             const [hour, minute] = zeit.uhrzeit.split(":");
@@ -260,6 +266,17 @@ const MeineTutoren = ({ userId }) => {
             if (deletePlus30.status !== 204) {
                 console.warn(`Verfügbarkeit ${plus30} konnte nicht gelöscht werden`);
             }
+            meineStunde = meineStunde - 1;
+            const vorhandeneStunde = meineStunden[0];
+
+            const updatedStunde = {
+                ...vorhandeneStunde,
+                anzahlStunde: meineStunde,
+                datumBuchen: vorhandeneStunde.datumBuchen,
+                datumAblauf: vorhandeneStunde.datumAblauf,
+                gueltigkeit: true,
+            };
+            await ApiService.put(`/api/public/meineStunde/${vorhandeneStunde.id}`, updatedStunde);
             alert(`Erfolgreich gebucht: ${startDate} bis ${endDate}`);
             setShowZeitenModal(false);
         } catch (error) {
