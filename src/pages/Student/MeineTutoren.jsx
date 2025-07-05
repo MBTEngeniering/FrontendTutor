@@ -46,14 +46,26 @@ const MeineTutoren = ({ userId }) => {
     }, [userId]);
 
     const handleStundenBuchen = async (tutorId) => {
-        const responseUser = await ApiService.get(`/api/allusers/${userId}`)
-        const showUser = responseUser.data;
-
-
         try {
-            // Tutor laden
+            // 1️⃣ Eigene Stunden abfragen
+            const stundenResponse = await ApiService.get(`/api/public/meineStunde/user/${userId}`);
+            const meineStunden = stundenResponse.data;
+
+            if (!meineStunden|| meineStunden.length === 0) {
+                alert("Du hast keine Stunde noch . wir haben das passende Angebot für dich  Unter meine Stunde kannst du deinen ersten Packet  kaufen ");
+                return;
+            }
+            const meineStunde = meineStunden[0];
+
+            if (meineStunde.anzahlStunde === 0) {
+                alert("Keine Stunde verfügbar. Bitte kaufe neue Stunde.");
+                return;
+            }
+
+            // 2️⃣ Wenn Stunden verfügbar → Rest normal laden
             const tutorResponse = await ApiService.get(`/api/allusers/${tutorId}`);
             const tutor = tutorResponse.data;
+
             if (!tutor.fachIds || tutor.fachIds.length === 0) {
                 alert("Der Tutor hat keine Fächer.");
                 return;
@@ -72,9 +84,8 @@ const MeineTutoren = ({ userId }) => {
                 return { id: fachId, name: fach ? fach.fach : `Fach ${fachId}` };
             });
 
-
-
             const faecher = await Promise.all(fachPromises);
+
             setFaecher(faecher);
             setAktiverTutor(tutorId);
             setGewaehltFach(null);
@@ -82,9 +93,13 @@ const MeineTutoren = ({ userId }) => {
             setFilter({ jahr: "", monat: "", tag: "", uhrzeit: "" });
             setShowZeitenModal(true);
         } catch (error) {
-            console.error("Fehler beim Laden der Tutor/Fachdaten:", error);
+            console.error("Fehler beim Laden der Daten:", error);
+            if (error.response && error.response.status === 404) {
+                alert("Du hast keine Stunde. Bitte kaufe eine Stunde.");
+            }
         }
     };
+
 
     const ladeVerfuegbareZeiten = async () => {
         if (!gewaehltesFach || !aktiverTutor) {
