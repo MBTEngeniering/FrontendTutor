@@ -8,6 +8,7 @@ import MeineTutoren  from "./MeineTutoren.jsx";
 import SendeMessage from "../../components/SendeMessage.jsx";
 import MyPost from "../../components/MyPost.jsx";
 import SchuelerVertrag from "./SchulerVertrag.jsx";
+import MeineTermine from "../../components/MeineTermine.jsx";
 
 function SchuelerSeite() {
     const [activeContent, setActiveContent] = useState("Kalender");
@@ -266,26 +267,7 @@ if(user.accountActive){
                 return <SchuelerVertrag user={user} />;
             case "Meine Termine":
                 return (
-                    <div>
-                        <h3>Meine gebuchten Termine</h3>
-                        {termine.map((termin) => (
-                            <div key={termin.id} className="appointment-card">
-                                <p><strong>Datum:</strong> {termin.datum.toLocaleDateString('de-DE')}</p>
-                                <p><strong>Uhrzeit:</strong> {termin.datum.toLocaleTimeString([], {
-                                    hour: '2-digit',
-                                    minute: '2-digit'
-                                })}</p>
-                                <p><strong>Fach:</strong> {termin.fach}</p>
-                                <p><strong>Lehrer:</strong> {termin.tutor}</p>
-                                <button
-                                    className="action-button"
-                                    onClick={() => window.open("https://rwth.zoom-x.de/j/2697981011", "_blank")}
-                                >
-                                    Unterricht starten
-                                </button>
-                            </div>
-                        ))}
-                    </div>
+                    <MeineTermine student={user} />
                 );
             case "Meine Lehrer":
 
