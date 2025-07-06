@@ -231,7 +231,6 @@ const MeineTutoren = ({ userId }) => {
                 studentIsPresent: false,
                 tutorIsPresent: false,
                 fachId: gewaehltesFach,
-                hourlyRate: 13.5,
             };
 
             const response = await ApiService.post(`/api/public/appointments`, appointmentDTO);

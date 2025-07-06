@@ -4,29 +4,42 @@ import ApiService from "../api/ApiService.js";
 const MeineTermine = ({ student, lang = "de" }) => {
     const [termine, setTermine] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [fächer, setFächer] = useState({}); // { fachId: fachName }
+    const [fächer, setFächer] = useState({});
+    const [jetzt, setJetzt] = useState(new Date());
+
+    // Update der aktuellen Zeit jede Sekunde
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setJetzt(new Date());
+        }, 1000);
+        return () => clearInterval(interval);
+    }, []);
 
     useEffect(() => {
         const fetchTermineUndFaecher = async () => {
             try {
-                // Termine laden
-                const termineResponse = await ApiService.get(`/api/public/appointments/student/${student.id}`);
+                const termineResponse = await ApiService.get(
+                    `/api/public/appointments/student/${student.id}`
+                );
                 const termineData = termineResponse.data;
                 setTermine(termineData);
 
-                // Alle Fächer auf einmal laden
-                const faecherResponse = await ApiService.get(`/api/fach/trans/${lang}`);
+                const faecherResponse = await ApiService.get(
+                    `/api/fach/trans/${lang}`
+                );
                 const alleFaecher = faecherResponse.data;
 
-                // Map von fachId zu fachName erstellen
                 const fachMap = {};
-                alleFaecher.forEach(fach => {
-                    fachMap[fach.id] = fach.fach || fach.bezeichnung || "Unbekannt";
+                alleFaecher.forEach((fach) => {
+                    fachMap[fach.id] =
+                        fach.fach || fach.bezeichnung || "Unbekannt";
                 });
                 setFächer(fachMap);
-
             } catch (error) {
-                console.error("Fehler beim Laden der Termine oder Fächer:", error);
+                console.error(
+                    "Fehler beim Laden der Termine oder Fächer:",
+                    error
+                );
             } finally {
                 setLoading(false);
             }
@@ -35,36 +48,52 @@ const MeineTermine = ({ student, lang = "de" }) => {
         fetchTermineUndFaecher();
     }, [student, lang]);
 
-    const einheitStarten = async (tutorId) => {
+    const einheitStarten = async (tutorId,studentIspresent, terminId) => {
         try {
-            // Tutor-Daten laden
             const response = await ApiService.get(`/api/allusers/${tutorId}`);
             const tutor = response.data;
-
-            // Zoom-Link aus Tutor-Daten holen
-            const zoomLink = tutor.zoomLink; // Beispiel: nehme an das Feld heißt so
+            const zoomLink = tutor.zoomLink;
 
             if (zoomLink) {
-                window.open(zoomLink, "_blank"); // Link in neuem Tab öffnen
+                window.open(zoomLink, "_blank");
                 console.log("Zoom-Link gestartet:", zoomLink);
+                await ApiService.patch(`/api/public/appointments/${terminId}/student-present?isPresent=true`);
+
             } else {
                 alert("Kein Zoom-Link für diesen Tutor gefunden.");
             }
         } catch (error) {
-            console.error("Fehler beim Laden des Tutors oder Starten der Einheit:", error);
+            console.error(
+                "Fehler beim Laden des Tutors oder Starten der Einheit:",
+                error
+            );
             alert("Fehler beim Starten der Einheit.");
         }
     };
 
     if (loading) return <div>Lade Termine...</div>;
-    if (termine.length === 0) return <div>Keine Termine gefunden.</div>;
+
+    // Filter nur Termine, deren endDate in der Zukunft liegt
+    const nochNichtVorbei = termine.filter(
+        (t) => new Date(t.endDate) > jetzt
+    );
+
+    if (nochNichtVorbei.length === 0)
+        return <div>Keine Termine gefunden.</div>;
 
     return (
         <div>
             <h3 className="text-xl font-bold mb-4">Meine gebuchten Termine</h3>
-            {termine.map((termin) => {
+            {nochNichtVorbei.map((termin) => {
                 const startDate = new Date(termin.startDate);
-                const uhrzeit = startDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+                const endDate = new Date(termin.endDate);
+                const istAktiv = jetzt >= startDate && jetzt <= endDate;
+
+
+                const uhrzeit = startDate.toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                });
                 const datum = startDate.toLocaleDateString("de-DE", {
                     weekday: "long",
                     day: "numeric",
@@ -97,15 +126,17 @@ const MeineTermine = ({ student, lang = "de" }) => {
                         <div className="flex flex-col gap-2">
                             <button
                                 style={{
-                                    backgroundColor: "blue",
+                                    backgroundColor: istAktiv ? "blue" : "blue",
                                     color: "white",
                                     padding: "8px 16px",
                                     borderRadius: "6px",
                                     border: "none",
-                                    cursor: "pointer",
+                                    cursor: istAktiv ? "pointer" : "not-allowed",
                                     marginBottom: "8px",
+                                    opacity: istAktiv ? 1 : 0.5,
                                 }}
-                                onClick={() => einheitStarten(termin.tutorId)}
+                                onClick={() => einheitStarten(termin.tutorId,termin.studentIsPresent,termin.id)}
+                                disabled={!istAktiv}
                             >
                                 Einheit starten
                             </button>
@@ -118,7 +149,9 @@ const MeineTermine = ({ student, lang = "de" }) => {
                                     border: "2px solid #28a745",
                                     cursor: "pointer",
                                 }}
-                                onClick={() => console.log("Offener Arbeitsbereich", termin.id)}
+                                onClick={() =>
+                                    console.log("Offener Arbeitsbereich", termin.id)
+                                }
                             >
                                 Offener Arbeitsbereich
                             </button>
