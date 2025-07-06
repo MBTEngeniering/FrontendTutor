@@ -6,8 +6,8 @@ const MeineTermine = ({ student, lang = "de" }) => {
     const [loading, setLoading] = useState(true);
     const [fächer, setFächer] = useState({});
     const [jetzt, setJetzt] = useState(new Date());
+    const [tutoren, setTutoren] = useState({}); // 🟢 Hier speichern wir die Tutor-Namen
 
-    // Update der aktuellen Zeit jede Sekunde
     useEffect(() => {
         const interval = setInterval(() => {
             setJetzt(new Date());
@@ -48,7 +48,30 @@ const MeineTermine = ({ student, lang = "de" }) => {
         fetchTermineUndFaecher();
     }, [student, lang]);
 
-    const einheitStarten = async (tutorId,studentIspresent, terminId) => {
+    // 🟢 Für alle Termine die Tutor-Namen laden
+    useEffect(() => {
+        const ladeTutoren = async () => {
+            const neueTutoren = {};
+            for (const termin of termine) {
+                const tutorId = termin.tutorId;
+                if (tutorId && !tutoren[tutorId]) {
+                    try {
+                        const res = await ApiService.get(`/api/allusers/${tutorId}`);
+                        const tutor = res.data;
+                        neueTutoren[tutorId] = `${tutor.firstName} ${tutor.lastName}`;
+                    } catch (error) {
+                        console.error("Fehler beim Laden des Tutors:", error);
+                    }
+                }
+            }
+            if (Object.keys(neueTutoren).length > 0) {
+                setTutoren((prev) => ({ ...prev, ...neueTutoren }));
+            }
+        };
+        if (termine.length > 0) ladeTutoren();
+    }, [termine, tutoren]);
+
+    const einheitStarten = async (tutorId, studentIspresent, terminId) => {
         try {
             const response = await ApiService.get(`/api/allusers/${tutorId}`);
             const tutor = response.data;
@@ -57,8 +80,9 @@ const MeineTermine = ({ student, lang = "de" }) => {
             if (zoomLink) {
                 window.open(zoomLink, "_blank");
                 console.log("Zoom-Link gestartet:", zoomLink);
-                await ApiService.patch(`/api/public/appointments/${terminId}/student-present?isPresent=true`);
-
+                await ApiService.patch(
+                    `/api/public/appointments/${terminId}/student-present?isPresent=true`
+                );
             } else {
                 alert("Kein Zoom-Link für diesen Tutor gefunden.");
             }
@@ -73,7 +97,6 @@ const MeineTermine = ({ student, lang = "de" }) => {
 
     if (loading) return <div>Lade Termine...</div>;
 
-    // Filter nur Termine, deren endDate in der Zukunft liegt
     const nochNichtVorbei = termine.filter(
         (t) => new Date(t.endDate) > jetzt
     );
@@ -89,7 +112,6 @@ const MeineTermine = ({ student, lang = "de" }) => {
                 const endDate = new Date(termin.endDate);
                 const istAktiv = jetzt >= startDate && jetzt <= endDate;
 
-
                 const uhrzeit = startDate.toLocaleTimeString([], {
                     hour: "2-digit",
                     minute: "2-digit",
@@ -100,6 +122,8 @@ const MeineTermine = ({ student, lang = "de" }) => {
                     month: "long",
                     year: "numeric",
                 });
+
+                const tutorName = tutoren[termin.tutorId] || "Lade Tutor...";
 
                 return (
                     <div
@@ -118,9 +142,7 @@ const MeineTermine = ({ student, lang = "de" }) => {
                 </span>
                                 <div className="mt-2 font-bold">{uhrzeit}</div>
                                 <div className="font-semibold">{datum}</div>
-                                <div className="mt-1">
-                                    {student.firstName} {student.lastName}
-                                </div>
+                                <div className="mt-1">{tutorName}</div>
                             </div>
                         </div>
                         <div className="flex flex-col gap-2">
@@ -135,7 +157,13 @@ const MeineTermine = ({ student, lang = "de" }) => {
                                     marginBottom: "8px",
                                     opacity: istAktiv ? 1 : 0.5,
                                 }}
-                                onClick={() => einheitStarten(termin.tutorId,termin.studentIsPresent,termin.id)}
+                                onClick={() =>
+                                    einheitStarten(
+                                        termin.tutorId,
+                                        termin.studentIsPresent,
+                                        termin.id
+                                    )
+                                }
                                 disabled={!istAktiv}
                             >
                                 Einheit starten

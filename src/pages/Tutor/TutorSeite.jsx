@@ -8,6 +8,8 @@ import "react-big-calendar/lib/css/react-big-calendar.css";
 import MyPost from "../../components/MyPost.jsx";
 import SchuelerVertrag from "../Student/SchulerVertrag.jsx";
 import TutorVertrag from "./TutorVertrag.jsx";
+import MeinTerminTutor from "../../components/MeinTerminTutor.jsx";
+
 
 function TutorSeite() {
     const apiUrl = import.meta.env.VITE_API_URL;
@@ -203,9 +205,7 @@ function TutorSeite() {
                     return <TutorVertrag user={user} />;
                 case "Meine Termine":
                     return (
-                        <div>
-                            <h3>Liste der Termine</h3>
-                        </div>
+                        <MeinTerminTutor tutor={user} />
                     );
                 case "Meine Schüler":
                     return (
