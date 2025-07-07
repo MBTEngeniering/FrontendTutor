@@ -151,14 +151,8 @@ const TutorCalendar = () => {
 
     const handleWandleSlot = async () => {
         try {
-            const response = await fetch(
-                `http://localhost:8080/api/public/availability/user/${user.id}`
-            );
-            if (!response.ok) {
-                throw new Error("Fehler beim Laden der Verfügbarkeiten");
-            }
-
-            const daten = await response.json();
+            const response =await ApiService.get(`/api/public/availability/user/${user.id}`);
+            const daten = response.data;
 
             const neueSlots = daten.map((eintrag) =>
                 wandleDatumZuSlot(eintrag.tag, eintrag.monat, eintrag.jahr, eintrag.uhrzeit)
@@ -244,9 +238,7 @@ const TutorCalendar = () => {
 
             if (matchingIds.length !== 0) {
                 for (const id of matchingIds) {
-                    await fetch(`http://localhost:8080/api/public/availability/${id}`, {
-                        method: "DELETE",
-                    });
+                    await ApiService.delete(`/api/public/availability/${id}`);
                 }
 
                 alert("Alle passenden -Einträge wurden gelöscht.");
@@ -263,15 +255,9 @@ const TutorCalendar = () => {
 
     const fetchAvailabilityAndShowIds = async () => {
         try {
-            const response = await fetch(
-                `http://localhost:8080/api/public/availability/user/${user.id}`
-            );
-            if (!response.ok) {
-                throw new Error("Fehler beim Laden der Availability-Daten");
-            }
+            const response = await ApiService.get(`/api/public/availability/user/${user.id}`);
+            setAllAvailabilitySlots(response.data);
 
-            const data = await response.json();
-            setAllAvailabilitySlots(data);
         } catch (error) {
             console.error("Fehler beim Abrufen der Availability:", error);
         }
