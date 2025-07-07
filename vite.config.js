@@ -55,8 +55,26 @@ export default defineConfig(({mode}) => {
           rollupOptions: {
             output: {
               manualChunks(id) {
+                if (id.includes('node_modules/luxon')) {
+                  return 'vendor-luxon';
+                }
+                if (id.includes('node_modules/canvg')) {
+                  return 'vendor-canvg';
+                }
+                if (id.includes('node_modules/axios')) {
+                  return 'vendor-axios';
+                }
+                if (id.includes('node_modules/sweetalert')) {
+                  return 'vendor-sweetalert2';
+                }
                 if (id.includes('node_modules/html2canvas')) {
                   return 'vendor-html2canvas';
+                }
+                if (id.includes('node_modules/react-big')) {
+                  return 'vendor-react-big';
+                }
+                if (id.includes('node_modules/reactstrap')) {
+                  return 'vendor-reactstrap';
                 }
                 if (id.includes('node_modules/react')) {
                   return 'vendor-react';

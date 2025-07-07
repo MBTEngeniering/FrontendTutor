@@ -1,0 +1,21 @@
+npx vite-bundle-visualizer 
+
+npm install --save-dev rollup-plugin-visualizer
+
+List largest chunks:
+
+bash
+npx vite-bundle-visualizer --mode sizes
+
+
+
+Show duplicate modules:
+
+bash
+npx vite-bundle-visualizer --mode duplicates
+
+
+Export as JSON:
+
+bash
+npx vite-bundle-visualizer --json > stats.json
