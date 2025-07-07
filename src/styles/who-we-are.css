@@ -1,0 +1,66 @@
+.who-we-are-container {
+    min-height: 70vh;
+    display: flex;
+    flex-direction: column;
+    background-color: #f8f9fa;
+}
+
+.who-we-are-content {
+    padding: 40px 20px;
+    flex: 1;
+}
+
+.who-we-are-title {
+    text-align: center;
+    color: #2c3e50;
+    margin-bottom: 40px;
+    font-size: 2.5rem;
+}
+
+.section-title {
+    color: #086972;
+    margin: 20px 0 15px;
+    font-size: 2.1rem;
+}
+
+.section-text {
+    color: #34495e;
+    line-height: 1.6;
+    font-size: 1.2rem;
+    max-width: 800px;
+    margin: 13px auto;
+}
+
+.team-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    margin: 50px 0;
+}
+
+.team-member {
+    background: white;
+    border-radius: 8px;
+    padding: 25px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+.member-image.placeholder {
+    width: 150px;
+    height: 150px;
+    margin: 0 auto 20px;
+    border-radius: 50%;
+    background-color: #e0e0e0;
+}
+
+@media (max-width: 768px) {
+    .about-us-content {
+        padding: 20px 15px;
+    }
+    
+    .team-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
