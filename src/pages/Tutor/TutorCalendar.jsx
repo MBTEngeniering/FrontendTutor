@@ -238,8 +238,11 @@ const TutorCalendar = () => {
 
             if (matchingIds.length !== 0) {
                 for (const id of matchingIds) {
-                    await ApiService.delete(`/api/public/availability/${id}`);
+                    await fetch(`http://localhost:8080/api/public/availability/${id}`, {
+                        method: "DELETE",
+                    });
                 }
+
 
                 alert("Alle passenden -Einträge wurden gelöscht.");
 
