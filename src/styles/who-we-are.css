@@ -31,6 +31,38 @@
     margin: 13px auto;
 }
 
+.section-text-small {
+    color: #34495e;
+    line-height: 1.6;
+    font-size: 0.9rem;
+    max-width: 800px;
+    margin: 50px auto;
+}
+.section-text-small2 {
+    color: #34495e;
+    line-height: 1.6;
+    font-size: 0.9rem;
+    max-width: 800px;
+    margin: 13px auto;
+}
+.section-text-large {
+    color: #086972;
+    line-height: 1.6;
+    font-size: 2.2rem;
+    max-width: 800px;
+    margin: 13px auto;
+    font-style: italic;
+}
+
+
+.fair {
+    color: #086972;
+    font-style: italic;
+    font-weight: bold;
+}
+
+
+
 .team-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -63,4 +95,3 @@
         grid-template-columns: 1fr;
     }
 }
-
