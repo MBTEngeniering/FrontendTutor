@@ -238,9 +238,7 @@ const TutorCalendar = () => {
 
             if (matchingIds.length !== 0) {
                 for (const id of matchingIds) {
-                    await fetch(`http://localhost:8080/api/public/availability/${id}`, {
-                        method: "DELETE",
-                    });
+                    await ApiService.delete(`/api/public/availability/${id}`);
                 }
 
 
