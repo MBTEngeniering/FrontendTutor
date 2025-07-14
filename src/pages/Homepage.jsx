@@ -42,6 +42,7 @@ const Homepage = () => {
                   key={image}
                   src={image}
                   alt={`Slide ${mapIndex + 1}`}
+                  loading="lazy"
                   style={{
                     position: "absolute",
                     width: "100%",

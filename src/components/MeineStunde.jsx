@@ -1,11 +1,33 @@
 import React, { useEffect, useState } from "react";
+import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import ApiService from "../api/ApiService.js";
+const clientId = import.meta.env.VITE_PP_CLIENT_ID;
 
 const MeineStunden = ({ user }) => {
     const [stunden, setStunden] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [amount, setAmount] = useState(100.00); // default amount
     const [selectedPaket, setSelectedPaket] = useState(null);
+    const [currency, setCurrency] = useState("EUR");
+
+    const initialOptions = {
+        clientId: clientId,
+        currency: "EUR",
+        intent: "capture",
+    };
+
+    const styles = {
+        shape: "rect",
+        layout: "vertical",
+        color: "gold",
+        label: "pay"
+    };
+
+    const onError = (err) => {
+        // For example, redirect to a specific error page
+        window.location.assign("/schueler");
+    }
 
     const paketAngebote = [
         { id: 1, name: "Einzelstunde", preis: 30, dauer: "1 Monat" },
@@ -131,6 +153,55 @@ const MeineStunden = ({ user }) => {
             alert('Fehler beim Kauf des Pakets');
         }
     };
+    
+    const createOrder = (data, actions) => {
+        return actions.order.create({
+            purchase_units: [
+                {
+                    invoice_id: "90210",
+                    amount: {
+                        value: amount,
+                        currency_code: "EUR",  // Must match script currency
+                        breakdown: {
+                            item_total: {
+                                value: amount,
+                                currency_code: currency
+                            }
+                        }
+                    },
+                    items: [
+                        {
+                            name: "T-Shirt",
+                            description: "Super Fresh Shirt",
+                            unit_amount: {
+                                currency_code: "EUR",
+                                value: amount
+                            },
+                            quantity: "1",
+                            category: "DIGITAL_GOODS",
+                            sku: "sku01",                            
+                            link: "https://colorfulstandard.com/cdn/shop/files/CS2056_Male_OversizedOrganicT-Shirt-KellyGreen_2_7cee77f8-fd2d-48f3-b477-394de8fc63cd.jpg?v=1745839298&width=600"                           
+                        }
+                    ]
+                }
+            ]
+        });
+    };
+
+    const onApprove = (data, actions) => {
+        return actions.order.capture().then(details => {
+            alert(`Transaction completed by ${details.payer.name.given_name}`);
+            console.log("Transaction details:", details);
+            // Add your success logic here
+
+            handlePaketKaufen();
+        });
+    };
+
+    const updatePaket = (paket) => {
+        setSelectedPaket(paket.id);
+        setAmount(paket.preis);        
+    }
 
 
     if (loading) return <p>Lade Stunden...</p>;
@@ -150,9 +221,8 @@ const MeineStunden = ({ user }) => {
                 </p>
             )}
 
-
             <h4>Pakete zum Kauf</h4>
-            <ul>
+            <ul style={{ listStyle: 'none', paddingLeft: 0 }}>
                 {paketAngebote.map((paket) => (
                     <li key={paket.id}>
                         <label>
@@ -161,7 +231,7 @@ const MeineStunden = ({ user }) => {
                                 name="paket"
                                 value={paket.id}
                                 checked={selectedPaket === paket.id}
-                                onChange={() => setSelectedPaket(paket.id)}
+                                onChange={() => updatePaket(paket)}
                             />
                             {paket.name}: {paket.preis} €, gültig {paket.dauer}
                         </label>
@@ -170,9 +240,20 @@ const MeineStunden = ({ user }) => {
             </ul>
 
             {selectedPaket && (
-                <button onClick={handlePaketKaufen}>
-                    Paket kaufen
-                </button>
+                <>
+                    {/*
+                    <button onClick={handlePaketKaufen}>
+                        Paket kaufen
+                    </button>
+                    */}
+
+                    <PayPalScriptProvider options={initialOptions} onError={onError}>
+                        <PayPalButtons style={styles} onCancel={() => alert('Abort!')}
+                            createOrder={createOrder}
+                            onApprove={onApprove}
+                        />
+                    </PayPalScriptProvider>
+                </>
             )}
         </div>
     );
