@@ -140,7 +140,7 @@ function SchuelerSeite() {
 
                 schowTutor.schoolTutorsIds = [...(schowTutor.schoolTutorsIds || []), userId];
                 const newPost = {
-                    sender: "4f0226e1-1fe8-495a-84e7-26c46769de2d",
+                    sender: userId,
                     empfaenger: tutorId,
                     nachrichten: [
                         {

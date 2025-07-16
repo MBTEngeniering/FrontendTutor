@@ -1,33 +1,50 @@
 import React, { useEffect, useState } from "react";
-import ApiService    from "../api/ApiService.js";
+import ApiService from "../api/ApiService.js";
 
 const MyPost = ({ userId }) => {
     const [post, setPost] = useState([]);
     const [selectedId, setSelectedId] = useState(null);
+    const [userMap, setUserMap] = useState({}); // Speichert ID -> User
 
     useEffect(() => {
-        const fetchPost = async () => {
+        const fetchPostAndUsers = async () => {
             try {
                 const gesendetMessage = await ApiService.get(`/api/public/post/sender/${userId}`);
                 const empfangMessage = await ApiService.get(`/api/public/post/empfaenger/${userId}`);
 
-                const schowSendet = gesendetMessage.data;
-                const schowRecieved = empfangMessage.data;
-                const posts = [...schowSendet, ...schowRecieved];
-
+                const posts = [...gesendetMessage.data, ...empfangMessage.data];
                 setPost(posts);
+
+                // Alle eindeutigen User-IDs sammeln
+                const uniqueIds = new Set();
+                posts.forEach(p => {
+                    uniqueIds.add(p.sender);
+                    uniqueIds.add(p.empfaenger);
+                });
+
+                // Alle User abrufen
+                const userRequests = Array.from(uniqueIds).map(id =>
+                    ApiService.get(`/api/allusers/${id}`)
+                );
+                const userResponses = await Promise.all(userRequests);
+
+                const userMap = {};
+                userResponses.forEach(res => {
+                    const user = res.data;
+                    userMap[user.id] = user;
+                });
+                setUserMap(userMap);
             } catch (error) {
-                console.error("Fehler beim Laden der Nachrichten:", error);
-                setPost([]);
+                console.error("Fehler beim Laden:", error);
             }
         };
 
-        fetchPost();
+        fetchPostAndUsers();
     }, [userId]);
 
     return (
         <div style={{ padding: "20px", display: "flex", height: "300px" }}>
-            {/* Linke Box mit ID-Liste */}
+            {/* Linke Box */}
             <div
                 style={{
                     flex: 1,
@@ -39,26 +56,30 @@ const MyPost = ({ userId }) => {
                 <h2>Meine Nachrichten</h2>
                 {post.length > 0 ? (
                     <ul style={{ listStyle: "none", padding: 0 }}>
-                        {post.map((p) => (
-                            <li
-                                key={p.id}
-                                onClick={() => setSelectedId(p.id)}
-                                style={{
-                                    cursor: "pointer",
-                                    padding: "5px",
-                                    backgroundColor: p.id === selectedId ? "#ddd" : "transparent",
-                                }}
-                            >
-                                {p.sender !== userId ? p.sender : p.empfaenger}
-                            </li>
-                        ))}
+                        {post.map(p => {
+                            const otherId = p.sender !== userId ? p.sender : p.empfaenger;
+                            const user = userMap[otherId];
+                            return (
+                                <li
+                                    key={p.id}
+                                    onClick={() => setSelectedId(p.id)}
+                                    style={{
+                                        cursor: "pointer",
+                                        padding: "5px",
+                                        backgroundColor: p.id === selectedId ? "#ddd" : "transparent",
+                                    }}
+                                >
+                                    {user ? `${user.firstName} ${user.lastName}` : `Lädt...`}
+                                </li>
+                            );
+                        })}
                     </ul>
                 ) : (
                     <p>Keine Nachricht noch.</p>
                 )}
             </div>
 
-            {/* Rechte Box mit Nachrichten-Details */}
+            {/* Rechte Box */}
             <div
                 style={{
                     flex: 3,
@@ -69,14 +90,14 @@ const MyPost = ({ userId }) => {
                     flexDirection: "column",
                 }}
             >
-                {post.find((p) => p.id === selectedId) ? (
+                {post.find(p => p.id === selectedId) ? (
                     <>
                         <p>
                             <strong>Nachricht:</strong>
                         </p>
                         <ul>
                             {post
-                                .find((p) => p.id === selectedId)
+                                .find(p => p.id === selectedId)
                                 .nachrichten.map((nachricht, index) => (
                                     <li key={index}>{nachricht.text}</li>
                                 ))}
@@ -95,7 +116,7 @@ const MyPost = ({ userId }) => {
                         />
                     </>
                 ) : (
-                    <p>Bitte wähle eine ID aus der linken Liste.</p>
+                    <p>Bitte wähle eine Nachricht aus der Liste.</p>
                 )}
             </div>
         </div>

@@ -9,6 +9,8 @@ import MyPost from "../../components/MyPost.jsx";
 import SchuelerVertrag from "../Student/SchulerVertrag.jsx";
 import TutorVertrag from "./TutorVertrag.jsx";
 import MeinTerminTutor from "../../components/MeinTerminTutor.jsx";
+import MeinGehalt from "../../components/MeinGehalt.jsx";
+import MeineNachricht from "../../components/MeineNachricht.jsx";
 
 
 function TutorSeite() {
@@ -158,49 +160,8 @@ function TutorSeite() {
                         </div>
                     );
                 case "Postfach":
-                    return (
-                        <div style={{ padding: "20px", display: "flex", height: "300px" }}>
-                            {/* Linke Box mit ID-Liste */}
-                            <div style={{ flex: 1, borderRight: "2px solid black", paddingRight: "10px", overflowY: "auto" }}>
-                                <h2>Meine Nachrichten</h2>
-                                {post.length > 0 ? (
-                                    <ul style={{ listStyle: "none", padding: 0 }}>
-                                        {post.map(p => (
-                                            <li
-                                                key={p.id}
-                                                onClick={() => setSelectedId(p.id)}
-                                                style={{
-                                                    cursor: "pointer",
-                                                    padding: "5px",
-                                                    backgroundColor: p.id === selectedId ? "#ddd" : "transparent",
-                                                }}
-                                            >
-                                                {p.id}
-                                            </li>
-                                        ))}
-                                    </ul>
-                                ) : (
-                                    <p>Keine Nachricht noch.</p>
-                                )}
-                            </div>
+                    return <MyPost userId={user.id} />;
 
-                            {/* Rechte Box mit Nachrichten der ausgewählten ID */}
-                            <div style={{ flex: 2, paddingLeft: "10px", overflowY: "auto" }}>
-                                {post.find(p => p.id === selectedId) ? (
-                                    <>
-                                        <p><strong>Nachricht:</strong></p>
-                                        <ul>
-                                            {post.find(p => p.id === selectedId).nachrichten.map((nachricht, index) => (
-                                                <li key={index}>{nachricht.text}</li>
-                                            ))}
-                                        </ul>
-                                    </>
-                                ) : (
-                                    <p>Bitte wähle eine ID aus der linken Liste.</p>
-                                )}
-                            </div>
-                        </div>
-                    );
                 case "Vertrag":
                     return <TutorVertrag user={user} />;
                 case "Meine Termine":
@@ -448,11 +409,7 @@ function TutorSeite() {
                         </div>
                     );
                 case "Mein Gehalt":
-                    return (
-                        <div>
-                            <h3>Gesamtverdienst</h3>
-                        </div>
-                    );
+                    return <MeinGehalt TutorId={user.id} />;
                 case "Support":
                     return <p>Support-Bereich. Hier kannst du Hilfe anbieten oder anfordern.</p>;
                 default:

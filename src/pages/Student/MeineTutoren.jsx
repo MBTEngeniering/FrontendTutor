@@ -248,7 +248,9 @@ const MeineTutoren = ({ userId }) => {
             );
 
             const datumStr = datumObj.toISOString();
-            const messageBody = `Student ${studentId} hat am ${datumStr} Nachhilfe im Fach ${gebuchtesFach ? gebuchtesFach.name : gewaehltesFach}.`;
+            const responseUser = await ApiService.get(`/api/allusers/${userId}`);
+            const showUser = responseUser.data;
+            const messageBody = `${showUser.salutation} ${showUser.firstName} ${showUser.lastName} hat am ${datumStr} Nachhilfe im Fach ${gebuchtesFach ? gebuchtesFach.name : gewaehltesFach}.`;
             SendeNachricht(studentId,tutorId,messageBody,datumStr);
 
             // Verfügbarkeit per Uhrzeit UND userId löschen (hier als studentId)
