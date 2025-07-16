@@ -18,8 +18,11 @@ const MyPost = ({ userId }) => {
                 // Alle eindeutigen User-IDs sammeln
                 const uniqueIds = new Set();
                 posts.forEach(p => {
+                    alert(p.sender);
+                    alert(p.empfaenger);
                     uniqueIds.add(p.sender);
                     uniqueIds.add(p.empfaenger);
+
                 });
 
                 // Alle User abrufen

@@ -10,7 +10,7 @@ const MeinGehalt = ({ TutorId }) => {
 
         const fetchGesamtVerdienst = async () => {
             try {
-                const response = await ApiService.get(`/verdien/tutor/${TutorId}`);
+                const response = await ApiService.get(`/api/public/verdien/tutor/${TutorId}`);
                 const verdienst = response.data.gesamtVerdient;
                 setGesamtVerdienst(verdienst || 0);
             } catch (error) {
@@ -21,7 +21,7 @@ const MeinGehalt = ({ TutorId }) => {
 
         const fetchVerdienListe = async () => {
             try {
-                const response = await ApiService.get(`/verdientabelle/tutor/${TutorId}`);
+                const response = await ApiService.get(`/api/public/verdientabelle/tutor/${TutorId}`);
                 setVerdienListe(response.data || []);
             } catch (error) {
                 console.error('Fehler beim Laden der Verdienstliste:', error);
