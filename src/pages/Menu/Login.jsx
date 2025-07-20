@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button, Container, Input, Modal, ModalBody, ModalFooter, ModalHeader, } from "reactstrap";
-import { useAuth } from "../context/UseAuth.jsx";
-import { userRoleIdToName, userRoleIdToPage } from "../util/mapping.js";
+import { useAuth } from "../../context/UseAuth.jsx";
+import { userRoleIdToName, userRoleIdToPage } from "../../util/mapping.js";
 
-const Authenticate = () => {
+const Login = () => {
     const [errorMessage, setErrorMessage] = useState("");
     const [modalOpen, setModalOpen] = useState(false);
     const navigate = useNavigate();
@@ -64,7 +64,7 @@ const Authenticate = () => {
                     boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
                 }}
             >
-                <h2>Anmelden über COOKIE</h2>
+                <h2>Anmelden</h2>
                 {/*<Form onSubmit={e => {handleLogin(e)}} >*/}
                 <form>
                     <Input
@@ -134,4 +134,4 @@ const Authenticate = () => {
     );
 };
 
-export default Authenticate;
+export default Login;

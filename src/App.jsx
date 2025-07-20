@@ -3,46 +3,45 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "./App.css";
 import ChatSupport from "./components/ChatSupport.jsx";
-import Restricted from "./pages/Restricted.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import { AuthProvider } from "./context/AuthProvider.jsx";
-import { ADMIN } from "./util/mapping.js";
+import { ADMIN, FINANCE } from "./util/mapping.js";
 
 // Seitenkomponenten importieren
-const Homepage = lazy(() => import("./pages/Homepage.jsx"));
-const Abikurs = lazy(() => import("./pages/Abikurs.jsx"));
-const Beratung = lazy(() => import("./pages/Beratung.jsx"));
+const Homepage = lazy(() => import("./pages/Menu/Homepage.jsx"));
+const Abikurs = lazy(() => import("./pages/Menu/Abikurs.jsx"));
+const Beratung = lazy(() => import("./pages/Menu/Beratung.jsx"));
 const RegisterStudent = lazy(() => import("./pages/Student/RegisterStudent.jsx"));
-const Konzept = lazy(() => import("./pages/Konzept.jsx"));
+const Konzept = lazy(() => import("./pages/Menu/Konzept.jsx"));
 const RegisterTutor = lazy(() => import("./pages/Tutor/RegisterTutor.jsx"));
-const Prices = lazy(() => import("./pages/Prices.jsx"));
-const Login = lazy(() => import("./pages/Login.jsx"));
-const AboutUs = lazy(() => import("./pages/AboutUs.jsx"));
+const Prices = lazy(() => import("./pages/Menu/Prices.jsx"));
+const Login = lazy(() => import("./pages/Menu/Login.jsx"));
+const AboutUs = lazy(() => import("./pages/Menu/AboutUs.jsx"));
 const Tutor = lazy(() => import("./pages/Tutor/TutorSeite.jsx"));
 const Schueler = lazy(() => import("./pages/Student/SchuelerSeite.jsx"));
 const Tutors = lazy(() => import("./pages/Tutor/Tutors.jsx"));
 const Admin = lazy(() => import("./pages/Admin/AdminSeite.jsx"));
-const Enterprise = lazy(() => import("./pages/EnterpriseSeite.jsx"));
+const Enterprise = lazy(() => import("./pages/common/EnterpriseSeite.jsx"));
 const Support = lazy(() => import("./pages/Support/SupportSeite.jsx"));
-const PasswordReset = lazy(() => import("./pages/PasswordReset.jsx"));
+const PasswordReset = lazy(() => import("./pages/common/PasswordReset.jsx"));
 const Finance = lazy(() => import("./pages/Billing/FinanceSeite.jsx"));
-const Footer = lazy(() => import(":comp/Footer.jsx"));
+const Footer = lazy(() => import(":common/Footer.jsx"));
 const Impressum = lazy(() => import("./pages/FooterPages/Impressum.jsx"));
 const Datenschutz = lazy(() => import("./pages/FooterPages/Datenschutz.jsx"));
 const Agb = lazy(() => import("./pages/FooterPages/Agb.jsx"));
 const Faq = lazy(() => import("./pages/FooterPages/Faq.jsx"));
 const Hilfe = lazy(() => import("./pages/FooterPages/Hilfe.jsx"));
 const Blog = lazy(() => import("./pages/FooterPages/Blog.jsx"));
-const Notfound = lazy(() => import("./pages/Notfound.jsx"));
-const Vortraege = lazy(() => import("./pages/Vortraege.jsx"));
-const Register = lazy(() => import("./pages/Register.jsx"));
-const Manage = lazy(() => import("./pages/ManageSeite.jsx"));
-const LoadingScreen = lazy(() => import("./components/LoadingScreen.jsx"));
-const WhoWeAre = lazy(() => import("./pages/WhoWeAre.jsx"));
-const Kontakt = lazy(() => import("./pages/Kontakt.jsx"));
-const CorporateIdentity = lazy(() => import("./pages/CorporateIdentity.jsx"));
-const Header = lazy(() => import("./components/Header.jsx"));
-const Authenticate = lazy(() => import("./pages/Authenticate.jsx"));
+const Notfound = lazy(() => import("./pages/common/Notfound.jsx"));
+const Vortraege = lazy(() => import("./pages/Menu/Vortraege.jsx"));
+const Register = lazy(() => import("./pages/Menu/Register.jsx"));
+const Manage = lazy(() => import("./pages/common/ManageSeite.jsx"));
+const LoadingScreen = lazy(() => import("./pages/common/LoadingScreen.jsx"));
+const WhoWeAre = lazy(() => import("./pages/Menu/WhoWeAre.jsx"));
+const Kontakt = lazy(() => import("./pages/Menu/Kontakt.jsx"));
+const CorporateIdentity = lazy(() => import("./pages/common/CorporateIdentity.jsx"));
+const Header = lazy(() => import("./pages/common/Header.jsx"));
+const Authenticate = lazy(() => import("./pages/Menu/Login.jsx"));
 
 const App = () => {
   return (
@@ -70,7 +69,7 @@ const App = () => {
               <Route path="/support" element={<Support/>}/>
               <Route path="/admin" element={<ProtectedRoute roles={[ADMIN]} element={<Admin/>}/>}/>
 
-              <Route path="/finance" element={<ProtectedRoute roles={[4]} element={<Finance/>}/>}/>
+              <Route path="/finance" element={<ProtectedRoute roles={[FINANCE]} element={<Finance/>}/>}/>
               <Route path="/passwort-vergessen" element={<PasswordReset/>}/>
               <Route path="/impressum" element={<Impressum/>}/>
               <Route path="/datenschutz" element={<Datenschutz/>}/>
@@ -80,10 +79,10 @@ const App = () => {
               <Route path="/blog" element={<Blog/>}/>
               <Route path="/wer-sind-wir" element={<WhoWeAre/>}/>
               <Route path="/kontakt" element={<Kontakt/>}/>
-              <Route path="/authenticate" element={<Authenticate/>}/>
+
               <Route path="/ci" element={<CorporateIdentity/>}/>
-              <Route path="/rest" element={<Restricted/>}/>
-              {/* Immer zuletzt */}
+
+              {/* Always last! */}
               <Route path="*" element={<Notfound/>}/>
             </Routes>
             <Footer/>

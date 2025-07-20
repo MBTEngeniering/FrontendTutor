@@ -31,8 +31,8 @@ export const AuthProvider = ({children}) => {
 
           // Check if the stored user is expired
           if (currentTime > storedTimestamp) {
-            logout();
-            window.location.href = '/authenticate'; // Redirect to login page
+            await logout();
+            window.location.href = '/login'; // Redirect to login page
           }
 
           if (storedUser) {

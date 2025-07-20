@@ -38,6 +38,7 @@ export default defineConfig(({mode}) => {
         resolve: {
           alias: {
             '@': '/src',
+            ':common': '/src/pages/common',
             ':comp': '/src/components',
             ':pages': '/src/pages',
             ':assets': '/src/assets',

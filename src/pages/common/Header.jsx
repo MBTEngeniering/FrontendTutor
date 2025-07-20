@@ -15,9 +15,9 @@ import {
 import lettering from "/img/fs-logo-trans.png";
 import lupe from "bootstrap-icons/icons/search.svg";
 import logo from "/img/android-chrome-512x512.png";
-import { useAuth } from "../context/UseAuth.jsx";
+import { useAuth } from "../../context/UseAuth.jsx";
 
-const Linker = lazy(() => import("./Linker.jsx"));
+const Linker = lazy(() => import("../../components/Linker.jsx"));
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
