@@ -10,25 +10,31 @@ const MeineStunden = ({ user }) => {
     const [amount, setAmount] = useState(100.00); // default amount
     const [selectedPaket, setSelectedPaket] = useState(null);
     const [currency, setCurrency] = useState("EUR");
+    const RANDOM_LENGTH = 10;
 
     const initialOptions = {
         clientId: clientId,
         currency: "EUR",
         intent: "capture",
-    };
+    }
 
     const styles = {
         shape: "rect",
         layout: "vertical",
         color: "gold",
         label: "pay"
-    };
+    }
+
+    const getRandomInvoice = () => {
+        return user.id + "-" + Math.random().toString(36).substring(2, RANDOM_LENGTH)
+    }
 
     const onError = (err) => {
         // For example, redirect to a specific error page
         window.location.assign("/schueler");
     }
 
+    // Das muss in die Datenbank!
     const paketAngebote = [
         { id: 1, name: "Einzelstunde", preis: 30, dauer: "1 Monat" },
         { id: 2, name: "4er-Paket", preis: 116, dauer: "2 Monate" },
@@ -153,12 +159,12 @@ const MeineStunden = ({ user }) => {
             alert('Fehler beim Kauf des Pakets');
         }
     };
-    
+
     const createOrder = (data, actions) => {
         return actions.order.create({
             purchase_units: [
                 {
-                    invoice_id: "90210",
+                    invoice_id: getRandomInvoice(),
                     amount: {
                         value: amount,
                         currency_code: "EUR",  // Must match script currency
@@ -171,16 +177,16 @@ const MeineStunden = ({ user }) => {
                     },
                     items: [
                         {
-                            name: "T-Shirt",
-                            description: "Super Fresh Shirt",
+                            name: paketAngebote.find((p) => p.id === selectedPaket).name + " Stundenpaket",
+                            description: "Super faires Nachhilfe für " + amount + " &euro;",
                             unit_amount: {
                                 currency_code: "EUR",
                                 value: amount
                             },
                             quantity: "1",
                             category: "DIGITAL_GOODS",
-                            sku: "sku01",                            
-                            link: "https://colorfulstandard.com/cdn/shop/files/CS2056_Male_OversizedOrganicT-Shirt-KellyGreen_2_7cee77f8-fd2d-48f3-b477-394de8fc63cd.jpg?v=1745839298&width=600"                           
+                            sku: "sku01",
+                            link: "https://colorfulstandard.com/cdn/shop/files/CS2056_Male_OversizedOrganicT-Shirt-KellyGreen_2_7cee77f8-fd2d-48f3-b477-394de8fc63cd.jpg?v=1745839298&width=600"
                         }
                     ]
                 }
@@ -200,7 +206,7 @@ const MeineStunden = ({ user }) => {
 
     const updatePaket = (paket) => {
         setSelectedPaket(paket.id);
-        setAmount(paket.preis);        
+        setAmount(paket.preis);
     }
 
 
