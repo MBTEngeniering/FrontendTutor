@@ -87,7 +87,7 @@ export default function Header() {
             </NavItem>
             {!user || !user.isLoggedIn ? (
                 <NavItem>
-                  <Link className="nav-link" to="/authenticate">
+                  <Link className="nav-link" to="/login">
                     <button style={{
                       padding: '6px 20px',
                       backgroundColor: 'black',

@@ -35,7 +35,7 @@ const SchuelerVertrag = ({ user }) => {
         try {
             setIsActive(true);
             updateUser(user);
-            navigate("/authenticate");
+            navigate("/login");
         } catch (error) {
             console.error("Fehler:", error);
         }

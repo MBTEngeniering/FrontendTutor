@@ -79,7 +79,7 @@ function RegisterStudent() {
         axios.post(`${apiUrl}/api/allusers`, studentData)
             .then(response => {
                 alert("Du hast dich erfolgreich registriert!");
-                navigate("/authenticate");
+                navigate("/login");
             })
             .catch(error => {
                 console.error("Fehler bei der Registrierung:", error);

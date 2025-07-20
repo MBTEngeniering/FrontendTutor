@@ -41,16 +41,15 @@ const WhoWeAre = lazy(() => import("./pages/Menu/WhoWeAre.jsx"));
 const Kontakt = lazy(() => import("./pages/Menu/Kontakt.jsx"));
 const CorporateIdentity = lazy(() => import("./pages/common/CorporateIdentity.jsx"));
 const Header = lazy(() => import("./pages/common/Header.jsx"));
-const Authenticate = lazy(() => import("./pages/Menu/Login.jsx"));
 
 const App = () => {
   return (
       <AuthProvider>
         <BrowserRouter>
-          <Suspense fallback={<LoadingScreen/>}>
             <Header/>
             <Routes>
               <Route path="/" element={<Homepage/>}/>
+              <Route path="/login" element={<Login/>}/>
               <Route path="/registrierung" element={<Register/>}/>
               <Route path="/abikurs" element={<Abikurs/>}/>
               <Route path="/beratung" element={<Beratung/>}/>
@@ -87,7 +86,6 @@ const App = () => {
             </Routes>
             <Footer/>
             <ChatSupport/>
-          </Suspense>
         </BrowserRouter>
       </AuthProvider>
   );
