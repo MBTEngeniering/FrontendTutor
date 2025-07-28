@@ -27,11 +27,10 @@ const StudentCalender = () => {
     const { user } = useAuth();
     const [allAvailabilitySlots, setAllAvailabilitySlots] = useState([]);
 
-    // NEU: Termine & Fächer
     const [termine, setTermine] = useState([]);
     const [fächer, setFächer] = useState({});
+    const [tutorNames, setTutorNames] = useState({});
 
-    // Setze currentDate auf frühestes Termin-Datum, wenn Termine geladen werden
     useEffect(() => {
         if (termine.length > 0) {
             const earliestTermin = termine.reduce((earliest, curr) =>
@@ -49,7 +48,6 @@ const StudentCalender = () => {
             } catch (error) {
                 console.error("Fehler beim Abrufen der Verfügbarkeit:", error);
             }
-
             await handleWandleSlot();
         };
 
@@ -59,7 +57,8 @@ const StudentCalender = () => {
                 const termineResponse = await ApiService.get(
                     `/api/public/appointments/student/${user.id}`
                 );
-                setTermine(termineResponse.data);
+                const geladeneTermine = termineResponse.data;
+                setTermine(geladeneTermine);
 
                 const faecherResponse = await ApiService.get(`/api/fach/trans/de`);
                 const alleFaecher = faecherResponse.data;
@@ -68,6 +67,23 @@ const StudentCalender = () => {
                     fachMap[fach.id] = fach.fach || fach.bezeichnung || "Unbekannt";
                 });
                 setFächer(fachMap);
+
+                // Tutorennamen laden
+                const uniqueTutorIds = [...new Set(geladeneTermine.map(t => t.tutorId).filter(Boolean))];
+                const tutorMap = {};
+                await Promise.all(
+                    uniqueTutorIds.map(async (tutorId) => {
+                        try {
+                            const response = await ApiService.get(`/api/allusers/${tutorId}`);
+                            const tutor = response.data;
+                            tutorMap[tutorId] = `${tutor.firstName} ${tutor.lastName}`;
+                        } catch (error) {
+                            console.warn(`Fehler beim Laden von Tutor ${tutorId}:`, error);
+                            tutorMap[tutorId] = "Unbekannt";
+                        }
+                    })
+                );
+                setTutorNames(tutorMap);
             } catch (error) {
                 console.error("Fehler beim Laden der Termine oder Fächer:", error);
             }
@@ -86,10 +102,8 @@ const StudentCalender = () => {
 
     const handleSelectSlot = ({ start, end }) => {
         const now = new Date();
-        if (start < now) {
-            // Auswahl von Slots in der Vergangenheit nicht erlauben
-            return;
-        }
+        if (start < now) return;
+
         const slots = [];
         let slotStart = new Date(start);
         while (slotStart < end) {
@@ -131,20 +145,13 @@ const StudentCalender = () => {
     };
 
     const handleSelectEvent = (event) => {
-        if (event.title && event.title.startsWith("Fach:")) {
-            // Termin: nicht anklickbar
-            return;
-        }
+        if (event.title && event.title.startsWith("Fach:")) return;
         handleSelectSlot({ start: event.start, end: event.end });
     };
 
     const wandleDatumZuSlot = (tag, monat, jahr, uhrzeit) => {
         const [stunden, minuten] = uhrzeit.split(":").map(Number);
-        const start = new Date(
-            `${jahr}-${monat}-${tag}T${stunden.toString().padStart(2, "0")}:${minuten
-                .toString()
-                .padStart(2, "0")}:00`
-        );
+        const start = new Date(`${jahr}-${monat}-${tag}T${stunden.toString().padStart(2, "0")}:${minuten.toString().padStart(2, "0")}:00`);
         const end = new Date(start.getTime() + 30 * 60 * 1000);
         return { start, end };
     };
@@ -152,7 +159,6 @@ const StudentCalender = () => {
     const handleWandleSlot = async () => {
         try {
             const response = await ApiService.get(`/api/public/availability/user/${user.id}`);
-
             const daten = response.data;
 
             const neueSlots = daten.map((eintrag) =>
@@ -184,9 +190,7 @@ const StudentCalender = () => {
             const minuten = slot.start.getMinutes().toString().padStart(2, "0");
             return {
                 userId: user.id,
-                tag: tag,
-                monat: monat,
-                jahr: jahr,
+                tag, monat, jahr,
                 uhrzeit: `${stunden}:${minuten}`,
             };
         });
@@ -216,9 +220,7 @@ const StudentCalender = () => {
                 const minuten = slot.start.getMinutes().toString().padStart(2, "0");
                 return {
                     userId: user.id,
-                    tag: tag,
-                    monat: monat,
-                    jahr: jahr,
+                    tag, monat, jahr,
                     uhrzeit: `${stunden}:${minuten}`,
                 };
             });
@@ -243,7 +245,6 @@ const StudentCalender = () => {
                 }
 
                 alert("Alle passenden -Einträge wurden gelöscht.");
-
                 setAllAvailabilitySlots((prevSlots) =>
                     prevSlots.filter((slot) => !matchingIds.includes(slot.id))
                 );
@@ -258,11 +259,11 @@ const StudentCalender = () => {
         try {
             const response = await ApiService.get(`/api/public/availability/user/${user.id}`);
             setAllAvailabilitySlots(response.data);
-
         } catch (error) {
             console.error("Fehler beim Abrufen der Availability:", error);
         }
     };
+
     const getSlotStyle = (event) => {
         if (event.title && event.title.startsWith("Fach:")) {
             return { style: { backgroundColor: "#ff9800", color: "#fff" } };
@@ -273,7 +274,6 @@ const StudentCalender = () => {
         const isMarkedForDelete = isSlotInArray(event, toBeDeletedSlots);
 
         let backgroundColor = "green";
-
         if (isSaved && isSelected) backgroundColor = "blue";
         if (isSaved && isMarkedForDelete) backgroundColor = "red";
         if (!isSelected && isMarkedForDelete) backgroundColor = "red";
@@ -295,11 +295,10 @@ const StudentCalender = () => {
         selectedSlots.filter((slot) => !isSlotInArray(slot, savedSlots)).length === 0 &&
         toBeDeletedSlots.length === 0;
 
-    // Termine für Kalender vorbereiten
     const termineEvents = termine.map((termin) => ({
         start: new Date(termin.startDate),
         end: new Date(termin.endDate),
-        title: `Fach: ${fächer[termin.fachId] || "?"}, Tutor: ${termin.tutorId}`,
+        title: `Fach: ${fächer[termin.fachId] || "?"}, Tutor: ${tutorNames[termin.tutorId] || "?"}`,
     }));
 
     return (

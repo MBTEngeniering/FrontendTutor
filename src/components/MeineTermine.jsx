@@ -5,8 +5,10 @@ const MeineTermine = ({ student, lang = "de" }) => {
     const [termine, setTermine] = useState([]);
     const [loading, setLoading] = useState(true);
     const [fächer, setFächer] = useState({});
+    const [tutorenMap, setTutorenMap] = useState({});
     const [jetzt, setJetzt] = useState(new Date());
-    const [tutoren, setTutoren] = useState({}); // 🟢 Hier speichern wir die Tutor-Namen
+    const [feedbackTermin, setFeedbackTermin] = useState(null);
+    const [feedbackOption, setFeedbackOption] = useState("");
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -16,62 +18,49 @@ const MeineTermine = ({ student, lang = "de" }) => {
     }, []);
 
     useEffect(() => {
-        const fetchTermineUndFaecher = async () => {
+        const fetchDaten = async () => {
             try {
-                const termineResponse = await ApiService.get(
-                    `/api/public/appointments/student/${student.id}`
-                );
-                const termineData = termineResponse.data;
-                setTermine(termineData);
+                const [termineResponse, faecherResponse] = await Promise.all([
+                    ApiService.get(`/api/public/appointments/student/${student.id}`),
+                    ApiService.get(`/api/fach/trans/${lang}`)
+                ]);
 
-                const faecherResponse = await ApiService.get(
-                    `/api/fach/trans/${lang}`
-                );
-                const alleFaecher = faecherResponse.data;
+                const termine = termineResponse.data;
+                setTermine(termine);
 
+                // Fächer zuordnen
                 const fachMap = {};
-                alleFaecher.forEach((fach) => {
-                    fachMap[fach.id] =
-                        fach.fach || fach.bezeichnung || "Unbekannt";
+                faecherResponse.data.forEach((fach) => {
+                    fachMap[fach.id] = fach.fach || fach.bezeichnung || "Unbekannt";
                 });
                 setFächer(fachMap);
-            } catch (error) {
-                console.error(
-                    "Fehler beim Laden der Termine oder Fächer:",
-                    error
+
+                // Tutor-Daten abfragen
+                const tutorIds = [...new Set(termine.map(t => t.tutorId))];
+                const tutorMap = {};
+                await Promise.all(
+                    tutorIds.map(async (id) => {
+                        try {
+                            const res = await ApiService.get(`/api/allusers/${id}`);
+                            tutorMap[id] = res.data;
+                        } catch (e) {
+                            console.warn("Fehler beim Laden des Tutors mit ID:", id);
+                        }
+                    })
                 );
+                setTutorenMap(tutorMap);
+
+            } catch (error) {
+                console.error("Fehler beim Laden der Termine oder Fächer:", error);
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchTermineUndFaecher();
+        fetchDaten();
     }, [student, lang]);
 
-    // 🟢 Für alle Termine die Tutor-Namen laden
-    useEffect(() => {
-        const ladeTutoren = async () => {
-            const neueTutoren = {};
-            for (const termin of termine) {
-                const tutorId = termin.tutorId;
-                if (tutorId && !tutoren[tutorId]) {
-                    try {
-                        const res = await ApiService.get(`/api/allusers/${tutorId}`);
-                        const tutor = res.data;
-                        neueTutoren[tutorId] = `${tutor.firstName} ${tutor.lastName}`;
-                    } catch (error) {
-                        console.error("Fehler beim Laden des Tutors:", error);
-                    }
-                }
-            }
-            if (Object.keys(neueTutoren).length > 0) {
-                setTutoren((prev) => ({ ...prev, ...neueTutoren }));
-            }
-        };
-        if (termine.length > 0) ladeTutoren();
-    }, [termine, tutoren]);
-
-    const einheitStarten = async (tutorId, studentIspresent, terminId) => {
+    const einheitStarten = async (tutorId, studentIsPresent, terminId) => {
         try {
             const response = await ApiService.get(`/api/allusers/${tutorId}`);
             const tutor = response.data;
@@ -79,38 +68,51 @@ const MeineTermine = ({ student, lang = "de" }) => {
 
             if (zoomLink) {
                 window.open(zoomLink, "_blank");
-                console.log("Zoom-Link gestartet:", zoomLink);
-                await ApiService.patch(
-                    `/api/public/appointments/${terminId}/student-present?isPresent=true`
-                );
+                await ApiService.patch(`/api/public/appointments/${terminId}/student-present?isPresent=true`);
             } else {
-                alert("Kein Zoom-Link für diesen Tutor gefunden.");
+                alert("Kein Zoom-Link für diesen Studenten gefunden.");
             }
         } catch (error) {
-            console.error(
-                "Fehler beim Laden des Tutors oder Starten der Einheit:",
-                error
-            );
+            console.error("Fehler beim Starten der Einheit:", error);
             alert("Fehler beim Starten der Einheit.");
+        }
+    };
+
+    const handleFeedbackSenden = async () => {
+        if (!feedbackOption || !feedbackTermin) return;
+
+        try {
+            await ApiService.patch(
+                `/api/public/appointments/${feedbackTermin.id}/student-feedback?studentFeedback=${encodeURIComponent(feedbackOption)}`
+            );
+
+            setTermine((prev) =>
+                prev.map((t) =>
+                    t.id === feedbackTermin.id
+                        ? { ...t, studentFeedback: feedbackOption }
+                        : t
+                )
+            );
+            alert("Feedback erfolgreich gesendet.");
+            setFeedbackOption("");
+            setFeedbackTermin(null);
+        } catch (error) {
+            console.error("Fehler beim Senden des Feedbacks:", error);
+            alert("Feedback konnte nicht gesendet werden.");
         }
     };
 
     if (loading) return <div>Lade Termine...</div>;
 
-    const nochNichtVorbei = termine.filter(
-        (t) => new Date(t.endDate) > jetzt
-    );
-
-    if (nochNichtVorbei.length === 0)
-        return <div>Keine Termine gefunden.</div>;
-
     return (
         <div>
             <h3 className="text-xl font-bold mb-4">Meine gebuchten Termine</h3>
-            {nochNichtVorbei.map((termin) => {
+            {termine.map((termin) => {
                 const startDate = new Date(termin.startDate);
                 const endDate = new Date(termin.endDate);
                 const istAktiv = jetzt >= startDate && jetzt <= endDate;
+                const istVorbei = jetzt > endDate;
+                const feedbackOffen = !termin.studentFeedback;
 
                 const uhrzeit = startDate.toLocaleTimeString([], {
                     hour: "2-digit",
@@ -123,7 +125,7 @@ const MeineTermine = ({ student, lang = "de" }) => {
                     year: "numeric",
                 });
 
-                const tutorName = tutoren[termin.tutorId] || "Lade Tutor...";
+                const tutor = tutorenMap[termin.tutorId];
 
                 return (
                     <div
@@ -137,32 +139,30 @@ const MeineTermine = ({ student, lang = "de" }) => {
                                 className="w-12 h-12 rounded-full"
                             />
                             <div>
-                <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-semibold">
-                  {fächer[termin.fachId] || "Fach unbekannt"}
-                </span>
+                                <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-semibold">
+                                    {fächer[termin.fachId] || "Fach unbekannt"}
+                                </span>
                                 <div className="mt-2 font-bold">{uhrzeit}</div>
                                 <div className="font-semibold">{datum}</div>
-                                <div className="mt-1">{tutorName}</div>
+                                <div className="mt-1">
+                                    {tutor ? `${tutor.firstName} ${tutor.lastName}` : "Tutor wird geladen..."}
+                                </div>
                             </div>
                         </div>
+
                         <div className="flex flex-col gap-2">
                             <button
                                 style={{
-                                    backgroundColor: istAktiv ? "blue" : "blue",
+                                    backgroundColor: "blue",
                                     color: "white",
                                     padding: "8px 16px",
                                     borderRadius: "6px",
                                     border: "none",
                                     cursor: istAktiv ? "pointer" : "not-allowed",
-                                    marginBottom: "8px",
                                     opacity: istAktiv ? 1 : 0.5,
                                 }}
                                 onClick={() =>
-                                    einheitStarten(
-                                        termin.tutorId,
-                                        termin.studentIsPresent,
-                                        termin.id
-                                    )
+                                    einheitStarten(termin.tutorId, termin.studentIsPresent, termin.id)
                                 }
                                 disabled={!istAktiv}
                             >
@@ -183,10 +183,73 @@ const MeineTermine = ({ student, lang = "de" }) => {
                             >
                                 Offener Arbeitsbereich
                             </button>
+
+                            {istVorbei && feedbackOffen && (
+                                <button
+                                    style={{
+                                        backgroundColor: "#f0ad4e",
+                                        color: "white",
+                                        padding: "8px 16px",
+                                        borderRadius: "6px",
+                                        border: "none",
+                                        cursor: "pointer",
+                                    }}
+                                    onClick={() => {
+                                        setFeedbackTermin(termin);
+                                        setFeedbackOption("");
+                                    }}
+                                >
+                                    Feedback
+                                </button>
+                            )}
                         </div>
                     </div>
                 );
             })}
+
+            {/* Feedback Modal */}
+            {feedbackTermin && (
+                <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+                    <div className="bg-white p-6 rounded-lg shadow-lg w-[300px]">
+                        <h2 className="text-lg font-bold mb-4">Feedback geben</h2>
+                        <div className="flex flex-col gap-2 mb-4">
+                            <label>
+                                <input
+                                    type="radio"
+                                    value="BOTH_PRESENT"
+                                    checked={feedbackOption === "BOTH_PRESENT"}
+                                    onChange={(e) => setFeedbackOption(e.target.value)}
+                                />
+                                <span className="ml-2">Beide waren da</span>
+                            </label><br />
+                            <label>
+                                <input
+                                    type="radio"
+                                    value="TUTOR_ABSENT"
+                                    checked={feedbackOption === "TUTOR_ABSENT"}
+                                    onChange={(e) => setFeedbackOption(e.target.value)}
+                                />
+                                <span className="ml-2">Tutor ist nicht erschienen</span>
+                            </label>
+                        </div>
+                        <div className="flex justify-between">
+                            <button
+                                className="bg-gray-300 px-4 py-2 rounded"
+                                onClick={() => setFeedbackTermin(null)}
+                            >
+                                Abbrechen
+                            </button>
+                            <button
+                                className="bg-blue-600 text-white px-4 py-2 rounded"
+                                onClick={handleFeedbackSenden}
+                                disabled={!feedbackOption}
+                            >
+                                Feedback senden
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

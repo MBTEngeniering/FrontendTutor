@@ -26,6 +26,7 @@ const TutorCalendar = () => {
     const [toBeDeletedSlots, setToBeDeletedSlots] = useState([]);
     const { user } = useAuth();
     const [allAvailabilitySlots, setAllAvailabilitySlots] = useState([]);
+    const [schuelerNames, setSchuelerNames] = useState({});
 
     // NEU: Termine & Fächer
     const [termine, setTermine] = useState([]);
@@ -61,6 +62,23 @@ const TutorCalendar = () => {
                 );
                 setTermine(termineResponse.data);
 
+                // Lade Schülernamen pro Termin
+                const names = {};
+                for (const termin of termineResponse.data) {
+                    const studentId = termin.studentId;
+                    if (!names[studentId]) {
+                        try {
+                            const res = await ApiService.get(`/api/allusers/${studentId}`);
+                            const userData = res.data;
+                            names[studentId] = `${userData.firstName} ${userData.lastName}`;
+                        } catch (err) {
+                            console.error(`Fehler beim Laden von Student ${studentId}`, err);
+                            names[studentId] = "?";
+                        }
+                    }
+                }
+                setSchuelerNames(names);
+
                 const faecherResponse = await ApiService.get(`/api/fach/trans/de`);
                 const alleFaecher = faecherResponse.data;
                 const fachMap = {};
@@ -87,7 +105,6 @@ const TutorCalendar = () => {
     const handleSelectSlot = ({ start, end }) => {
         const now = new Date();
         if (start < now) {
-            // Auswahl von Slots in der Vergangenheit nicht erlauben
             return;
         }
         const slots = [];
@@ -132,7 +149,6 @@ const TutorCalendar = () => {
 
     const handleSelectEvent = (event) => {
         if (event.title && event.title.startsWith("Fach:")) {
-            // Termin: nicht anklickbar
             return;
         }
         handleSelectSlot({ start: event.start, end: event.end });
@@ -151,7 +167,7 @@ const TutorCalendar = () => {
 
     const handleWandleSlot = async () => {
         try {
-            const response =await ApiService.get(`/api/public/availability/user/${user.id}`);
+            const response = await ApiService.get(`/api/public/availability/user/${user.id}`);
             const daten = response.data;
 
             const neueSlots = daten.map((eintrag) =>
@@ -241,7 +257,6 @@ const TutorCalendar = () => {
                     await ApiService.delete(`/api/public/availability/${id}`);
                 }
 
-
                 alert("Alle passenden -Einträge wurden gelöscht.");
 
                 setAllAvailabilitySlots((prevSlots) =>
@@ -258,7 +273,6 @@ const TutorCalendar = () => {
         try {
             const response = await ApiService.get(`/api/public/availability/user/${user.id}`);
             setAllAvailabilitySlots(response.data);
-
         } catch (error) {
             console.error("Fehler beim Abrufen der Availability:", error);
         }
@@ -296,11 +310,11 @@ const TutorCalendar = () => {
         selectedSlots.filter((slot) => !isSlotInArray(slot, savedSlots)).length === 0 &&
         toBeDeletedSlots.length === 0;
 
-    // Termine für Kalender vorbereiten
+    // Aktualisierte Termin-Events mit Schülernamen
     const termineEvents = termine.map((termin) => ({
         start: new Date(termin.startDate),
         end: new Date(termin.endDate),
-        title: `Fach: ${fächer[termin.fachId] || "?"}, Student: ${termin.studentId}`,
+        title: `Fach: ${fächer[termin.fachId] || "?"}, Tutor: ${schuelerNames[termin.studentId] || "?"}`,
     }));
 
     return (
