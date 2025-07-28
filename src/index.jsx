@@ -1,7 +1,7 @@
 import { StrictMode, useState, useEffect } from 'react'
 import { createRoot } from 'react-dom/client'
 import App from './App.jsx'
-import LoadingScreen from './components/LoadingScreen.jsx'
+import LoadingScreen from './pages/common/LoadingScreen.jsx'
 
 export default function Root() {
   const [isLoading, setIsLoading] = useState(true);

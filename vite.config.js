@@ -38,6 +38,7 @@ export default defineConfig(({mode}) => {
         resolve: {
           alias: {
             '@': '/src',
+            ':common': '/src/pages/common',
             ':comp': '/src/components',
             ':pages': '/src/pages',
             ':assets': '/src/assets',
@@ -76,14 +77,8 @@ export default defineConfig(({mode}) => {
                 if (id.includes('node_modules/reactstrap')) {
                   return 'vendor-reactstrap';
                 }
-                if (id.includes('node_modules/react')) {
-                  return 'vendor-react';
-                }
                 if (id.includes('node_modules/jspdf')) {
                   return 'vendor-jspdf';
-                }
-                if (id.includes('node_modules/@fullcalendar')) {
-                  return 'vendor-fullcalendar';
                 }
                 if (id.includes('node_modules/@daypilot')) {
                   return 'vendor-daypilot';
@@ -109,6 +104,8 @@ export default defineConfig(({mode}) => {
           port: PORT,
           strictPort: true,
           hmr: {
+            protocol: 'ws',
+            host: 'localhost',
             overlay: true
           }
         }

@@ -1,0 +1,101 @@
+.impressum-container {
+    min-height: 20vh;
+    display: flex;
+    flex-direction: column;
+    background-color: #f8f9fa;
+    margin-left: 50px;
+}
+
+.impressum-content {
+    padding: 40px 20px;
+    flex: 1;
+   
+}
+
+.impressum-title {
+    
+    color: #086972;
+    margin-top: 40px;
+    margin-bottom: 20px;
+    font-size: 2.4rem;
+}
+
+.section-title {
+    color: #086972;
+    margin: 20px 0 10px;
+    font-size: 1.6rem;
+}
+
+.section-text {
+    color: #34495e;
+    line-height: 1.6;
+    font-size: 1.2rem;
+    max-width: 800px;
+    margin: 13px auto;
+}
+
+.section-text-small {
+    color: #34495e;
+    line-height: 1.6;
+    font-size: 0.9rem;
+    max-width: 800px;
+    margin: 50px auto;
+}
+.section-text-small2 {
+    color: #34495e;
+    line-height: 1.6;
+    font-size: 0.9rem;
+    max-width: 800px;
+    margin: 13px auto;
+}
+.section-text-large {
+    color: #086972;
+    line-height: 1.6;
+    font-size: 2.2rem;
+    max-width: 800px;
+    margin: 13px auto;
+    font-style: italic;
+}
+
+
+.fair {
+    color: #086972;
+    font-style: italic;
+    font-weight: bold;
+}
+
+
+
+.team-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    margin: 50px 0;
+}
+
+.team-member {
+    background: white;
+    border-radius: 8px;
+    padding: 25px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+.member-image.placeholder {
+    width: 150px;
+    height: 150px;
+    margin: 0 auto 20px;
+    border-radius: 50%;
+    background-color: #e0e0e0;
+}
+
+@media (max-width: 768px) {
+    .about-us-content {
+        padding: 20px 15px;
+    }
+    
+    .team-grid {
+        grid-template-columns: 1fr;
+    }
+}
+

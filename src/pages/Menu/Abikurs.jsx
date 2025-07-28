@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { useAuth } from "../context/UseAuth.jsx";
+import { useAuth } from "../../context/UseAuth.jsx";
 
 const Abikurs = () => {
 
