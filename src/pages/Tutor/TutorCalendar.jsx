@@ -314,7 +314,7 @@ const TutorCalendar = () => {
     const termineEvents = termine.map((termin) => ({
         start: new Date(termin.startDate),
         end: new Date(termin.endDate),
-        title: `Fach: ${fächer[termin.fachId] || "?"}, Tutor: ${schuelerNames[termin.studentId] || "?"}`,
+        title: `Fach: ${fächer[termin.fachId] || "?"}, Student: ${schuelerNames[termin.studentId] || "?"}`,
     }));
 
     return (
