@@ -17,7 +17,6 @@ const Login = () => {
             setErrorMessage("");
             const userData = await login({ username, password });
 
-
             if (userData && userData.userRoleIds.length === 1) {
                 updateUser({
                     userRole: userRoleIdToName[userData.userRoleIds[0]],

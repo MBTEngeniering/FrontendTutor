@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from "react";
+// import React, { useEffect, useState } from "react";
 import ApiService from "../api/ApiService.js";
 
 const MeinGehalt = ({ TutorId }) => {
+    return <div>Mein Honorar ist derzeit deaktiviert.</div>;
     // const [gesamtVerdienst, setGesamtVerdienst] = useState(0);
     // const [verdienListe, setVerdienListe] = useState([]);
     //

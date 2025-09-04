@@ -408,7 +408,7 @@ function TutorSeite() {
                             )}
                         </div>
                     );
-                case "Mein Gehalt":
+                case "Mein Honorar":
                     return <MeinGehalt TutorId={user.id} />;
                 case "Support":
                     return <p>Support-Bereich. Hier kannst du Hilfe anbieten oder anfordern.</p>;
@@ -430,7 +430,7 @@ function TutorSeite() {
                     <button onClick={() => setActiveContent("Vertrag")}>📝 Vertrag</button>
                     <button onClick={() => setActiveContent("Meine Termine")}>⏰ Meine Termine</button>
                     <button onClick={() => setActiveContent("Meine Schüler")}>👨‍🏫 Meine Schüler</button>
-                    <button onClick={() => setActiveContent("Mein Gehalt")}>⏳ Mein Gehalt</button>
+                    <button onClick={() => setActiveContent("Mein Honorar")}>⏳ Mein Honorar</button>
                     <button onClick={() => setActiveContent("Support")}>🛟 Support</button>
                     <button onClick={() => setActiveContent("Postfach")}>📬 Postfach</button>
                     <button

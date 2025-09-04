@@ -16,9 +16,9 @@ export default function Root() {
   }, []);
 
   return (
-    <StrictMode>
+    <>
       {isLoading ? <LoadingScreen /> : <App />}
-    </StrictMode>
+    </>
   );
 }
 
