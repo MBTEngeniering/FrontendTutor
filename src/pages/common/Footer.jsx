@@ -27,7 +27,7 @@ export default function Footer() {
           <ul>
             <li>Email: info@fairstudy.de</li>
             <li>Telefon: (in Bearbeitung)</li>
-            <li>Adresse: Wulf-Isebrand Str. 54, 25764 Wesselburen</li>
+            <li>Adresse: (in Bearbeitung)</li>
           </ul>
         </div>
         <div className="footer-section">
