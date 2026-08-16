@@ -95,7 +95,7 @@ const RegisterTutor = () => {
             fachIds: selectedFachIds
         };
 
-        axios.post(`${apiUrl}/api/allusers`, tutorData)
+        axios.post(`${apiUrl}/api/auth/register`, tutorData)
             .then(() => {
                 alert("Tutor erfolgreich registriert!");
                 navigate("/login");

@@ -22,4 +22,5 @@ export default function Root() {
   );
 }
 
+//const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 createRoot(document.getElementById('root')).render(<Root/>);
