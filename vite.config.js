@@ -1,115 +1,81 @@
-import { defineConfig, loadEnv } from 'vite'
-import react from '@vitejs/plugin-react'
-import terser from '@rollup/plugin-terser';
+import { defineConfig, loadEnv } from 'vite';
+import react from '@vitejs/plugin-react';
 
-// https://vite.dev/config/
-export default defineConfig(({mode}) => {
-      const env = loadEnv(mode, process.cwd());
-      const PORT = `${env.VITE_PORT ?? '3003'}`;
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd());
+  const port = Number(env.VITE_PORT ?? '3003');
+  const isProduction = mode === 'production';
 
-      return {
-        plugins: [
-          react(),
-          terser({
-            maxWorkers: 8, // Number of workers to use for minification
-            compress: {
-              drop_console: true, // Keep console.* calls
-              drop_debugger: true, // Removes debugger statements
-              dead_code: true, // Removes unreachable code
-              passes: 2, // Number of compression passes
-              unsafe_math: true, // Optimize math expressions
-              conditionals: true, // Optimize if-s and conditional expressions
-              sequences: true, // Join consecutive simple statements using the comma operator
-              booleans: true, // various optimizations for boolean context
-              unused: true, // Drop unreferenced functions and variables
-              if_return: true, // Optimizations for if/return and if/continue
-              join_vars: true, // Join consecutive var statements
-            },
-            format: {
-              preamble: "/* minified */", // Add a comment at the top of the file
-              comments: false, // Remove comments
-            },
-            mangle: {
-              properties: false, // Don't rename properties (safer)
-            },
-          })
-        ],
-        publicDir: 'public',
-        resolve: {
-          alias: {
-            '@': '/src',
-            ':common': '/src/pages/common',
-            ':comp': '/src/components',
-            ':pages': '/src/pages',
-            ':assets': '/src/assets',
-            ':styles': '/src/styles',
-          }
-        },
-        build: {
-          modulePreload: true, // Keep modulePreload enabled to ensure the best performance
-          sourcemap: false, // Disable sourcemaps in production
-          cssCodeSplit: true, // Enable CSS code splitting
-
-          // Minification settings (Use terser for minification with aggressive settings)
-          minify: 'terser', // Can also use 'esbuild' which is faster but less optimized
-          outDir: 'build',
-          rollupOptions: {
-            output: {
-              manualChunks(id) {
-                if (id.includes('node_modules/luxon')) {
-                  return 'vendor-luxon';
-                }
-                if (id.includes('node_modules/canvg')) {
-                  return 'vendor-canvg';
-                }
-                if (id.includes('node_modules/axios')) {
-                  return 'vendor-axios';
-                }
-                if (id.includes('node_modules/sweetalert')) {
-                  return 'vendor-sweetalert2';
-                }
-                if (id.includes('node_modules/html2canvas')) {
-                  return 'vendor-html2canvas';
-                }
-                if (id.includes('node_modules/react-big')) {
-                  return 'vendor-react-big';
-                }
-                if (id.includes('node_modules/reactstrap')) {
-                  return 'vendor-reactstrap';
-                }
-                if (id.includes('node_modules/jspdf')) {
-                  return 'vendor-jspdf';
-                }
-                if (id.includes('node_modules/@daypilot')) {
-                  return 'vendor-daypilot';
-                }
-                if (id.includes('/src/components')) {
-                  const route = id.split('/src/components/')[1].split('/')[0];
-                  return `page-${route}`;
-                }
-                // Split routes into individual chunks based on folder structure
-                if (id.includes('/src/pages')) {
-                  const route = id.split('/src/pages/')[1].split('/')[0];
-                  return `page-${route}`;
-                }
-                if (id.includes('node_modules')) {
-                  return 'vendor';
-                }
+  return {
+    plugins: [react()],
+    publicDir: 'public',
+    resolve: {
+      alias: {
+        '@': '/src',
+        ':common': '/src/pages/common',
+        ':comp': '/src/components',
+        ':pages': '/src/pages',
+        ':assets': '/src/assets',
+        ':styles': '/src/styles',
+      },
+    },
+    build: {
+      target: 'es2020',
+      sourcemap: !isProduction,
+      cssCodeSplit: true,
+      chunkSizeWarningLimit: 900,
+      minify: 'esbuild',
+      outDir: 'build',
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            if (id.includes('node_modules')) {
+              if (id.includes('react-router')) {
+                return 'router';
               }
-            },
-          }
+
+              if (id.includes('react-big-calendar') || id.includes('@fullcalendar')) {
+                return 'calendar';
+              }
+
+              if (id.includes('jspdf') || id.includes('html2canvas') || id.includes('canvg')) {
+                return 'pdf';
+              }
+
+              if (id.includes('sweetalert')) {
+                return 'alerts';
+              }
+
+              if (id.includes('luxon') || id.includes('date-fns')) {
+                return 'date';
+              }
+
+              return 'vendor';
+            }
+
+            if (id.includes('/src/components')) {
+              const route = id.split('/src/components/')[1].split('/')[0];
+              return `component-${route}`;
+            }
+
+            if (id.includes('/src/pages')) {
+              const route = id.split('/src/pages/')[1].split('/')[0];
+              return `page-${route}`;
+            }
+          },
         },
-        server: {
-          host: '0.0.0.0',
-          port: PORT,
-          strictPort: true,
-          hmr: {
-            protocol: 'ws',
-            host: 'localhost',
-            overlay: true
-          }
-        }
-      }
-    }
-);
+      },
+    },
+    server: {
+      host: '0.0.0.0',
+      port,
+      strictPort: false,
+      hmr: {
+        protocol: 'ws',
+        host: 'localhost',
+        overlay: true,
+      },
+    },
+  };
+});
 
