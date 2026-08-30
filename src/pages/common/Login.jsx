@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Button, Container, Input, Modal, ModalBody, ModalFooter, ModalHeader, } from "reactstrap";
+import { Button, Container, Form, Input, Modal, ModalBody, ModalFooter, ModalHeader, } from "reactstrap";
 import { useAuth } from "../../context/UseAuth.jsx";
 import { userRoleIdToName, userRoleIdToPage } from "../../util/mapping.js";
 
@@ -12,7 +12,9 @@ const Login = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
 
-    const handleLogin = async () => { // Make the function async
+    const handleLogin = async (event) => {
+        event?.preventDefault();
+
         try {
             setErrorMessage("");
             const userData = await login({ username, password });
@@ -64,8 +66,7 @@ const Login = () => {
                 }}
             >
                 <h2>Anmelden</h2>
-                {/*<Form onSubmit={e => {handleLogin(e)}} >*/}
-                <form>
+                <form onSubmit={handleLogin}>
                     <Input
                         className="mb-2 form-control-lg"
                         type="text"
@@ -83,9 +84,9 @@ const Login = () => {
                         onChange={(e) => setPassword(e.target.value)}
                     />
                     <Button
+                        type="submit"
                         className="mb-2 btn btn-success form-control"
                         style={{padding: "10px", marginTop: "10px"}}
-                        onClick={handleLogin}
                     >
                         Login
                     </Button>
@@ -104,7 +105,7 @@ const Login = () => {
             <Modal isOpen={modalOpen} toggle={() => setModalOpen(!modalOpen)}>
                 <ModalHeader toggle={() => setModalOpen(!modalOpen)}>Rolle auswählen</ModalHeader>
                 <ModalBody>
-                    {user && user.userRoleIds.map((roleId, index) => (
+                    {user &&  user.userRoleIds && user.userRoleIds.map((roleId, index) => (
                         <Button
                             key={index}
                             color="secondary"
