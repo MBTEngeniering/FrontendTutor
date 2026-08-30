@@ -4,17 +4,26 @@ import { useAuth } from '../context/UseAuth.jsx';
 import { ADMIN } from "../util/mapping.js";
 
 const ProtectedRoute = ({ element, roles }) => {
-  const { user } = useAuth();
+  const { user, isAuthReady } = useAuth();
+
+  if (!isAuthReady) {
+    return null;
+  }
 
   if (!user || !user.isLoggedIn) {
     return <Navigate to="/login" replace />;
   }
 
-  if (roles && (user.userRoleIds.includes(ADMIN) || roles.includes(user.selectedUserRoleId))) {
-    return element;
+  const allowedRoles = roles ?? [];
+  const hasRequiredRole =
+    user.userRoleIds?.includes(ADMIN) ||
+    allowedRoles.includes(user.selectedUserRoleId);
+
+  if (!hasRequiredRole) {
+    return <Navigate to="/" replace />;
   }
 
-  return <Navigate to="/" replace />;
+  return element;
 };
 
 export default ProtectedRoute;

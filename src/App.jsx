@@ -5,7 +5,7 @@ import "./App.css";
 import ChatSupport from "./components/ChatSupport.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import { AuthProvider } from "./context/AuthProvider.jsx";
-import { ADMIN, FINANCE } from "./util/mapping.js";
+import { ADMIN, FINANCE, STUDENT, TUTOR } from "./util/mapping.js";
 
 // Seitenkomponenten importieren
 const Homepage = lazy(() => import("./pages/Menu/Homepage.jsx"));
@@ -59,8 +59,8 @@ const App = () => {
               <Route path="/elternschueler" element={<RegisterStudent/>}/>
               <Route path="/lehrer" element={<RegisterTutor/>}/>
               <Route path="/konzept" element={<Konzept/>}/>
-              <Route path="/schueler" element={<Schueler/>}/>
-              <Route path="/tutor" element={<Tutor/>}/>
+              <Route path="/schueler" element={<ProtectedRoute roles={[STUDENT]} element={<Schueler/>}/>}/>
+              <Route path="/tutor" element={<ProtectedRoute roles={[TUTOR]} element={<Tutor/>}/>}/>
               <Route path="/vortraege" element={<Vortraege/>}/>
               <Route path="/tutors" element={<Tutors/>}/>
               <Route path="/enterprise" element={<Enterprise/>}/>

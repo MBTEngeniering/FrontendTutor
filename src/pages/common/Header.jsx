@@ -23,7 +23,8 @@ export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const toggle = () => setIsOpen(!isOpen);
   const navigate = useNavigate();
-  const {user, logout} = useAuth();
+  const { user, logout } = useAuth();
+  const isAuthenticated = Boolean(user?.isLoggedIn);
 
   return (
       <Navbar container="fluid" className="mb-0" expand="lg">
@@ -85,10 +86,10 @@ export default function Header() {
             <NavItem>
               <Link to="/registrierung" className="nav-link">Registrierung</Link>
             </NavItem>
-            {!user || !user.isLoggedIn ? (
+            {!isAuthenticated ? (
                 <NavItem>
                   <Link className="nav-link" to="/login">
-                    <button style={{
+                    <button type="button" style={{
                       padding: '6px 20px',
                       backgroundColor: 'black',
                       color: 'white',
@@ -104,9 +105,10 @@ export default function Header() {
                   <NavItem className="nav-link">
                     {user.firstName} {user.lastName}
                   </NavItem>
-                  {user.isLoggedIn && user.userPage && (
+                  {user.userPage && (
                       <NavItem className="nav-link">
                         <button
+                            type="button"
                             className="btn btn-info"
                             onClick={() => navigate(user.userPage)}
                             title={user.userRole}
@@ -116,10 +118,13 @@ export default function Header() {
                       </NavItem>
                   )}
                   <NavItem className="nav-link">
-                    <Link
-                        onClick={logout}
+                    <button
+                        type="button"
+                        onClick={async () => {
+                          await logout();
+                          navigate('/');
+                        }}
                         style={{
-                          // marginLeft: "20px",
                           padding: '8px 10px',
                           backgroundColor: 'rgb(1,1,16)',
                           color: 'white',
@@ -127,11 +132,11 @@ export default function Header() {
                           borderRadius: '5px',
                           textAlign: 'center',
                           textDecoration: 'none',
+                          cursor: 'pointer',
                         }}
-                        to="/"
                     >
                       Abmelden
-                    </Link>
+                    </button>
                   </NavItem>
                 </>
             )}

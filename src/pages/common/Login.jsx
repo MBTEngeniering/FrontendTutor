@@ -27,7 +27,7 @@ const Login = () => {
                     isLoggedIn: true
                 })
                 navigate(userRoleIdToPage[userData.userRoleIds[0]]);
-            } else if (userData && user.userRoleIds.length > 1) {
+            } else if (userData && userData.userRoleIds.length > 1) {
                 setModalOpen(true);
             }
         } catch (error) {
