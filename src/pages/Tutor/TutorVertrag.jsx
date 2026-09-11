@@ -27,8 +27,8 @@ const TutorVertrag = ({ user }) => {
             alert("User erfolgreich upgedate")
 
         } catch (error) {
-            alert("Fehler beim Laden des Benutzers:", error);
-
+            alert("Fehler beim Laden des Benutzers:");
+            console.error(error);
         }
 
     };

@@ -4,7 +4,7 @@ import ApiService from "../api/ApiService.js";
 const MeineTermine = ({ student, lang = "de" }) => {
     const [termine, setTermine] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [fächer, setFächer] = useState({});
+    const [subjects, setSubjects] = useState({});
     const [tutorenMap, setTutorenMap] = useState({});
     const [jetzt, setJetzt] = useState(new Date());
     const [feedbackTermin, setFeedbackTermin] = useState(null);
@@ -31,9 +31,9 @@ const MeineTermine = ({ student, lang = "de" }) => {
                 // Fächer zuordnen
                 const fachMap = {};
                 faecherResponse.data.forEach((fach) => {
-                    fachMap[fach.id] = fach.fach || fach.bezeichnung || "Unbekannt";
+                    fachMap[fach.id] = fach.translation || fach.bezeichnung || "Unbekannt";
                 });
-                setFächer(fachMap);
+                setSubjects(fachMap);
 
                 // Tutor-Daten abfragen
                 const tutorIds = [...new Set(termine.map(t => t.tutorId))];
@@ -140,7 +140,7 @@ const MeineTermine = ({ student, lang = "de" }) => {
                             />
                             <div>
                                 <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-semibold">
-                                    {fächer[termin.fachId] || "Fach unbekannt"}
+                                    {subjects[termin.fachId] || "Fach unbekannt"}
                                 </span>
                                 <div className="mt-2 font-bold">{uhrzeit}</div>
                                 <div className="font-semibold">{datum}</div>

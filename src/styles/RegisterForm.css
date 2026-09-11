@@ -119,16 +119,16 @@
 }
 
 .subjects-container {
-  grid-column: span 2;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
+  /*grid-column: span 2;*/
+  /*display: flex;*/
+  /*flex-direction: column;*/
+  /*gap: 0.5rem;*/
 }
 
 @media (min-width: 768px) {
   .subjects-container {
-    flex-direction: row;
-    align-items: flex-end;
+    /*flex-direction: row;*/
+    /*align-items: flex-end;*/
   }
   
   .subjects-container .submit-btn {
@@ -144,7 +144,7 @@
 }
 
 .subject-tag {
-  background: #f1f1f1;
+  background: lightcyan;
   padding: 0.5rem 1rem;
   border-radius: 20px;
   display: flex;

@@ -2,6 +2,10 @@ html {
   scroll-behavior: smooth;
 }
 
+@view-transition {
+  navigation: auto;
+}
+
 :root {
   --primary-color: #086972;
   --secondary-color: #00847F;

@@ -14,7 +14,7 @@ import MeineNachricht from "../../components/MeineNachricht.jsx";
 
 
 function TutorSeite() {
-    const apiUrl = import.meta.env.VITE_API_URL;
+    //const apiUrl = import.meta.env.VITE_API_URL;
     const [activeContent, setActiveContent] = useState(null);
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
     const { user } = useAuth(); // Assuming you have a custom hook for authentication

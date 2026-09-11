@@ -4,16 +4,43 @@ import { DateTime } from 'luxon';
 import ApiService from "../../api/ApiService.js";
 import { useAuth } from "../../context/UseAuth.jsx";
 import StudentCalender from "./StudentCalender.jsx";
-import MeineTutoren  from "./MeineTutoren.jsx";
-import SendeMessage from "../../components/SendeMessage.jsx";
+import MeineTutoren from "./MeineTutoren.jsx";
 import MyPost from "../../components/MyPost.jsx";
 import SchuelerVertrag from "./SchulerVertrag.jsx";
 import MeineTermine from "../../components/MeineTermine.jsx";
 import MeineStunden from "../../components/MeineStunde.jsx";
 import MeineZahlungen from "../../components/MeineZahlungen.jsx";
+import { useNavigate } from "react-router-dom";
 
 function SchuelerSeite() {
-    const [activeContent, setActiveContent] = useState("Kalender");
+    const navigate = useNavigate();
+
+    const getContentFromHash = () => {
+        const hash = window.location.hash.replace(/^#/, "").trim();
+
+        if (!hash) {
+            return "Kalender";
+        }
+
+        const normalizedHash = decodeURIComponent(hash);
+        const allowedContent = [
+            "Postfach",
+            "Studienübersicht",
+            "Kalender",
+            "Vertrag",
+            "Meine Termine",
+            "Meine Lehrer",
+            "Meine Stunden",
+            "Support",
+            "Meine Zahlung",
+            "Mein Profil",
+            "Lehrer suchen",
+        ];
+
+        return allowedContent.includes(normalizedHash) ? normalizedHash : "Kalender";
+    };
+
+    const [activeContent, setActiveContent] = useState(getContentFromHash);
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
     const [selectedSubject, setSelectedSubject] = useState("");
     const [availableSubjects, setAvailableSubjects] = useState([]);
@@ -30,9 +57,6 @@ function SchuelerSeite() {
     const [selectedSubjectId, setSelectedSubjectId] = useState(null);
     const {user} = useAuth();
 
-
-
-
     // Student-specific data
     const termine = [
 
@@ -42,6 +66,31 @@ function SchuelerSeite() {
     const stunden = [
 
     ];
+
+    useEffect(() => {
+        const syncHashWithActiveContent = () => {
+            const content = encodeURIComponent(activeContent || "Kalender");
+            const basePath = window.location.pathname;
+            const nextHash = `#${content}`;
+            const currentHash = window.location.hash;
+
+            if (currentHash !== nextHash) {
+                window.history.replaceState(null, "", `${basePath}${nextHash}`);
+            }
+        };
+
+        syncHashWithActiveContent();
+    }, [activeContent]);
+
+    useEffect(() => {
+        const handleHashChange = () => {
+            const nextContent = getContentFromHash();
+            setActiveContent(prevContent => prevContent === nextContent ? prevContent : nextContent);
+        };
+
+        window.addEventListener("hashchange", handleHashChange);
+        return () => window.removeEventListener("hashchange", handleHashChange);
+    }, []);
 
     useEffect(() => {
         // @TTODO: Use language from settings
@@ -54,7 +103,6 @@ function SchuelerSeite() {
                     .then(response => setAvailableSubjects(response.data))
                     .catch(error => console.error("Fehler beim Laden der Fächer:", error))
             })
-
             .catch(error => console.error("Fehler beim Laden der Fächer:", error));
 
         ApiService.get(`/api/allusers`)
@@ -70,7 +118,12 @@ function SchuelerSeite() {
 
                 setTutors(tutors);
             })
-            .catch(error => console.error("Fehler beim Laden der Tutoren:", error));
+            .catch(error => {
+                console.error("Fehler beim Laden der Tutoren:", error);
+                if (error.response && error.response.status === 401) {
+                    navigate("/login");
+                }
+            });
         const fetchLoggedInUser = async () => {
             const loggedInUser = await getLoggedInUser();
             if (loggedInUser) {
@@ -93,10 +146,13 @@ function SchuelerSeite() {
        // const userRole = user.userRole;
 
         try {
-            const response = await ApiService.get(`/api/allusers/${userId}`);
+            const response = await ApiService.get(`/api/allusers/${userId}`).catch(error => {
+                if(error.response && error.response.status === 401) {
+                    navigate("/login");
+                }
+            });
 
-            const user = response.data;
-            return user;
+            return response.data;
         } catch (error) {
             console.error("Fehler beim Laden des Benutzers:", error);
             return null;
@@ -127,7 +183,6 @@ function SchuelerSeite() {
         const tutorId = tutor.id;
         const userId = user.id;
         try {
-
             const responseTutor = await ApiService.get(`/api/allusers/${tutorId}`);
             const responseUser = await ApiService.get(`/api/allusers/${userId}`);
             const schowTutor = responseTutor.data;
@@ -135,7 +190,6 @@ function SchuelerSeite() {
             if (showUser.tutorsIds && showUser.tutorsIds.includes(tutorId)) {
                 alert(`Der Tutor ${schowTutor.firstName} ${schowTutor.lastName} ist  bereits  dein TuTor.`);
             } else {
-
                 showUser.tutorsIds = [...(showUser.tutorsIds || []), tutorId];
 
                 schowTutor.schoolTutorsIds = [...(schowTutor.schoolTutorsIds || []), userId];
@@ -242,8 +296,6 @@ function SchuelerSeite() {
     const cancelChanges = () => {
         setLoggedInUser(originalUser);
     };
-
-
 
 
 if(user.accountActive){

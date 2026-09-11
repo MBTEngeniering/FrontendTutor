@@ -2,13 +2,14 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import '../../styles/RegisterForm.css';
+import countries from '../../data/countries';
+import ApiService from "../../api/ApiService.js";
 
 const RegisterTutor = () => {
-    const apiUrl = import.meta.env.VITE_API_URL;
+    // const apiUrl = import.meta.env.VITE_API_URL;
     const [selectedSubject, setSelectedSubject] = useState("");
     const [subjects, setSubjects] = useState([]);
     const [availableSubjects, setAvailableSubjects] = useState([]);
-    const [countries, setCountries] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [errors, setErrors] = useState({});
     const [formData, setFormData] = useState({
@@ -35,28 +36,28 @@ const RegisterTutor = () => {
     useEffect(() => {
         // @TTODO: Use language from settings
         const lang = navigator.languages[1].substring(0, 2);
-        axios.get(`${apiUrl}/api/fach/trans/${lang}`, {withCredentials: true})
+        ApiService.get(`/api/fach/trans/${lang}`)
             .then(response => setAvailableSubjects(response.data))
             .catch(function (error) {
                 console.error("Fehler beim Laden der Fächer:", error.message);
-                axios.get(`${apiUrl}/api/fach`)
+                ApiService.get(`/api/fach`)
                     .then(response => setAvailableSubjects(response.data))
-                    .catch(error => console.error("Fehler beim Laden der Fächer:", error))
+                    .catch(error => console.error("Fehler beim Laden der Fächer:", error.message))
             });
-
-
-    }, [apiUrl]);
+    }, []);
 
     const handleAddSubject = () => {
-        if (selectedSubject && !subjects.includes(selectedSubject)) {
-            setSubjects([...subjects, selectedSubject]);
+        const selectedSubjectData = availableSubjects.find((fach) => fach.fach === selectedSubject);
+
+        if (selectedSubjectData && !subjects.some((subject) => subject.fach === selectedSubjectData.fach)) {
+            setSubjects([...subjects, selectedSubjectData]);
             setSelectedSubject("");
         }
     };
     const navigate = useNavigate();
 
     const handleRemoveSubject = (subjectToRemove) => {
-        setSubjects(subjects.filter(subject => subject !== subjectToRemove));
+        setSubjects(subjects.filter(subject => subject.fach !== subjectToRemove.fach));
     };
 
     const validateForm = () => {
@@ -64,12 +65,29 @@ const RegisterTutor = () => {
         if (!formData.salutation) newErrors.salutation = "Anrede ist erforderlich";
         if (!formData.lastName) newErrors.lastName = "Name ist erforderlich";
         if (!formData.firstName) newErrors.firstName = "Vorname ist erforderlich";
-        if (!formData.emailAddress || !/^\S+@\S+\.\S+$/.test(formData.emailAddress))
+        if (!formData.emailAddress) newErrors.emailAddress = "E-Mail ist erforderlich";
+        if (!formData.password) newErrors.password = "Passwort ist erforderlich";
+        if (!formData.repeatPassword) newErrors.repeatPassword = "Passwort wiederholen ist erforderlich";
+        if (!formData.street) newErrors.street = "Straße ist erforderlich";
+        if (!formData.houseNumber) newErrors.houseNumber = "Hausnummer ist erforderlich";
+        if (!formData.postalCode) newErrors.postalCode = "Postleitzahl ist erforderlich";
+        if (!formData.city) newErrors.city = "Stadt ist erforderlich";
+        if (!formData.country) newErrors.country = "Land ist erforderlich";
+        if (!formData.phoneNumber) newErrors.phoneNumber = "Telefonnummer ist erforderlich";
+
+        // Format validation
+        if (formData.emailAddress && !/^\S+@\S+\.\S+$/.test(formData.emailAddress)) {
             newErrors.emailAddress = "Gültige E-Mail ist erforderlich";
-        if (!formData.password || formData.password.length < 8)
+        }
+        if (formData.password && formData.password.length < 8) {
             newErrors.password = "Passwort muss mindestens 8 Zeichen haben";
-        if (formData.password !== formData.repeatPassword)
+        }
+        if (formData.password !== formData.repeatPassword) {
             newErrors.repeatPassword = "Passwörter stimmen nicht überein";
+        }
+        if (formData.phoneNumber && !/^[0-9]{10,15}$/.test(formData.phoneNumber)) {
+            newErrors.phoneNumber = "Telefonnummer muss 10-15 Ziffern haben";
+        }
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -85,7 +103,7 @@ const RegisterTutor = () => {
 
     const handleRegistration = () => {
         const selectedFachIds = availableSubjects
-            .filter(fach => subjects.includes(fach.fach))
+            .filter(fach => subjects.some(subject => subject.fach === fach.fach))
             .map(fach => fach.id);
 
         const tutorData = {
@@ -95,14 +113,14 @@ const RegisterTutor = () => {
             fachIds: selectedFachIds
         };
 
-        axios.post(`${apiUrl}/api/auth/register`, tutorData)
+        ApiService.post(`/api/auth/register`, tutorData)
             .then(() => {
                 alert("Tutor erfolgreich registriert!");
                 navigate("/login");
             })
             .catch(error => {
                 console.error("Fehler bei der Registrierung:", error);
-                alert("Ein Fehler ist aufgetreten. Bitte versuche es erneut.");
+                alert("Ein Fehler ist aufgetreten. Bitte versuche es erneut. Meldung: " + (error.response.data || ""));
             })
             .finally(() => {
                 setIsLoading(false);
@@ -116,7 +134,7 @@ const RegisterTutor = () => {
                 <h2 className="registration-title">Tutor Registrierung</h2>
                 <p className="registration-subtitle">Werden Sie Nachhilfelehrer</p>
 
-                <form onSubmit={handleSubmit} className="registration-form">
+                <form onSubmit={handleSubmit} className="registration-form" noValidate>
                 <div className="form-group">
                     <label className="form-label">Anrede *</label>
                     <select
@@ -206,73 +224,79 @@ const RegisterTutor = () => {
                     <label className="form-label">Straße *</label>
                     <input
                         type="text"
-                        className="form-input"
+                        className={`form-input ${errors.street ? 'error' : ''}`}
                         value={formData.street || ""}
                         onChange={(e) => setFormData({...formData, street: e.target.value})}
                         required
                     />
+                    {errors.street && <div className="error-message">{errors.street}</div>}
                 </div>
 
                 <div className="form-group">
                     <label className="form-label">Hausnummer *</label>
                     <input
                         type="text"
-                        className="form-input"
+                        className={`form-input ${errors.houseNumber ? 'error' : ''}`}
                         value={formData.houseNumber || ""}
                         onChange={(e) => setFormData({...formData, houseNumber: e.target.value})}
                         required
                     />
+                    {errors.houseNumber && <div className="error-message">{errors.houseNumber}</div>}
                 </div>
 
                 <div className="form-group">
                     <label className="form-label">Postleitzahl *</label>
                     <input
                         type="text"
-                        className="form-input"
+                        className={`form-input ${errors.postalCode ? 'error' : ''}`}
                         value={formData.postalCode || ""}
                         onChange={(e) => setFormData({...formData, postalCode: e.target.value})}
                         required
                     />
+                    {errors.postalCode && <div className="error-message">{errors.postalCode}</div>}
                 </div>
 
                 <div className="form-group">
                     <label className="form-label">Stadt *</label>
                     <input
                         type="text"
-                        className="form-input"
+                        className={`form-input ${errors.city ? 'error' : ''}`}
                         value={formData.city || ""}
                         onChange={(e) => setFormData({...formData, city: e.target.value})}
                         required
                     />
+                    {errors.city && <div className="error-message">{errors.city}</div>}
                 </div>
 
                 <div className="form-group">
                     <label className="form-label">Land *</label>
                     <input
                         list="countries"
-                        className="form-input"
+                        className={`form-input ${errors.country ? 'error' : ''}`}
                         value={formData.country || ""}
                         onChange={(e) => setFormData({...formData, country: e.target.value})}
                         required
                     />
                         <datalist id="countries">
-                        {countries.map((country, index) => (
-                            <option key={index} value={country.name.common}></option>
+                        {countries.map((country) => (
+                            <option key={country.code} value={country.name}></option>
                         ))}
                         </datalist>
+                    {errors.country && <div className="error-message">{errors.country}</div>}
                 </div>
 
                 <div className="form-group">
                     <label className="form-label">Telefonnummer *</label>
                     <input
                         type="tel"
-                        className="form-input"
+                        className={`form-input ${errors.phoneNumber ? 'error' : ''}`}
                         value={formData.phoneNumber || ""}
                         onChange={(e) => setFormData({...formData, phoneNumber: e.target.value})}
                         required
                         pattern="[0-9]{10,15}"
                     />
                     <small className="text-gray-500">Format: 1234567890 (10-15 digits)</small>
+                    {errors.phoneNumber && <div className="error-message">{errors.phoneNumber}</div>}
                 </div>
                 <div className="form-group full-width">
                     <label className="form-label">Fächer</label>
@@ -291,7 +315,7 @@ const RegisterTutor = () => {
                         </select>
                         <button 
                             type="button" 
-                            className="submit-btn"
+                            className="submit-btn mt-3"
                             onClick={handleAddSubject}
                         >
                             Fach hinzufügen
@@ -299,7 +323,7 @@ const RegisterTutor = () => {
                         <div className="subjects-list">
                             {subjects.map((subject, index) => (
                                 <div key={index} className="subject-tag">
-                                    <span>{subject}</span>
+                                   <span>{subject.translation || subject.fach}</span>
                                   <button
                                       type="button"
                                       className="remove-subject"

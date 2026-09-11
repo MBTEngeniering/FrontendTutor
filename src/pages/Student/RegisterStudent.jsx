@@ -1,16 +1,15 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import '../../styles/RegisterForm.css';
 import '../../styles/Register.css';
-
+import countries from '../../data/countries';
+import ApiService from "../../api/ApiService.js";
 
 function RegisterStudent() {
-    const apiUrl = import.meta.env.VITE_API_URL;
+    // const apiUrl = import.meta.env.VITE_API_URL;
     const [selectedSubject, setSelectedSubject] = useState("");
     const [subjects, setSubjects] = useState([]);
     const [availableSubjects, setAvailableSubjects] = useState([]);
-    const [countries, setCountries] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [apiError, setApiError] = useState(null);
     const [errors, setErrors] = useState({});
@@ -36,25 +35,30 @@ function RegisterStudent() {
         picture: ""
     });
 
-    // Fächer aus dem Backend laden
     useEffect(() => {
+        // @TTODO: Use language from settings
         const lang = navigator.languages[1].substring(0, 2);
-        axios.get(`${apiUrl}/api/fach/trans/${lang}`, { withCredentials: true })
+        ApiService.get(`/api/fach/trans/${lang}`)
             .then(response => setAvailableSubjects(response.data))
-            .catch(error => console.error("Fehler beim Laden der Fächer:", error));
-        // Länder aus der API laden
-
+            .catch(function (error) {
+                console.error("Fehler beim Laden der Fächer:", error.message);
+                ApiService.get(`/api/fach`)
+                    .then(response => setAvailableSubjects(response.data))
+                    .catch(error => console.error("Fehler beim Laden der Fächer:", error.message))
+            });
     }, []);
 
     const handleAddSubject = () => {
-        if (selectedSubject && !subjects.includes(selectedSubject)) {
-            setSubjects([...subjects, selectedSubject]);
+        const selectedSubjectData = availableSubjects.find((fach) => fach.fach === selectedSubject);
+
+        if (selectedSubjectData && !subjects.some((subject) => subject.fach === selectedSubjectData.fach)) {
+            setSubjects([...subjects, selectedSubjectData]);
             setSelectedSubject("");
         }
     };
 
     const handleRemoveSubject = (subjectToRemove) => {
-        setSubjects(subjects.filter(subject => subject !== subjectToRemove));
+        setSubjects(subjects.filter(subject => subject.fach !== subjectToRemove.fach));
     };
     const navigate = useNavigate();
 
@@ -62,7 +66,7 @@ function RegisterStudent() {
         e.preventDefault();
 
         const selectedFachIds = availableSubjects
-            .filter(fach => subjects.includes(fach.fach))
+            .filter(fach => subjects.some(subject => subject.fach === fach.fach))
             .map(fach => fach.id);
         if (formData.password !== formData.repeatPassword) {
             alert("Passwörter stimmen nicht überein!");
@@ -76,7 +80,7 @@ function RegisterStudent() {
             fachIds: selectedFachIds
         };
 
-        axios.post(`${apiUrl}/api/auth/register`, studentData)
+        ApiService.post(`/api/auth/register`, studentData)
             .then(response => {
                 alert("Du hast dich erfolgreich registriert!");
                 navigate("/login");
@@ -84,7 +88,7 @@ function RegisterStudent() {
             .catch(error => {
                 console.error("Fehler bei der Registrierung:", error);
                 setIsLoading(false);
-                
+
                 if (error.response) {
                     // Server responded with error status
                     if (error.response.data && error.response.data.message) {
@@ -128,7 +132,7 @@ function RegisterStudent() {
         if (formData.password !== formData.repeatPassword) {
             newErrors.repeatPassword = "Passwörter stimmen nicht überein";
         }
-        
+
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
@@ -136,7 +140,7 @@ function RegisterStudent() {
     const handleSubmit = (e) => {
         e.preventDefault();
         if (!validateForm()) return;
-        
+
         setIsLoading(true);
         handleRegistration(e);
     };
@@ -158,7 +162,7 @@ function RegisterStudent() {
                 <h2 className="registration-title">Schüler/Eltern Registrierung</h2>
                 <p className="registration-subtitle">Erstellen Sie ein Konto für Nachhilfe</p>
 
-                <form onSubmit={handleSubmit} className="registration-form">
+                <form onSubmit={handleSubmit} className="registration-form" noValidate>
                     <div className="form-group">
                         <label className="form-label">Anrede *</label>
                         <select
@@ -248,67 +252,78 @@ function RegisterStudent() {
                         <label className="form-label">Straße *</label>
                         <input
                             type="text"
-                            className="form-input"
+                            className={`form-input ${errors.street ? 'error' : ''}`}
                             value={formData.street || ""}
                             onChange={(e) => setFormData({...formData, street: e.target.value})}
                             required
                         />
+                        {errors.street && <div className="error-message">{errors.street}</div>}
                     </div>
 
                     <div className="form-group">
                         <label className="form-label">Hausnummer *</label>
                         <input
                             type="text"
-                            className="form-input"
+                            className={`form-input ${errors.houseNumber ? 'error' : ''}`}
                             value={formData.houseNumber || ""}
                             onChange={(e) => setFormData({...formData, houseNumber: e.target.value})}
                             required
                         />
+                        {errors.houseNumber && <div className="error-message">{errors.houseNumber}</div>}
                     </div>
 
                     <div className="form-group">
                         <label className="form-label">Postleitzahl *</label>
                         <input
                             type="text"
-                            className="form-input"
+                            className={`form-input ${errors.postalCode ? 'error' : ''}`}
                             value={formData.postalCode || ""}
                             onChange={(e) => setFormData({...formData, postalCode: e.target.value})}
                             required
                         />
+                        {errors.postalCode && <div className="error-message">{errors.postalCode}</div>}
                     </div>
 
                     <div className="form-group">
                         <label className="form-label">Stadt *</label>
                         <input
                             type="text"
-                            className="form-input"
+                            className={`form-input ${errors.city ? 'error' : ''}`}
                             value={formData.city || ""}
                             onChange={(e) => setFormData({...formData, city: e.target.value})}
                             required
                         />
+                        {errors.city && <div className="error-message">{errors.city}</div>}
                     </div>
 
 
                     <div className="form-group">
                         <label className="form-label">Land *</label>
                         <input
-                            type="text"
-                            className="form-input"
+                            list="countries"
+                            className={`form-input ${errors.country ? 'error' : ''}`}
                             value={formData.country || ""}
                             onChange={(e) => setFormData({...formData, country: e.target.value})}
                             required
                         />
+                        <datalist id="countries">
+                            {countries.map((country) => (
+                                <option key={country.code} value={country.name}></option>
+                            ))}
+                        </datalist>
+                        {errors.country && <div className="error-message">{errors.country}</div>}
                     </div>
 
                     <div className="form-group">
                         <label className="form-label">Telefonnummer *</label>
                         <input
                             type="tel"
-                            className="form-input"
+                            className={`form-input ${errors.phoneNumber ? 'error' : ''}`}
                             value={formData.phoneNumber || ""}
                             onChange={(e) => setFormData({...formData, phoneNumber: e.target.value})}
                             required
                         />
+                        {errors.phoneNumber && <div className="error-message">{errors.phoneNumber}</div>}
                     </div>
 
                     <div className="form-group full-width">
@@ -321,7 +336,9 @@ function RegisterStudent() {
                             >
                                 <option value="">Bitte wählen</option>
                                 {availableSubjects.map((fach) => (
-                                    <option key={fach.id} value={fach.fach}>{fach.fach}</option>
+                                    <option key={fach.id} value={fach.fach}>
+                                        {fach.translation ? fach.translation : fach.fach}
+                                    </option>
                                 ))}
                             </select>
                             <button
@@ -331,10 +348,11 @@ function RegisterStudent() {
                             >
                                 Fach hinzufügen
                             </button>
-                            <div className="subjects-list">
+
+                            <div className="subjects-list mt-1">
                                 {subjects.map((subject, index) => (
-                                    <div key={index} className="subject-tag">
-                                        <span>{subject}</span>
+                                    <div key={subject.fach || index} className="subject-tag">
+                                        <span>{subject.translation || subject.fach}</span>
                                         <button
                                             type="button"
                                             className="remove-subject"

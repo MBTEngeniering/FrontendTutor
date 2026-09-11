@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import axios from "axios";
 import ApiService from "../../api/ApiService.js";
 
 function AdminSeite() {
@@ -81,7 +80,7 @@ function AdminSeite() {
     }
 
     try {
-      await axios.put(updateEndpoint, formData);
+      await ApiService.put(updateEndpoint, formData);
       alert("Änderungen gespeichert!");
       closeModal();
       fetchData(currentEndpoint); // Liste neu laden, um die Änderungen zu sehen

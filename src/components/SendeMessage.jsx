@@ -1,5 +1,4 @@
 import React from "react";
-import axios from "axios";
 import ApiService  from "../api/ApiService.js";
 
 const SendeMessage = ({ senderId, destinationId, messageBody }) => {
@@ -24,7 +23,7 @@ const SendeMessage = ({ senderId, destinationId, messageBody }) => {
 
             if (!gemeinsamePostId) {
                 // 3. Keine gemeinsame Nachricht → Neuen Post erstellen
-                const newPostRes = await axios.post("/api/public/post/save", {
+                const newPostRes = await ApiService.post("/api/public/post/save", {
                     senderId,
                     empfaengerId: destinationId,
                     messageBody,
@@ -45,14 +44,14 @@ const SendeMessage = ({ senderId, destinationId, messageBody }) => {
 
                 // Benutzer aktualisieren
                 await Promise.all([
-                    axios.put(`/api/allusers/${senderId}`, updatedSender),
-                    axios.put(`/api/allusers/${destinationId}`, updatedEmpfaenger),
+                    ApiService.put(`/api/allusers/${senderId}`, updatedSender),
+                    ApiService.put(`/api/allusers/${destinationId}`, updatedEmpfaenger),
                 ]);
 
                 console.log("Neue Nachricht gesendet und Benutzer aktualisiert.");
             } else {
                 // 4. Nachricht existiert schon → Post updaten
-                await axios.put(`/api/public/post/update/${gemeinsamePostId}`, {
+                await ApiService.put(`/api/public/post/update/${gemeinsamePostId}`, {
                     senderId,
                     empfaengerId: destinationId,
                     messageBody,

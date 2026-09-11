@@ -71,20 +71,25 @@ const MeineTutoren = ({ userId }) => {
                 return;
             }
 
-            const lang = "de"; // oder dynamisch
-            const fachPromises = tutor.fachIds.map(async (fachId) => {
+            // 3️⃣ Fächerliste einmal laden (übersetzt, Fallback auf Standardliste)
+            const lang = navigator.languages[1].substring(0, 2);
+            let alleFaecher;
+            try {
                 const response = await ApiService.get(`/api/fach/trans/${lang}`);
-                const alleFaecher = response.data;
+                alleFaecher = response.data;
+            } catch (error) {
+                console.error("Fehler beim Laden der übersetzten Fächer:", error.message);
+                const response = await ApiService.get(`/api/fach`);
+                alleFaecher = response.data;
+            }
 
+            const faecher = tutor.fachIds.map(fachId => {
                 const fach = alleFaecher.find(f => f.id === fachId);
-
                 if (!fach) {
-                    alert(`Kein Fach gefunden für ID: ${fachId}`);
+                    console.warn(`Kein Fach gefunden für ID: ${fachId}`);
                 }
-                return { id: fachId, name: fach ? fach.fach : `Fach ${fachId}` };
+                return { id: fachId, name: fach ? (fach.translation || fach.fach) : `Fach ${fachId}` };
             });
-
-            const faecher = await Promise.all(fachPromises);
 
             setFaecher(faecher);
             setAktiverTutor(tutorId);

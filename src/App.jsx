@@ -54,7 +54,6 @@ const App = () => {
               <Route path="/abikurs" element={<Abikurs/>}/>
               <Route path="/beratung" element={<Beratung/>}/>
               <Route path="/ueberuns" element={<AboutUs/>}/>
-              <Route path="/login" element={<Login/>}/>
               <Route path="/preise" element={<Prices/>}/>
               <Route path="/elternschueler" element={<RegisterStudent/>}/>
               <Route path="/lehrer" element={<RegisterTutor/>}/>

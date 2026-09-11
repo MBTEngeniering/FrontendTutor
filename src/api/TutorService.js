@@ -4,7 +4,7 @@ const TutorService = {
 
     getAllTutors: async () => {
         try {
-            const response = await fetch(apiUrl + `/api/tutors`);
+            const response = await fetch(`/api/tutors`);
 
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
