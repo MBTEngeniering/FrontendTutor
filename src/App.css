@@ -8,6 +8,22 @@ html {
   --text-color: #333;
   --white-bg: #f8f9fa;
   --black: #000;
+
+  /* Design-Tokens: hier zentral pflegen, nicht in Komponenten hart kodieren. */
+  --brand: #00847F;
+  --brand-dark: #086972;
+  --brand-tint: #e6f2f2;
+  --text-strong: #172033;
+  --text-muted: #667085;
+  --surface: #ffffff;
+  --surface-border: #e7eaee;
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+
+  --shadow-card: 0 6px 18px rgba(16, 24, 40, 0.07);
+  --shadow-card-strong: 0 10px 28px rgba(0, 132, 127, 0.16);
 }
 
 body {

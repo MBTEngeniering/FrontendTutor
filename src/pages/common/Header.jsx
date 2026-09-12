@@ -43,17 +43,17 @@ export default function Header() {
                 type="text"
                 placeholder="Schnellsuche..."
                 className="form-control-sm bg-body-secondary"
-                style={{borderRadius: '14px 0 0 14px'}}
+                style={{borderRadius: 'var(--radius-md) 0 0 var(--radius-md)'}}
             />
             <button type="submit" className="btn btn-primary btn-sm"
                     style={{
                       marginLeft: "0px",
                       marginRight: "10px",
                       padding: '5px 12px',
-                      backgroundColor: '#00847F',
+                      backgroundColor: 'var(--brand)',
                       color: 'white',
                       border: 'none',
-                      borderRadius: '0 14px 14px 0'
+                      borderRadius: '0 var(--radius-md) var(--radius-md) 0'
                     }}>
               <img src={lupe} alt="Search"/>
             </button>
@@ -94,6 +94,7 @@ export default function Header() {
                       color: 'white',
                       border: 'none',
                       fontWeight: 'bold',
+                      borderRadius: 'var(--radius-md)',
                     }}>
                       Anmelden
                     </button>

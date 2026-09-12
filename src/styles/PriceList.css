@@ -1,0 +1,168 @@
+/* Stundenpakete. Farben und Radien kommen aus den Tokens in App.css. */
+
+.package-card {
+    position: relative;
+    border: 1px solid var(--surface-border);
+    border-radius: var(--radius-lg);
+    background-color: var(--surface);
+    box-shadow: var(--shadow-card);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.package-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(16, 24, 40, 0.1);
+}
+
+.package-card--recommended {
+    border: 1.5px solid var(--brand);
+    box-shadow: var(--shadow-card-strong);
+}
+
+.package-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    padding: 0.3rem 0.7rem;
+    border-radius: 999px;
+    background-color: var(--brand);
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+.package-name {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.package-price {
+    color: var(--text-strong);
+    font-size: 2.4rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.package-reference {
+    color: var(--text-muted);
+    font-size: 1rem;
+    text-decoration: line-through;
+}
+
+.package-rate {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.package-savings {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.3rem 0.65rem;
+    border-radius: var(--radius-sm);
+    background-color: var(--brand-tint);
+    color: var(--brand-dark);
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.package-details {
+    display: grid;
+    gap: 0.5rem;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.package-details i {
+    color: var(--brand);
+}
+
+/* Compound-Selektoren, damit die Bootstrap-.btn-Basisregeln nicht gewinnen.
+   Grundzustand immer als Umriss, gefuellt erst beim Hover/Fokus. */
+.btn.package-cta {
+    border: 1px solid var(--brand);
+    border-radius: var(--radius-md);
+    background-color: var(--surface);
+    color: var(--brand-dark);
+    font-weight: 600;
+}
+
+.btn.package-cta:hover,
+.btn.package-cta:focus-visible {
+    background-color: var(--brand);
+    border-color: var(--brand);
+    color: #fff;
+}
+
+.btn.package-cta:active {
+    background-color: var(--brand-dark);
+    border-color: var(--brand-dark);
+    color: #fff;
+}
+
+/* Breite Karte fuer das groesste Paket. Verhindert die einzelne Restkarte
+   in der letzten Reihe des Dreier-Rasters. */
+.package-card--wide {
+    border: 1.5px solid var(--brand);
+    background-color: var(--brand-tint);
+    box-shadow: var(--shadow-card-strong);
+}
+
+.prices-note {
+    border: 1px solid var(--surface-border);
+    border-radius: var(--radius-md);
+    background-color: var(--surface);
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.prices-note i {
+    color: var(--brand);
+}
+
+.prices-vat {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+}
+
+/* Haelt die Hoehe frei, wenn ein Paket keinen Rabatt hat (Einzelstunde),
+   damit die Detailzeilen aller Karten auf einer Linie liegen. */
+.package-savings-slot {
+    min-height: 2rem;
+    margin: 1rem 0;
+}
+
+/* Einspaltiges Layout: kein Platzhalter noetig, da nichts nebeneinander
+   ausgerichtet werden muss. */
+@media (max-width: 767.98px) {
+    .package-savings-slot:empty {
+        min-height: 0;
+        margin: 0;
+    }
+}
+
+.package-wide-copy {
+    max-width: 34ch;
+    color: var(--text-strong);
+    font-size: 1.05rem;
+    line-height: 1.5;
+}
+
+.package-card--wide:hover {
+    transform: none;
+    box-shadow: var(--shadow-card-strong);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .package-card {
+        transition: none;
+    }
+
+    .package-card:hover {
+        transform: none;
+    }
+}

@@ -107,6 +107,12 @@ export default defineConfig(({mode}) => {
             protocol: 'ws',
             host: 'localhost',
             overlay: true
+          },
+          proxy: {
+            '/api': {
+              target: 'http://localhost:8080',
+              changeOrigin: true,
+            }
           }
         }
       }

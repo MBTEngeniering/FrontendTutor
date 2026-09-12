@@ -25,6 +25,8 @@ const Enterprise = lazy(() => import("./pages/common/EnterpriseSeite.jsx"));
 const Support = lazy(() => import("./pages/Support/SupportSeite.jsx"));
 const PasswordReset = lazy(() => import("./pages/common/PasswordReset.jsx"));
 const Finance = lazy(() => import("./pages/Billing/FinanceSeite.jsx"));
+const Checkout = lazy(() => import("./pages/Billing/Checkout.jsx"));
+const Success = lazy(() => import("./pages/Billing/Success.jsx"));
 const Footer = lazy(() => import(":common/Footer.jsx"));
 const Impressum = lazy(() => import("./pages/Footer/Impressum.jsx"));
 const Datenschutz = lazy(() => import("./pages/Footer/Datenschutz.jsx"));
@@ -56,6 +58,8 @@ const App = () => {
               <Route path="/ueberuns" element={<AboutUs/>}/>
               <Route path="/login" element={<Login/>}/>
               <Route path="/preise" element={<Prices/>}/>
+              <Route path="/checkout/:packageId" element={<Checkout/>}/>
+              <Route path="/success" element={<Success/>}/>
               <Route path="/elternschueler" element={<RegisterStudent/>}/>
               <Route path="/lehrer" element={<RegisterTutor/>}/>
               <Route path="/konzept" element={<Konzept/>}/>
